@@ -39,4 +39,9 @@ public class AgreementService {
     public List<Agreement> findByUser(Long id) {
         return agreementRepository.findByUserId(id);
     }
+
+    public Agreement findById(Long agreementId) {
+        return agreementRepository.findById(agreementId)
+            .orElseThrow(()->new IllegalArgumentException("Not found agreement with id: " + agreementId));
+    }
 }

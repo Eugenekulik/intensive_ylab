@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class View {
 
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
 
     public String read(){
         return scanner.nextLine();

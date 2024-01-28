@@ -6,8 +6,8 @@ import by.eugenekulik.model.User;
 public class Controller {
 
 
-    private ConsoleMessageConverter converter;
-    private View view;
+    private final ConsoleMessageConverter converter;
+    private final View view;
 
     private Filter filter;
 
