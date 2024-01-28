@@ -1,7 +1,14 @@
 package by.eugenekulik.model;
 
-public enum MetersType {
-    WARM_WATER, COLD_WATER, HEATING
 
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class MetersType {
+    private Long id;
+    private String name;
 }

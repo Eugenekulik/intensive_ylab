@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
 
     private Long id;
@@ -16,4 +17,11 @@ public class User {
     private String password;
     private String email;
     private Role role;
+
+
+    public static User guest(){
+        return User.builder()
+            .role(Role.GUEST)
+            .build();
+    }
 }

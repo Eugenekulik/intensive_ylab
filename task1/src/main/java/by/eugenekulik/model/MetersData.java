@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class MetersData {
 
     /**
@@ -31,7 +32,7 @@ public class MetersData {
      * This field stores information about the type of readings, whether warm,
      * cold water, heating, and so on.
      */
-    private MetersType metersType;
+    private Long metersTypeId;
 
     /**
      * Meter value.

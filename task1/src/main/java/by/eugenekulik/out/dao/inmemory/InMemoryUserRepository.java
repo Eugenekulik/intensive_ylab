@@ -7,11 +7,12 @@ import by.eugenekulik.utils.Sequence;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 public class InMemoryUserRepository implements UserRepository {
 
-    private List<User> users;
-    private Sequence sequence;
+    private final List<User> users;
+    private final Sequence sequence;
 
 
     public InMemoryUserRepository(Sequence sequence){
@@ -60,5 +61,12 @@ public class InMemoryUserRepository implements UserRepository {
         user.setId(sequence.next());
         users.add(user);
         return user;
+    }
+
+    @Override
+    public List<User> getPage(int page, int count) {
+        return IntStream.range(0,users.size())
+            .mapToObj(i->users.get(i))
+            .skip(count*page).limit(count).toList();
     }
 }

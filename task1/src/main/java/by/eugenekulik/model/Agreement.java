@@ -8,9 +8,10 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Agreement {
 
     private Long id;
-    private Address address;
-    private User owner;
+    private Long addressId;
+    private Long userId;
 }

@@ -7,12 +7,13 @@ import by.eugenekulik.utils.Sequence;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 public class InMemoryAddressRepository implements AddressRepository {
 
 
-    private List<Address> addresses;
-    private Sequence sequence;
+    private final List<Address> addresses;
+    private final Sequence sequence;
 
     public InMemoryAddressRepository(Sequence sequence){
         addresses = new ArrayList<>();
@@ -38,4 +39,30 @@ public class InMemoryAddressRepository implements AddressRepository {
         if(addresses.get(right).getId().equals(id)) return Optional.of(addresses.get(right));
         return Optional.empty();
     }
+
+    @Override
+    public boolean isPresent(Address address) {
+        return addresses.stream()
+            .filter(a->a.getRegion().equals(address.getRegion()))
+            .filter(a->a.getDistrict().equals(address.getDistrict()))
+            .filter(a->a.getCity().equals(address.getCity()))
+            .filter(a->a.getStreet().equals(address.getStreet()))
+            .filter(a->a.getHouseNumber().equals(address.getHouseNumber()))
+            .anyMatch(a->a.getApartmentNumber().equals(address.getApartmentNumber()));
+    }
+
+    @Override
+    public Address save(Address address) {
+        address.setId(sequence.next());
+        addresses.add(address);
+        return address;
+    }
+
+    @Override
+    public List<Address> getPage(int page, int count) {
+        return addresses.stream()
+            .skip(count*page).limit(count).toList();
+    }
+
+
 }
