@@ -19,7 +19,7 @@ public enum TextColor {
         value = s;
     }
 
-    public String changeColor(String s){
+    public String changeColor(String s) {
         return value + s + ANSI_RESET.value;
     }
 }

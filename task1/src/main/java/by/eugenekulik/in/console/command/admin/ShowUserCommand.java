@@ -13,30 +13,63 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * The {@code ShowUserCommand} class represents a command to display a list of users.
+ * It implements the {@link Command} interface
+ *
+ * @author Eugene Kulik
+ */
 public class ShowUserCommand implements Command {
 
     private final Set<String> allowedParams = new HashSet<>();
     private final UserService userService;
 
 
+    /**
+     * Constructs a {@code ShowUserCommand} with the provided service for managing users.
+     *
+     * @param userService The service responsible for managing users.
+     */
     public ShowUserCommand(UserService userService) {
         this.userService = userService;
         allowedParams.addAll(List.of("page", "count"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowed(User user) {
         return user.getRole().equals(Role.ADMIN);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The {@code execute} method retrieves request parameters, validates them, fetches
+     * a page of users, and adds information about each user to the response data.
+     * </p>
+     */
     @Override
     public void execute() {
         RequestData requestData = Session.getRequestData();
-        int count = Optional.ofNullable(requestData.getParams().get("count"))
-            .map(Integer::parseInt)
+        int count = Optional.ofNullable(requestData.getParam("count"))
+            .map(e -> {
+                try {
+                    return Integer.parseInt(e);
+                } catch (NumberFormatException ex) {
+                    throw new IllegalArgumentException("Wrong param value: count should be a integer number", ex);
+                }
+            })
             .orElse(5);
-        int page = Optional.ofNullable(requestData.getParams().get("page"))
-            .map(Integer::parseInt)
+        int page = Optional.ofNullable(requestData.getParam("page"))
+            .map(e -> {
+                try {
+                    return Integer.parseInt(e);
+                } catch (NumberFormatException ex){
+                    throw new IllegalArgumentException("Wrong param value: page should be a integer number", ex);
+                }
+            })
             .orElse(0);
         List<User> users = userService.getPage(page, count);
         Session.getResponceData().add(TextColor.ANSI_GREEN.changeColor("Result"));
@@ -46,6 +79,9 @@ public class ShowUserCommand implements Command {
         ));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowedParam(String name, String value) {
         return allowedParams.contains(name);

@@ -6,6 +6,8 @@ import by.eugenekulik.in.console.View;
 import by.eugenekulik.in.console.command.*;
 import by.eugenekulik.in.console.command.admin.*;
 import by.eugenekulik.in.console.command.client.CreateMetersDataCommand;
+import by.eugenekulik.in.console.command.client.ShowMetersDataByMonth;
+import by.eugenekulik.in.console.command.client.ShowUserAgreementCommand;
 import by.eugenekulik.in.console.filter.ExceptionHandlerFilter;
 import by.eugenekulik.in.console.filter.Filter;
 import by.eugenekulik.in.console.filter.SecurityFilter;
@@ -22,21 +24,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class Configuration {
 
+public class Configuration {
     private final HashMap<String, Object> context = new HashMap<>();
 
-
-    public Controller controller(){
-        return new Controller(view(), converter(),filterChain());
+    public Controller controller() {
+        return new Controller(view(), converter(), filterChain());
     }
 
-    public ConsoleMessageConverter converter(){
+    public ConsoleMessageConverter converter() {
         return new ConsoleMessageConverter();
     }
 
-
-    public Filter filterChain(){
+    public Filter filterChain() {
         Filter securityFilter = new SecurityFilter();
         Filter validationFilter = new ValidationFilter(commands());
         Filter exHandlerFilter = new ExceptionHandlerFilter();
@@ -45,22 +45,20 @@ public class Configuration {
         return exHandlerFilter;
     }
 
-
-    public View view(){
+    public View view() {
         return new View();
     }
 
-
-    public UserService userService(){
-        if(!context.containsKey("userService"))
+    public UserService userService() {
+        if (!context.containsKey("userService"))
             context.put("userService", new UserService(userRepository()));
         return (UserService) context.get("userService");
     }
 
     public UserRepository userRepository() {
-        if(context.containsKey("userRepository"))
+        if (context.containsKey("userRepository"))
             return (UserRepository) context.get("userRepository");
-        UserRepository userRepository = new InMemoryUserRepository(new IncrementSequence(1L,1L));
+        UserRepository userRepository = new InMemoryUserRepository(new IncrementSequence(1L, 1L));
         userRepository.save(User.builder().username("admin")
             .password("admin")
             .email("admin@mail.ru")
@@ -70,8 +68,8 @@ public class Configuration {
         return userRepository;
     }
 
-    public AgreementRepository agreementRepository(){
-        if(context.containsKey("agreementRepository"))
+    public AgreementRepository agreementRepository() {
+        if (context.containsKey("agreementRepository"))
             return (AgreementRepository) context.get("agreementRepository");
         AgreementRepository agreementRepository =
             new InMemoryAgreementRepository(new IncrementSequence(1L, 1L));
@@ -79,16 +77,17 @@ public class Configuration {
         return agreementRepository;
     }
 
-    public AddressRepository addressRepository(){
-        if(context.containsKey("addressRepository"))
+    public AddressRepository addressRepository() {
+        if (context.containsKey("addressRepository"))
             return (AddressRepository) context.get("addressRepository");
         AddressRepository addressRepository =
             new InMemoryAddressRepository(new IncrementSequence(1L, 1L));
         context.put("addressRepository", addressRepository);
         return addressRepository;
     }
-    public MetersDataRepository metersDataRepository(){
-        if(context.containsKey("metersDataRepository"))
+
+    public MetersDataRepository metersDataRepository() {
+        if (context.containsKey("metersDataRepository"))
             return (MetersDataRepository) context.get("metersDataRepository");
         MetersDataRepository metersDataRepository =
             new InMemoryMetersDataRepository(new IncrementSequence(1L, 1L));
@@ -96,9 +95,8 @@ public class Configuration {
         return metersDataRepository;
     }
 
-
-    public MetersTypeRepository metersTypeRepository(){
-        if(context.containsKey("metersTypeRepository"))
+    public MetersTypeRepository metersTypeRepository() {
+        if (context.containsKey("metersTypeRepository"))
             return (MetersTypeRepository) context.get("metersTypeRepository");
         MetersTypeRepository metersTypeRepository =
             new InMemoryMetersTypeRepository(new IncrementSequence(1L, 1L));
@@ -109,16 +107,16 @@ public class Configuration {
         return metersTypeRepository;
     }
 
-    public AgreementService agreementService(){
-        if(context.containsKey("agreementService"))
+    public AgreementService agreementService() {
+        if (context.containsKey("agreementService"))
             return (AgreementService) context.get("agreementService");
         AgreementService agreementService =
-            new AgreementService(agreementRepository(),addressRepository(), userRepository());
+            new AgreementService(agreementRepository(), addressRepository(), userRepository());
         context.put("agreementService", agreementService);
         return agreementService;
     }
 
-    public Map<String, Command> commands(){
+    public Map<String, Command> commands() {
         HashMap<String, Command> commands = new HashMap<>();
         commands.put("registration", new RegistrationCommand(userService()));
         commands.put("authentication", new AuthenticationCommand(userService()));
@@ -129,7 +127,11 @@ public class Configuration {
         commands.put("create-meterstype", new CreateMetersTypeCommand(metersTypeService()));
         commands.put("show-users", new ShowUserCommand(userService()));
         commands.put("show-agreements", new ShowAgreementCommand(agreementService()));
-        commands.put("show-metersdata",  new ShowMetersDataCommand(metersDataService(), metersTypeService()));
+        commands.put("show-metersdata", new ShowMetersDataCommand(metersDataService(), metersTypeService()));
+        commands.put("show-address", new ShowAddressCommand(addressService()));
+        commands.put("show-user-agreement", new ShowUserAgreementCommand(agreementService()));
+        commands.put("show-metersdata-month", new ShowMetersDataByMonth(metersDataService(),
+            metersTypeService(), agreementService()));
         ResourceBundle resourceBundle = ResourceBundle.getBundle("text");
         commands.put("help", new HelpCommand(commands, resourceBundle));
         commands.put("logout", new LogoutCommand());
@@ -138,7 +140,7 @@ public class Configuration {
     }
 
     private MetersTypeService metersTypeService() {
-        if(context.containsKey("metersTypeService"))
+        if (context.containsKey("metersTypeService"))
             return (MetersTypeService) context.get("metersTypeService");
         MetersTypeService metersTypeService = new MetersTypeService(metersTypeRepository());
         context.put("metersTypeService", metersTypeService);
@@ -146,7 +148,7 @@ public class Configuration {
     }
 
     private MetersDataService metersDataService() {
-        if(context.containsKey("metersDataService"))
+        if (context.containsKey("metersDataService"))
             return (MetersDataService) context.get("metersDataService");
         MetersDataService metersDataService = new MetersDataService(metersDataRepository());
         context.put("metersDataService", metersDataService);
@@ -154,13 +156,11 @@ public class Configuration {
     }
 
     private AddressService addressService() {
-        if(context.containsKey("addressService"))
+        if (context.containsKey("addressService"))
             return (AddressService) context.get("addressService");
         AddressService addressService =
             new AddressService(addressRepository());
         context.put("addressService", addressService);
         return addressService;
     }
-
-
 }

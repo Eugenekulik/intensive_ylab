@@ -14,29 +14,62 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * The {@code ShowAgreementCommand} class represents a command to display a list of agreements.
+ * It implements the {@link Command} interface.
+ *
+ * @author Eugene Kulik
+ */
 public class ShowAgreementCommand implements Command {
 
     private final AgreementService agreementService;
     private final Set<String> allowedParams = new HashSet<>();
 
+    /**
+     * Constructs a {@code ShowAgreementCommand} with the provided service for managing agreements.
+     *
+     * @param agreementService The service responsible for managing agreements.
+     */
     public ShowAgreementCommand(AgreementService agreementService) {
         this.agreementService = agreementService;
-        allowedParams.addAll(List.of("page","count"));
+        allowedParams.addAll(List.of("page", "count"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowed(User user) {
         return user.getRole().equals(Role.ADMIN);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The {@code execute} method retrieves request parameters, validates them, fetches a page of agreements, and adds
+     * information about each agreement to the response data.
+     * </p>
+     */
     @Override
     public void execute() {
         RequestData requestData = Session.getRequestData();
-        int count = Optional.ofNullable(requestData.getParams().get("count"))
-            .map(Integer::parseInt)
+        int count = Optional.ofNullable(requestData.getParam("count"))
+            .map(e -> {
+                try {
+                    return Integer.parseInt(e);
+                } catch (NumberFormatException ex) {
+                    throw new IllegalArgumentException("Wrong param value: count should be a integer number", ex);
+                }
+            })
             .orElse(5);
-        int page = Optional.ofNullable(requestData.getParams().get("page"))
-            .map(Integer::parseInt)
+        int page = Optional.ofNullable(requestData.getParam("page"))
+            .map(e -> {
+                try {
+                    return Integer.parseInt(e);
+                } catch (NumberFormatException ex){
+                    throw new IllegalArgumentException("Wrong param value: page should be a integer number", ex);
+                }
+            })
             .orElse(0);
         List<Agreement> agreements = agreementService.getPage(page, count);
         Session.getResponceData().add(TextColor.ANSI_GREEN.changeColor("Result:"));
@@ -46,6 +79,9 @@ public class ShowAgreementCommand implements Command {
         )));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowedParam(String name, String value) {
         return allowedParams.contains(name);

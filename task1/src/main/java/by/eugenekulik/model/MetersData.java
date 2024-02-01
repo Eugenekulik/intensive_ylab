@@ -38,6 +38,10 @@ public class MetersData {
      * Meter value.
      */
     private Double value;
+
+    /**
+     * Time when meters data was submitted.
+     */
     private LocalDateTime placedAt;
 
 }

@@ -10,35 +10,60 @@ import by.eugenekulik.service.UserService;
 import java.util.HashSet;
 import java.util.List;
 
-public class RegistrationCommand implements Command{
+/**
+ * The {@code RegistrationCommand} class represents a command to register a new user.
+ * It implements the {@link Command} interface.
+ *
+ * @author Eugene Kulik
+ */
+public class RegistrationCommand implements Command {
 
     private HashSet<String> allowedParams = new HashSet<>();
 
     private UserService userService;
 
+    /**
+     * Constructs a {@code RegistrationCommand} with the provided {@link UserService} for user registration.
+     *
+     * @param userService The service responsible for user registration.
+     */
     public RegistrationCommand(UserService userService) {
         this.userService = userService;
         allowedParams.addAll(List.of("username", "password", "email"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowed(User user) {
         return user.getRole().equals(Role.GUEST);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The {@code execute} method extracts user information from the request parameters,
+     * registers the user using the provided {@link UserService}, and adds success
+     * messages to the response data.
+     * </p>
+     */
     @Override
     public void execute() {
         RequestData requestData = Session.getRequestData();
         User user = User.builder()
-            .username(requestData.getParams().get("username"))
-            .email(requestData.getParams().get("email"))
-            .password(requestData.getParams().get("password"))
+            .username(requestData.getParam("username"))
+            .email(requestData.getParam("email"))
+            .password(requestData.getParam("password"))
             .build();
         userService.register(user);
         Session.getResponceData().add(TextColor.ANSI_GREEN.changeColor("Registration successful!"));
         Session.getResponceData().add("Hello, " + user.getUsername());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowedParam(String name, String value) {
         return allowedParams.contains(name);

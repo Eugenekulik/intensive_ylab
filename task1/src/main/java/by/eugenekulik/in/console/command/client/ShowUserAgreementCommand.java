@@ -11,20 +11,42 @@ import by.eugenekulik.service.AgreementService;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * The {@code ShowUserAgreementCommand} class represents a command to display user agreements.
+ * It implements the {@link Command} interface.
+ *
+ * @author Eugene Kulik
+ */
 public class ShowUserAgreementCommand implements Command {
 
     private AgreementService agreementService;
 
+
+    /**
+     * Constructs a {@code ShowUserAgreementCommand} with the provided {@link AgreementService} for retrieving agreements.
+     *
+     * @param agreementService The service responsible for managing user agreements.
+     */
     public ShowUserAgreementCommand(AgreementService agreementService) {
         this.agreementService = agreementService;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowed(User user) {
         return user.getRole().equals(Role.CLIENT);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The {@code execute} method retrieves user agreements using the provided {@link AgreementService} and adds
+     * information about each agreement to the response data.
+     * </p>
+     */
     @Override
     public void execute() {
         List<Agreement> agreements = agreementService.findByUser(Session.getCurrentUser().getId());
@@ -35,6 +57,9 @@ public class ShowUserAgreementCommand implements Command {
         )));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowedParam(String name, String value) {
         return false;

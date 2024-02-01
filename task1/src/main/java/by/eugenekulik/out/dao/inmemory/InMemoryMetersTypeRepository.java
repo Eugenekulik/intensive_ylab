@@ -23,22 +23,28 @@ public class InMemoryMetersTypeRepository implements MetersTypeRepository {
     public Optional<MetersType> findById(Long id) {
         int left = 0;
         int right = types.size() - 1;
-        while(left < right-1){
-            if(types.get((left + right)/2).getId().equals(id))
-                return Optional.of(types.get((left + right)/2));
-            if(types.get((left + right)/2).getId() < id)
-                left = (left + right)/2;
-            else
-                right = (left + right)/2;
+        while (left < right - 1) {
+            if (types.get((left + right) / 2).getId().equals(id)) {
+                return Optional.of(types.get((left + right) / 2));
+            }
+            if (types.get((left + right) / 2).getId() < id) {
+                left = (left + right) / 2;
+            } else {
+                right = (left + right) / 2;
+            }
         }
-        if(types.get(left).getId().equals(id)) return Optional.of(types.get(left));
-        if(types.get(right).getId().equals(id)) return Optional.of(types.get(right));
+        if (types.get(left).getId().equals(id)) {
+            return Optional.of(types.get(left));
+        }
+        if (types.get(right).getId().equals(id)) {
+            return Optional.of(types.get(right));
+        }
         return Optional.empty();
     }
 
     @Override
     public Optional<MetersType> findByName(String name) {
-        return types.stream().filter(t->t.getName().equals(name))
+        return types.stream().filter(t -> t.getName().equals(name))
             .findAny();
     }
 

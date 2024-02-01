@@ -11,20 +11,25 @@ public class Controller {
 
     private Filter filter;
 
-    public Controller(View view, ConsoleMessageConverter converter, Filter filter){
+    public Controller(View view, ConsoleMessageConverter converter, Filter filter) {
         this.converter = converter;
         this.view = view;
         this.filter = filter;
     }
 
 
-    public void start(){
+    public void start() {
         Session.setCurrentUser(User.guest());
-        while(true){
-            view.write(TextColor.ANSI_BLUE
-                .changeColor("###################################################################################"));
+        view.write("""
+            Welcome.
+            All commands have a common syntax.
+            command param=value
+            Parameters are separated by spaces; parameter names and their values are separated by '='.
+            For more information, use the help command.
+            """);
+        while (true) {
             Session.setRequestData(converter.read(view.read()));
-            Session.setResponceData(new ResponceData());
+            Session.setResponceData(new ResponseData());
             filter.doFilter(Session.getRequestData(), Session.getResponceData());
             view.write(converter.write(Session.getResponceData()));
             Session.setResponceData(null);

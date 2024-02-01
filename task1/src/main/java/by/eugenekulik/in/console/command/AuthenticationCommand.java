@@ -9,32 +9,56 @@ import by.eugenekulik.service.UserService;
 
 import java.util.HashSet;
 
-public class AuthenticationCommand implements Command{
+/**
+ * The {@code AuthenticationCommand} class represents a command to authenticate a user.
+ * It implements the {@link Command} interface.
+ *
+ * @author Eugene Kulik
+ */
+public class AuthenticationCommand implements Command {
 
     private HashSet<String> allowedParams = new HashSet<>();
     private UserService userService;
 
+    /**
+     * Constructs an {@code AuthenticationCommand} with the provided {@link UserService} for user authentication.
+     *
+     * @param userService The service responsible for user authentication.
+     */
     public AuthenticationCommand(UserService userService) {
         this.userService = userService;
         allowedParams.add("username");
         allowedParams.add("password");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowed(User user) {
         return user.getRole().equals(Role.GUEST);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The {@code execute} method extracts username and password from the request parameters, performs user
+     * authentication using the provided {@link UserService}, and adds success messages to the response data.
+     * </p>
+     */
     @Override
     public void execute() {
         RequestData requestData = Session.getRequestData();
-        String username = requestData.getParams().get("username");
-        String password = requestData.getParams().get("password");
+        String username = requestData.getParam("username");
+        String password = requestData.getParam("password");
         userService.authorize(username, password);
         Session.getResponceData().add(TextColor.ANSI_GREEN.changeColor("Authentication successful"));
         Session.getResponceData().add("Hello, " + Session.getCurrentUser().getUsername());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAllowedParam(String name, String value) {
         return allowedParams.contains(name);

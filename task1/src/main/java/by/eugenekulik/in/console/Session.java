@@ -7,7 +7,7 @@ public class Session {
 
     private static User currentUser;
     private static RequestData requestData;
-    private static ResponceData responceData;
+    private static ResponseData responseData;
 
     public static User getCurrentUser() {
         return currentUser;
@@ -25,11 +25,11 @@ public class Session {
         Session.requestData = requestData;
     }
 
-    public static ResponceData getResponceData() {
-        return responceData;
+    public static ResponseData getResponceData() {
+        return responseData;
     }
 
-    public static void setResponceData(ResponceData responceData) {
-        Session.responceData = responceData;
+    public static void setResponceData(ResponseData responseData) {
+        Session.responseData = responseData;
     }
 }
