@@ -36,13 +36,20 @@ public class Configuration {
         return new ConsoleMessageConverter();
     }
 
+
     public Filter filterChain() {
         Filter securityFilter = new SecurityFilter();
         Filter validationFilter = new ValidationFilter(commands());
         Filter exHandlerFilter = new ExceptionHandlerFilter();
+        Filter auditFilter = new AuditFilter(auditService());
         exHandlerFilter.setNext(validationFilter);
-        validationFilter.setNext(securityFilter);
+        validationFilter.setNext(auditFilter);
+        auditFilter.setNext(securityFilter);
         return exHandlerFilter;
+    }
+
+    private AuditService auditService() {
+        return new AuditServiceImpl();
     }
 
     public View view() {
