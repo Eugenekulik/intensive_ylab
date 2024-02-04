@@ -6,6 +6,7 @@ import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.in.console.Session;
 import by.eugenekulik.service.UserService;
+import by.eugenekulik.service.UserServiceImpl;
 
 import java.util.HashSet;
 
@@ -21,7 +22,7 @@ public class AuthenticationCommand implements Command {
     private UserService userService;
 
     /**
-     * Constructs an {@code AuthenticationCommand} with the provided {@link UserService} for user authentication.
+     * Constructs an {@code AuthenticationCommand} with the provided {@link UserServiceImpl} for user authentication.
      *
      * @param userService The service responsible for user authentication.
      */
@@ -43,7 +44,7 @@ public class AuthenticationCommand implements Command {
      * {@inheritDoc}
      * <p>
      * The {@code execute} method extracts username and password from the request parameters, performs user
-     * authentication using the provided {@link UserService}, and adds success messages to the response data.
+     * authentication using the provided {@link UserServiceImpl}, and adds success messages to the response data.
      * </p>
      */
     @Override

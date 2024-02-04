@@ -47,8 +47,8 @@ public interface AgreementRepository {
     /**
      * Retrieves agreements by user ID.
      *
-     * @param id The user ID.
+     * @param userId The user ID.
      * @return A list of agreements for the specified user.
      */
-    List<Agreement> findByUserId(Long id);
+    List<Agreement> findByUserId(Long userId);
 }

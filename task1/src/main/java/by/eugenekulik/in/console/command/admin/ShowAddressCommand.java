@@ -76,7 +76,7 @@ public class ShowAddressCommand implements Command {
         addresses.forEach(address -> Session.getResponceData().add(String.format(
             "id: %s, region: %s, district: %s, city: %s, street: %s, house: %s, apartment: %s",
             address.getId(), address.getRegion(), address.getDistrict(), address.getCity(),
-            address.getStreet(), address.getHouseNumber(), address.getApartmentNumber()
+            address.getStreet(), address.getHouse(), address.getApartment()
         )));
     }
 

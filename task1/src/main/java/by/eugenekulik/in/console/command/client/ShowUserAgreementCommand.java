@@ -7,8 +7,8 @@ import by.eugenekulik.model.Agreement;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.service.AgreementService;
+import by.eugenekulik.service.AgreementServiceImpl;
 
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -23,7 +23,7 @@ public class ShowUserAgreementCommand implements Command {
 
 
     /**
-     * Constructs a {@code ShowUserAgreementCommand} with the provided {@link AgreementService} for retrieving agreements.
+     * Constructs a {@code ShowUserAgreementCommand} with the provided {@link AgreementServiceImpl} for retrieving agreements.
      *
      * @param agreementService The service responsible for managing user agreements.
      */
@@ -43,7 +43,7 @@ public class ShowUserAgreementCommand implements Command {
     /**
      * {@inheritDoc}
      * <p>
-     * The {@code execute} method retrieves user agreements using the provided {@link AgreementService} and adds
+     * The {@code execute} method retrieves user agreements using the provided {@link AgreementServiceImpl} and adds
      * information about each agreement to the response data.
      * </p>
      */

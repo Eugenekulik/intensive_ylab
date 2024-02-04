@@ -55,7 +55,14 @@ public class Configuration {
                 }
             }
         }
+        MigrationService migrationService = migrationService(dataSource());
+        migrationService.applyChanges();
     }
+
+    private MigrationService migrationService(DataSource dataSource) {
+        return new MigrationService(dataSource);
+    }
+
 
     public Controller controller() {
         return new Controller(view(), converter(), filterChain());
@@ -87,7 +94,7 @@ public class Configuration {
 
     public UserService userService() {
         if (!context.containsKey("userService"))
-            context.put("userService", new UserService(userRepository()));
+            context.put("userService", new UserServiceImpl(userRepository(), transactionManager()));
         return (UserService) context.get("userService");
     }
 
@@ -159,7 +166,10 @@ public class Configuration {
         if (context.containsKey("agreementService"))
             return (AgreementService) context.get("agreementService");
         AgreementService agreementService =
-            new AgreementService(agreementRepository(), addressRepository(), userRepository());
+            new AgreementServiceImpl(agreementRepository(),
+                addressRepository(),
+                userRepository(),
+                transactionManager());
         context.put("agreementService", agreementService);
         return agreementService;
     }
@@ -190,7 +200,8 @@ public class Configuration {
     private MetersTypeService metersTypeService() {
         if (context.containsKey("metersTypeService"))
             return (MetersTypeService) context.get("metersTypeService");
-        MetersTypeService metersTypeService = new MetersTypeService(metersTypeRepository());
+        MetersTypeService metersTypeService =
+            new MetersTypeServiceImpl(metersTypeRepository(), transactionManager());
         context.put("metersTypeService", metersTypeService);
         return metersTypeService;
     }
@@ -198,7 +209,8 @@ public class Configuration {
     private MetersDataService metersDataService() {
         if (context.containsKey("metersDataService"))
             return (MetersDataService) context.get("metersDataService");
-        MetersDataService metersDataService = new MetersDataService(metersDataRepository());
+        MetersDataService metersDataService =
+            new MetersDataServiceImpl(metersDataRepository(), transactionManager());
         context.put("metersDataService", metersDataService);
         return metersDataService;
     }
@@ -207,7 +219,7 @@ public class Configuration {
         if (context.containsKey("addressService"))
             return (AddressService) context.get("addressService");
         AddressService addressService =
-            new AddressService(addressRepository());
+            new AddressServiceImpl(addressRepository(), transactionManager());
         context.put("addressService", addressService);
         return addressService;
     }

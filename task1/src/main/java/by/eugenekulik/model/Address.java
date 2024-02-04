@@ -43,10 +43,10 @@ public class Address {
     /**
      * The house number in the street.
      */
-    private String houseNumber;
+    private String house;
 
     /**
      * The apartment number within the house.
      */
-    private String apartmentNumber;
+    private String apartment;
 }
