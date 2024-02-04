@@ -2,9 +2,9 @@ package by.eugenekulik.service;
 
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
+import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,10 +22,12 @@ class MetersDataServiceTest {
     private MetersDataService metersDataService;
     private MetersDataRepository metersDataRepository;
 
+    private TransactionManager transactionManager;
     @BeforeEach
     void setUp() {
         metersDataRepository = mock(MetersDataRepository.class);
-        metersDataService = new MetersDataService(metersDataRepository);
+        transactionManager = mock(TransactionManager.class);
+        metersDataService = new MetersDataServiceImpl(metersDataRepository, transactionManager);
     }
 
     @Test
@@ -35,8 +37,8 @@ class MetersDataServiceTest {
         when(metersData.getPlacedAt()).thenReturn(LocalDateTime.now());
         when(metersDataRepository.findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any()))
             .thenReturn(Optional.empty());
-        when(metersDataRepository.save(metersData)).thenReturn(metersData);
-
+        when(transactionManager.doInTransaction(any()))
+            .thenReturn(metersData);
         assertEquals(metersData, metersDataService.create(metersData));
 
         verify(metersDataRepository).findByAgreementAndTypeAndMonth(
@@ -44,7 +46,7 @@ class MetersDataServiceTest {
             metersData.getMetersTypeId(),
             metersData.getPlacedAt().toLocalDate()
         );
-        verify(metersDataRepository).save(metersData);
+        verify(transactionManager).doInTransaction(any());
     }
 
     @Test

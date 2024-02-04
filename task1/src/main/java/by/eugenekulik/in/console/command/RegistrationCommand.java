@@ -18,10 +18,8 @@ import java.util.List;
  * @author Eugene Kulik
  */
 public class RegistrationCommand implements Command {
-
-    private HashSet<String> allowedParams = new HashSet<>();
-
-    private UserService userService;
+    private final HashSet<String> allowedParams = new HashSet<>();
+    private final UserService userService;
 
     /**
      * Constructs a {@code RegistrationCommand} with the provided {@link UserServiceImpl} for user registration.

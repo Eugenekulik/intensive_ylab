@@ -11,9 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class JdbcMetersDataRepository implements MetersDataRepository {
-
-    private JdbcTemplate jdbcTemplate;
-    private MetersDataExtractor extractor;
+    private final JdbcTemplate jdbcTemplate;
+    private final MetersDataExtractor extractor;
 
     public JdbcMetersDataRepository(JdbcTemplate jdbcTemplate) {
         extractor = new MetersDataExtractor();

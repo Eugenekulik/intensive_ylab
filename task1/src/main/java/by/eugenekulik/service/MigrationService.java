@@ -13,8 +13,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MigrationService {
-
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public MigrationService(DataSource dataSource) {
         this.dataSource = dataSource;

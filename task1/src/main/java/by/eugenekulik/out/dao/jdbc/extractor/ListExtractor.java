@@ -1,6 +1,5 @@
 package by.eugenekulik.out.dao.jdbc.extractor;
 
-import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.jdbc.utils.ResultSetExtractor;
 
 import java.sql.ResultSet;
@@ -10,7 +9,7 @@ import java.util.List;
 
 public class ListExtractor<T> implements ResultSetExtractor<List<T>> {
 
-    private ResultSetExtractor<T> extractor;
+    private final ResultSetExtractor<T> extractor;
 
     public ListExtractor(ResultSetExtractor<T> extractor) {
         this.extractor = extractor;

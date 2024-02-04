@@ -6,6 +6,7 @@ import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.out.dao.UserRepository;
+import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,13 +22,18 @@ class AgreementServiceTest {
     private AgreementRepository agreementRepository;
     private UserRepository userRepository;
     private AgreementService agreementService;
+    private TransactionManager transactionManager;
 
     @BeforeEach
     void setup(){
+        transactionManager = mock(TransactionManager.class);
         addressRepository = mock(AddressRepository.class);
         agreementRepository = mock(AgreementRepository.class);
         userRepository = mock(UserRepository.class);
-        agreementService = new AgreementService(agreementRepository, addressRepository, userRepository);
+        agreementService = new AgreementServiceImpl(agreementRepository,
+                                                    addressRepository,
+                                                    userRepository,
+                                                    transactionManager);
     }
 
     @Test

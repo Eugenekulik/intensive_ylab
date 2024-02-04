@@ -11,8 +11,8 @@ import java.util.Optional;
 
 public class JdbcAddressRepository implements AddressRepository {
 
-    private JdbcTemplate jdbcTemplate;
-    private AddressExtractor extractor;
+    private final JdbcTemplate jdbcTemplate;
+    private final AddressExtractor extractor;
 
     public JdbcAddressRepository(JdbcTemplate jdbcTemplate) {
         this.extractor = new AddressExtractor();

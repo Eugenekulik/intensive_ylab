@@ -2,8 +2,6 @@ package by.eugenekulik.out.dao.jdbc.extractor;
 
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.jdbc.utils.ResultSetExtractor;
-
-import java.security.Timestamp;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

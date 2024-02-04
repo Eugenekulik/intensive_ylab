@@ -235,8 +235,8 @@ public class Configuration {
 
     public ConnectionPool connectionPool() {
         return ConnectionPool.createConnectionPool(dataSource(),
-            Integer.valueOf(properties.getProperty("database.connectionpool.size", "16")),
-            Integer.valueOf(properties.getProperty("database.connectionpool.timeout", "30")));
+            Integer.parseInt(properties.getProperty("database.connectionpool.size", "16")),
+            Integer.parseInt(properties.getProperty("database.connectionpool.timeout", "30")));
     }
 
     public TransactionManager transactionManager() {

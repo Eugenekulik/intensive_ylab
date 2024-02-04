@@ -1,9 +1,11 @@
 package by.eugenekulik.service;
 
 import by.eugenekulik.exception.AuthenticationException;
+import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.exception.RegistrationException;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
+import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,11 +20,13 @@ class UserServiceTest {
 
     private UserService userService;
     private UserRepository userRepository;
+    private TransactionManager transactionManager;
 
     @BeforeEach
     void setUp() {
+        transactionManager = mock(TransactionManager.class);
         userRepository = mock(UserRepository.class);
-        userService = new UserService(userRepository);
+        userService = new UserServiceImpl(userRepository, transactionManager);
     }
 
 
@@ -30,45 +34,23 @@ class UserServiceTest {
     void testRegister_shouldRegisterUser_whenNotExists() {
         User user = mock(User.class);
 
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.save(user)).thenReturn(user);
+        when(transactionManager.doInTransaction(any())).thenReturn(user);
 
         assertEquals(user, userService.register(user));
-
-        verify(userRepository).findByUsername(user.getUsername());
-        verify(userRepository).findByEmail(user.getEmail());
-        verify(userRepository).save(user);
     }
 
     @Test
-    void testRegister_shouldThrowException_whenUsernameExists() {
+    void testRegister_shouldThrowException_whenUsernameOrEmailExists() {
         User user = mock(User.class);
 
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(new User()));
+        when(transactionManager.doInTransaction(any())).thenThrow(DatabaseInterectionException.class);
 
         assertThrows(RegistrationException.class, () -> userService.register(user),
-            "A user with the same name already exists.");
+            "user with this username or email already exists");
 
-        verify(userRepository).findByUsername(user.getUsername());
-        verify(userRepository, never()).findByEmail(user.getEmail());
-        verify(userRepository, never()).save(any());
+        verify(transactionManager).doInTransaction(any());
     }
 
-    @Test
-    void testRegister_shouldThrowException_whenEmailExists() {
-        User user = mock(User.class);
-
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(new User()));
-
-        assertThrows(RegistrationException.class, ()->userService.register(user),
-            "A user with this email is already registered.");
-
-        verify(userRepository).findByUsername(user.getUsername());
-        verify(userRepository).findByEmail(user.getEmail());
-        verify(userRepository, never()).save(any());
-    }
 
 
     @Test

@@ -19,7 +19,6 @@ public class AgreementServiceImpl implements AgreementService {
     private final AgreementRepository agreementRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
-
     private final TransactionManager transactionManager;
 
 
@@ -59,7 +58,7 @@ public class AgreementServiceImpl implements AgreementService {
             .findByUserIdAndAddressId(agreement.getUserId(), agreement.getAddressId()).isEmpty()) {
             throw new IllegalArgumentException("agreement with this user and address are already exist");
         }
-        return agreementRepository.save(agreement);
+        return transactionManager.doInTransaction(()->agreementRepository.save(agreement));
     }
 
     /**

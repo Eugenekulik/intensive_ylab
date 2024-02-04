@@ -3,7 +3,6 @@ package by.eugenekulik.out.dao.jdbc.repository;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
-import by.eugenekulik.out.dao.jdbc.extractor.MetersDataExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersTypeExtractor;
 import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
 
@@ -12,8 +11,8 @@ import java.util.Optional;
 
 public class JdbcMetersTypeRepository implements MetersTypeRepository {
 
-    private JdbcTemplate jdbcTemplate;
-    private MetersTypeExtractor extractor;
+    private final JdbcTemplate jdbcTemplate;
+    private final MetersTypeExtractor extractor;
 
     public JdbcMetersTypeRepository(JdbcTemplate jdbcTemplate) {
         this.extractor = new MetersTypeExtractor();

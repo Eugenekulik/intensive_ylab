@@ -18,9 +18,7 @@ import java.util.List;
  * @author Eugene Kulik
  */
 public class ShowUserAgreementCommand implements Command {
-
-    private AgreementService agreementService;
-
+    private final AgreementService agreementService;
 
     /**
      * Constructs a {@code ShowUserAgreementCommand} with the provided {@link AgreementServiceImpl} for retrieving agreements.

@@ -10,16 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 public class JdbcAgreementRepository implements AgreementRepository {
-
-    private JdbcTemplate jdbcTemplate;
-
-    private AgreementExtractor extractor;
+    private final JdbcTemplate jdbcTemplate;
+    private final AgreementExtractor extractor;
 
     public JdbcAgreementRepository(JdbcTemplate jdbcTemplate) {
         this.extractor = new AgreementExtractor();
         this.jdbcTemplate = jdbcTemplate;
     }
-
 
     @Override
     public Optional<Agreement> findById(Long id) {

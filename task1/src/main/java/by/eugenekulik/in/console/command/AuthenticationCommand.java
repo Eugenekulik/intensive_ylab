@@ -17,9 +17,8 @@ import java.util.HashSet;
  * @author Eugene Kulik
  */
 public class AuthenticationCommand implements Command {
-
-    private HashSet<String> allowedParams = new HashSet<>();
-    private UserService userService;
+    private final HashSet<String> allowedParams = new HashSet<>();
+    private final UserService userService;
 
     /**
      * Constructs an {@code AuthenticationCommand} with the provided {@link UserServiceImpl} for user authentication.

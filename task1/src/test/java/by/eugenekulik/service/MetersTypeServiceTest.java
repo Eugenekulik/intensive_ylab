@@ -1,7 +1,9 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
+import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,37 +17,36 @@ class MetersTypeServiceTest {
 
     private MetersTypeService metersTypeService;
     private MetersTypeRepository metersTypeRepository;
+    private TransactionManager transactionManager;
 
     @BeforeEach
     void setUp() {
+        transactionManager = mock(TransactionManager.class);
         metersTypeRepository = mock(MetersTypeRepository.class);
-        metersTypeService = new MetersTypeService(metersTypeRepository);
+        metersTypeService = new MetersTypeServiceImpl(metersTypeRepository, transactionManager);
     }
 
     @Test
     void testCreate_shouldSaveMetersType_whenNotExists() {
         MetersType metersType = mock(MetersType.class);
 
-        when(metersTypeRepository.findByName(metersType.getName())).thenReturn(Optional.empty());
-        when(metersTypeRepository.save(metersType)).thenReturn(metersType);
+        when(transactionManager.doInTransaction(any()))
+            .thenReturn(metersType);
 
         assertEquals(metersType, metersTypeService.create(metersType));
 
-        verify(metersTypeRepository).findByName(metersType.getName());
-        verify(metersTypeRepository).save(metersType);
+        verify(transactionManager).doInTransaction(any());
     }
 
     @Test
     void testCreate_shouldThrowException_whenExists() {
         MetersType metersType = mock(MetersType.class);
 
-        when(metersTypeRepository.findByName(metersType.getName())).thenReturn(Optional.of(metersType));
+        when(transactionManager.doInTransaction(any()))
+            .thenThrow(DatabaseInterectionException.class);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> metersTypeService.create(metersType),
-            "meters with name " + metersType.getName() + " are already exist");
+        assertThrows(DatabaseInterectionException.class, () -> metersTypeService.create(metersType));
 
-        verify(metersTypeRepository).findByName(metersType.getName());
         verify(metersTypeRepository, never()).save(any());
     }
 
