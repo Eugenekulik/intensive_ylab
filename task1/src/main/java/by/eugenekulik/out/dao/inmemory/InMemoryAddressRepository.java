@@ -7,7 +7,6 @@ import by.eugenekulik.utils.Sequence;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 public class InMemoryAddressRepository implements AddressRepository {
 
@@ -51,8 +50,8 @@ public class InMemoryAddressRepository implements AddressRepository {
             .filter(a -> a.getDistrict().equals(address.getDistrict()))
             .filter(a -> a.getCity().equals(address.getCity()))
             .filter(a -> a.getStreet().equals(address.getStreet()))
-            .filter(a -> a.getHouseNumber().equals(address.getHouseNumber()))
-            .anyMatch(a -> a.getApartmentNumber().equals(address.getApartmentNumber()));
+            .filter(a -> a.getHouse().equals(address.getHouse()))
+            .anyMatch(a -> a.getApartment().equals(address.getApartment()));
     }
 
     @Override

@@ -6,6 +6,7 @@ import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.in.console.Session;
 import by.eugenekulik.service.UserService;
+import by.eugenekulik.service.UserServiceImpl;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,13 +18,11 @@ import java.util.List;
  * @author Eugene Kulik
  */
 public class RegistrationCommand implements Command {
-
-    private HashSet<String> allowedParams = new HashSet<>();
-
-    private UserService userService;
+    private final HashSet<String> allowedParams = new HashSet<>();
+    private final UserService userService;
 
     /**
-     * Constructs a {@code RegistrationCommand} with the provided {@link UserService} for user registration.
+     * Constructs a {@code RegistrationCommand} with the provided {@link UserServiceImpl} for user registration.
      *
      * @param userService The service responsible for user registration.
      */
@@ -44,7 +43,7 @@ public class RegistrationCommand implements Command {
      * {@inheritDoc}
      * <p>
      * The {@code execute} method extracts user information from the request parameters,
-     * registers the user using the provided {@link UserService}, and adds success
+     * registers the user using the provided {@link UserServiceImpl}, and adds success
      * messages to the response data.
      * </p>
      */

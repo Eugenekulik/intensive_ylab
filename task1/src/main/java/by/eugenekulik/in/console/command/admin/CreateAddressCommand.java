@@ -59,15 +59,15 @@ public class CreateAddressCommand implements Command {
             .district(requestData.getParam("district"))
             .city(requestData.getParam("city"))
             .street(requestData.getParam("street"))
-            .houseNumber(requestData.getParam("house"))
-            .apartmentNumber(requestData.getParam("apartment"))
+            .house(requestData.getParam("house"))
+            .apartment(requestData.getParam("apartment"))
             .build();
         address = addressService.create(address);
         Session.getResponceData().add("Creation successful!");
         Session.getResponceData().add(String.format("Address = {id: %s," +
                 "region: %s, district: %s, city: %s, street: %s, house: %s, apartment: %s}",
             address.getId(), address.getRegion(), address.getDistrict(), address.getCity(),
-            address.getStreet(), address.getHouseNumber(), address.getApartmentNumber()));
+            address.getStreet(), address.getHouse(), address.getApartment()));
     }
 
     /**

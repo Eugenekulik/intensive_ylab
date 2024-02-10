@@ -8,25 +8,61 @@ import by.eugenekulik.in.console.command.admin.*;
 import by.eugenekulik.in.console.command.client.CreateMetersDataCommand;
 import by.eugenekulik.in.console.command.client.ShowMetersDataByMonth;
 import by.eugenekulik.in.console.command.client.ShowUserAgreementCommand;
-import by.eugenekulik.in.console.filter.ExceptionHandlerFilter;
-import by.eugenekulik.in.console.filter.Filter;
-import by.eugenekulik.in.console.filter.SecurityFilter;
-import by.eugenekulik.in.console.filter.ValidationFilter;
+import by.eugenekulik.in.console.filter.*;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.*;
 import by.eugenekulik.out.dao.inmemory.*;
+import by.eugenekulik.out.dao.jdbc.utils.DataSource;
+import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
+import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
+import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.service.*;
 import by.eugenekulik.utils.IncrementSequence;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 
 public class Configuration {
     private final HashMap<String, Object> context = new HashMap<>();
+    private final Properties properties;
+
+    public Configuration(String filename) {
+        properties = new Properties();
+        FileReader fileReader = null;
+        try {
+            URL resource = getClass().getClassLoader()
+                .getResource(filename);
+            fileReader = new FileReader(new File(resource.toURI()));
+            properties.load(fileReader);
+        } catch (URISyntaxException | IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (fileReader != null) {
+                try {
+                    fileReader.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        MigrationService migrationService = migrationService(dataSource());
+        migrationService.applyChanges();
+    }
+
+    private MigrationService migrationService(DataSource dataSource) {
+        return new MigrationService(dataSource);
+    }
+
 
     public Controller controller() {
         return new Controller(view(), converter(), filterChain());
@@ -36,13 +72,20 @@ public class Configuration {
         return new ConsoleMessageConverter();
     }
 
+
     public Filter filterChain() {
         Filter securityFilter = new SecurityFilter();
         Filter validationFilter = new ValidationFilter(commands());
         Filter exHandlerFilter = new ExceptionHandlerFilter();
+        Filter auditFilter = new AuditFilter(auditService());
         exHandlerFilter.setNext(validationFilter);
-        validationFilter.setNext(securityFilter);
+        validationFilter.setNext(auditFilter);
+        auditFilter.setNext(securityFilter);
         return exHandlerFilter;
+    }
+
+    private AuditService auditService() {
+        return new AuditServiceImpl();
     }
 
     public View view() {
@@ -51,7 +94,7 @@ public class Configuration {
 
     public UserService userService() {
         if (!context.containsKey("userService"))
-            context.put("userService", new UserService(userRepository()));
+            context.put("userService", new UserServiceImpl(userRepository(), transactionManager()));
         return (UserService) context.get("userService");
     }
 
@@ -107,11 +150,26 @@ public class Configuration {
         return metersTypeRepository;
     }
 
+    public DataSource dataSource() {
+        if (context.containsKey("dataSource")) {
+            return (DataSource) context.get("dataSource");
+        }
+        DataSource dataSource = new DataSource(properties.getProperty("database.url"),
+            properties.getProperty("database.user"),
+            properties.getProperty("database.password"),
+            properties.getProperty("database.driver"));
+        context.put("dataSource", dataSource);
+        return dataSource;
+    }
+
     public AgreementService agreementService() {
         if (context.containsKey("agreementService"))
             return (AgreementService) context.get("agreementService");
         AgreementService agreementService =
-            new AgreementService(agreementRepository(), addressRepository(), userRepository());
+            new AgreementServiceImpl(agreementRepository(),
+                addressRepository(),
+                userRepository(),
+                transactionManager());
         context.put("agreementService", agreementService);
         return agreementService;
     }
@@ -142,7 +200,8 @@ public class Configuration {
     private MetersTypeService metersTypeService() {
         if (context.containsKey("metersTypeService"))
             return (MetersTypeService) context.get("metersTypeService");
-        MetersTypeService metersTypeService = new MetersTypeService(metersTypeRepository());
+        MetersTypeService metersTypeService =
+            new MetersTypeServiceImpl(metersTypeRepository(), transactionManager());
         context.put("metersTypeService", metersTypeService);
         return metersTypeService;
     }
@@ -150,7 +209,8 @@ public class Configuration {
     private MetersDataService metersDataService() {
         if (context.containsKey("metersDataService"))
             return (MetersDataService) context.get("metersDataService");
-        MetersDataService metersDataService = new MetersDataService(metersDataRepository());
+        MetersDataService metersDataService =
+            new MetersDataServiceImpl(metersDataRepository(), transactionManager());
         context.put("metersDataService", metersDataService);
         return metersDataService;
     }
@@ -159,8 +219,32 @@ public class Configuration {
         if (context.containsKey("addressService"))
             return (AddressService) context.get("addressService");
         AddressService addressService =
-            new AddressService(addressRepository());
+            new AddressServiceImpl(addressRepository(), transactionManager());
         context.put("addressService", addressService);
         return addressService;
+    }
+
+    public JdbcTemplate jdbcTemplate() {
+        if (context.containsKey("jdbcTemplate")) {
+            return (JdbcTemplate) context.get("jdbcTemplate");
+        }
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool());
+        context.put("jdbcTemplate", jdbcTemplate);
+        return jdbcTemplate;
+    }
+
+    public ConnectionPool connectionPool() {
+        return ConnectionPool.createConnectionPool(dataSource(),
+            Integer.parseInt(properties.getProperty("database.connectionpool.size", "16")),
+            Integer.parseInt(properties.getProperty("database.connectionpool.timeout", "30")));
+    }
+
+    public TransactionManager transactionManager() {
+        if (context.containsKey("transactionManager")) {
+            return (TransactionManager) context.get("transactionManager");
+        }
+        TransactionManager transactionManager = new TransactionManager(connectionPool());
+        context.put("transactionManager", transactionManager);
+        return transactionManager;
     }
 }

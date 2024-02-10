@@ -33,8 +33,8 @@ class InMemoryAddressRepositoryTest {
             .district("minsk")
             .city("minsk")
             .street("baikalskaya")
-            .houseNumber("61")
-            .apartmentNumber("42")
+            .house("61")
+            .apartment("42")
             .build();
 
         assertEquals(address, addressRepository.save(address));
@@ -60,8 +60,8 @@ class InMemoryAddressRepositoryTest {
             .district("minsk")
             .city("minsk")
             .street("baikalskaya")
-            .houseNumber("61")
-            .apartmentNumber("42")
+            .house("61")
+            .apartment("42")
             .build();
 
         assertTrue(addressRepository.isPresent(address));
@@ -75,8 +75,8 @@ class InMemoryAddressRepositoryTest {
             .district("minsk")
             .city("minsk")
             .street("nezavisimosti")
-            .houseNumber("61")
-            .apartmentNumber("42")
+            .house("61")
+            .apartment("42")
             .build();
 
         assertFalse(addressRepository.isPresent(address));
