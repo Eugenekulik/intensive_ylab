@@ -1,0 +1,11 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+    <changeSet id="init-schema-meters" author="Eugene Kulik">
+        <sql>
+            CREATE SCHEMA meters;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

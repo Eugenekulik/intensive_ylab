@@ -1,0 +1,24 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+    <changeSet id="create-table-agreement" author="Eugene Kulik">
+        <createTable tableName="agreement" schemaName="meters">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" referencedTableSchemaName="meters"
+                             referencedTableName="users" referencedColumnNames="id"
+                             foreignKeyName="fk_user_to_agreement"/>
+            </column>
+            <column name="address_id" type="BIGINT">
+                <constraints nullable="false" referencedTableSchemaName="meters"
+                             referencedTableName="address" referencedColumnNames="id"
+                             foreignKeyName="fk_address_to_agreement"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint schemaName="meters" columnNames="user_id, address_id" tableName="agreement"/>
+    </changeSet>
+</databaseChangeLog>
