@@ -1,6 +1,7 @@
 package by.eugenekulik.model;
 
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 /**
@@ -19,15 +20,18 @@ public class Agreement {
     /**
      * The unique identifier for the agreement.
      */
+    @NotNull
     private Long id;
 
     /**
      * The unique identifier for the associated address.
      */
+    @NotNull
     private Long addressId;
 
     /**
      * The unique identifier for the user involved in the agreement.
      */
+    @NotNull
     private Long userId;
 }

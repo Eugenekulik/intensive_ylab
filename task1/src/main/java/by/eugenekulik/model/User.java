@@ -1,6 +1,8 @@
 package by.eugenekulik.model;
 
+import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 
 /**
@@ -10,45 +12,48 @@ import lombok.*;
  */
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "password")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class User {
 
     /**
-     * The unique identifier for the user.
-     */
-    private Long id;
-
-    /**
-     * The username of the user.
-     */
-    private String username;
-
-    /**
-     * The password of the user.
-     */
-    private String password;
-
-    /**
-     * The email address of the user.
-     */
-    private String email;
-
-    /**
-     * The role of the user (ADMIN, CLIENT, GUEST).
-     */
-    private Role role;
-
-    /**
      * Creates a guest user with the role set to GUEST.
      *
      * @return A guest user.
      */
-    public static User guest() {
-        return User.builder()
-            .role(Role.GUEST)
-            .build();
-    }
+    public static final User guest = User.builder()
+        .role(Role.GUEST)
+        .build();
+    /**
+     * The unique identifier for the user.
+     */
+    @NotNull
+    private Long id;
+    /**
+     * The username of the user.
+     */
+    @NotNull
+    @Length(min = 4, max = 50)
+    @Pattern(regexp = "[A-Za-z][A-Za-z0-9_-]+")
+    private String username;
+    /**
+     * The password of the user.
+     */
+    @NotNull
+    @Min(8)
+    @Max(128)
+    private String password;
+    /**
+     * The email address of the user.
+     */
+    @Email
+    @NotNull
+    private String email;
+    /**
+     * The role of the user (ADMIN, CLIENT, GUEST).
+     */
+    @NotNull
+    private Role role;
 }
