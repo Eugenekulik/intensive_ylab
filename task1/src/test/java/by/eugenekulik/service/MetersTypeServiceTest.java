@@ -4,6 +4,8 @@ import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.logic.MetersTypeService;
+import by.eugenekulik.service.logic.impl.MetersTypeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,11 +1,14 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.AuthenticationException;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.exception.RegistrationException;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.logic.UserService;
+import by.eugenekulik.service.logic.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -101,38 +104,27 @@ class UserServiceTest {
 
     @Test
     void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
-        int page = 1;
-        int count = 10;
+        Pageable pageable = mock(Pageable.class);
         List<User> user = mock(List.class);
 
-        when(userRepository.getPage(page, count)).thenReturn(user);
+        when(userRepository.getPage(pageable)).thenReturn(user);
 
-        assertEquals(user, userService.getPage(page, count));
+        assertEquals(user, userService.getPage(pageable));
 
-        verify(userRepository).getPage(page, count);
+        verify(userRepository).getPage(pageable);
     }
 
     @Test
-    void testGetPage_shouldThrowException_whenPageIsNegative() {
-        int page = -1;
-        int count = 10;
+    void testGetPage_shouldThrowException_whenNotValidPageable() {
+        Pageable pageable = mock(Pageable.class);
 
-        assertThrows(IllegalArgumentException.class,
-            () -> userService.getPage(page, count),
-            "page must not be negative");
+        when(userRepository.getPage(pageable)).thenThrow(DatabaseInterectionException.class);
 
-        verify(userRepository, never()).getPage(anyInt(), anyInt());
+        assertThrows(DatabaseInterectionException.class,
+            () -> userService.getPage(pageable));
+
+        verify(userRepository).getPage(pageable);
     }
 
-    @Test
-    void testGetPage_shouldThrowException_whenCountIsNotPositive() {
-        int page = 1;
-        int count = 0;
-
-        assertThrows(IllegalArgumentException.class, () -> userService.getPage(page, count),
-            "count must be positive");
-
-        verify(userRepository, never()).getPage(anyInt(), anyInt());
-    }
 
 }

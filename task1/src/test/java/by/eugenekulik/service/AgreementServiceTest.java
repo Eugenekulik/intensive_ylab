@@ -1,5 +1,7 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.exception.DatabaseInterectionException;
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.model.Agreement;
 import by.eugenekulik.model.User;
@@ -7,6 +9,8 @@ import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.logic.AgreementService;
+import by.eugenekulik.service.logic.impl.AgreementServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,151 +22,94 @@ import static org.mockito.Mockito.*;
 
 class AgreementServiceTest {
 
-    private AddressRepository addressRepository;
     private AgreementRepository agreementRepository;
-    private UserRepository userRepository;
     private AgreementService agreementService;
     private TransactionManager transactionManager;
 
     @BeforeEach
     void setup(){
         transactionManager = mock(TransactionManager.class);
-        addressRepository = mock(AddressRepository.class);
         agreementRepository = mock(AgreementRepository.class);
-        userRepository = mock(UserRepository.class);
         agreementService = new AgreementServiceImpl(agreementRepository,
-                                                    addressRepository,
-                                                    userRepository,
                                                     transactionManager);
     }
 
     @Test
     void testCreate_shouldReturnAgreement_whenAddressAndUserValid(){
         Agreement agreement = Agreement.builder().userId(1L).addressId(1L).build();
-        User user = User.builder().id(1L).build();
-        Address address = Address.builder().id(1L).build();
 
-        when(userRepository.findById(agreement.getUserId())).thenReturn(Optional.of(user));
-        when(addressRepository.findById(agreement.getAddressId())).thenReturn(Optional.of(address));
-        when(agreementRepository.save(agreement)).thenReturn(agreement);
+        when(transactionManager.doInTransaction(any())).thenReturn(agreement);
 
         assertEquals(agreement, agreementService.create(agreement));
 
-        verify(userRepository).findById(user.getId());
-        verify(addressRepository).findById(address.getId());
-        verify(agreementRepository).save(agreement);
+        verify(transactionManager).doInTransaction(any());
     }
 
     @Test
-    void testCreate_shouldThrowException_whenAddressNotFound() {
+    void testCreate_shouldThrowException_whenNotValidConstraintsInRepository() {
         Agreement agreement = mock(Agreement.class);
 
-        when(addressRepository.findById(agreement.getAddressId())).thenReturn(Optional.empty());
+        when(transactionManager.doInTransaction(any()))
+            .thenThrow(DatabaseInterectionException.class);
 
-        assertThrows(IllegalArgumentException.class, () -> agreementService.create(agreement));
+        assertThrows(DatabaseInterectionException.class, () -> agreementService.create(agreement));
 
-        verify(userRepository, never()).findById(any());
-        verify(agreementRepository, never()).findByUserIdAndAddressId(any(), any());
-        verify(agreementRepository, never()).save(any());
+        verify(transactionManager).doInTransaction(any());
     }
 
-    @Test
-    void testCreate_shouldThrowException_whenUserNotFound() {
-        Agreement agreement = mock(Agreement.class);
 
-        when(addressRepository.findById(agreement.getAddressId())).thenReturn(Optional.of(new Address()));
-        when(userRepository.findById(agreement.getUserId())).thenReturn(Optional.empty());
-
-        assertThrows(IllegalArgumentException.class, () -> agreementService.create(agreement));
-
-        verify(agreementRepository, never()).findByUserIdAndAddressId(any(), any());
-        verify(agreementRepository, never()).save(any());
-    }
-
-    @Test
-    void testCreate_shouldThrowException_whenAgreementAlreadyExists() {
-        Agreement agreement = mock(Agreement.class);
-
-        when(addressRepository.findById(agreement.getAddressId())).thenReturn(Optional.of(new Address()));
-        when(userRepository.findById(agreement.getUserId())).thenReturn(Optional.of(new User()));
-        when(agreementRepository.findByUserIdAndAddressId(agreement.getUserId(), agreement.getAddressId()))
-            .thenReturn(List.of(new Agreement()));
-
-        assertThrows(IllegalArgumentException.class, () -> agreementService.create(agreement));
-
-        verify(agreementRepository).findByUserIdAndAddressId(agreement.getUserId(), agreement.getAddressId());
-        verify(agreementRepository, never()).save(any());
-    }
 
 
     @Test
     void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
-        int page = 1;
-        int count = 10;
+        Pageable pageable = mock(Pageable.class);
         List<Agreement> agreements = mock(List.class);
 
-        when(agreementRepository.getPage(page, count)).thenReturn(agreements);
+        when(agreementRepository.getPage(pageable)).thenReturn(agreements);
 
-        assertEquals(agreements, agreementService.getPage(page, count));
+        assertEquals(agreements, agreementService.getPage(pageable));
 
-        verify(agreementRepository).getPage(page, count);
+        verify(agreementRepository).getPage(pageable);
     }
 
     @Test
-    void testGetPage_shouldThrowException_whenPageIsNegative() {
-        int page = -1;
-        int count = 10;
+    void testGetPage_shouldThrowException_whenNotValidPageable() {
+        Pageable pageable = mock(Pageable.class);
 
-        assertThrows(IllegalArgumentException.class, ()->agreementService.getPage(page,count));
+        when(agreementRepository.getPage(pageable))
+            .thenThrow(DatabaseInterectionException.class);
 
-        verify(agreementRepository, never()).getPage(anyInt(), anyInt());
-    }
+        assertThrows(DatabaseInterectionException.class, ()->agreementService.getPage(pageable));
 
-    @Test
-    void getPage_shouldReturnEmptyList_whenCountLessByOne() {
-        int page = 1;
-        int count = -5;
-
-        assertThrows(IllegalArgumentException.class, ()->agreementService.getPage(page, count));
-
-        verify(agreementRepository, never()).getPage(page, count);
+        verify(agreementRepository).getPage(pageable);
     }
 
 
     @Test
-    void testFindByUserSuccessful(){
+    void testFindByUser_whenExists(){
         List<Agreement> agreements = mock(List.class);
+        Pageable pageable = mock(Pageable.class);
 
-        when(agreementRepository.findByUserId(1L)).thenReturn(agreements);
+        when(agreementRepository.findByUserId(1L, pageable)).thenReturn(agreements);
 
-        assertEquals(agreements, agreementService.findByUser(1L));
+        assertEquals(agreements, agreementService.findByUser(1L, pageable));
 
-        verify(agreementRepository).findByUserId(1L);
+        verify(agreementRepository).findByUserId(1L, pageable);
     }
 
-    @Test
-    void testFindByUser_shouldReturnAgreementsForUser_whenUserExists() {
-        Long userId = 1L;
-        List<Agreement> agreements = mock(List.class);
 
-        when(agreementRepository.findByUserId(userId)).thenReturn(agreements);
-
-        assertEquals(agreements, agreementService.findByUser(userId));
-
-        verify(agreementRepository).findByUserId(userId);
-    }
 
 
     @Test
     void testFindById_shouldReturnAgreement_whenIdExists() {
-        Long agreementId = 1L;
+        Long id = 1L;
         Agreement agreement = mock(Agreement.class);
 
-        when(agreementRepository.findById(agreementId)).thenReturn(Optional.of(agreement));
+        when(agreementRepository.findById(id)).thenReturn(Optional.of(agreement));
 
-        assertEquals(agreement, agreementService.findById(agreementId));
+        assertEquals(agreement, agreementService.findById(id));
 
-        verify(agreementRepository).findById(agreementId);
+        verify(agreementRepository).findById(id);
     }
 
     @Test

@@ -1,8 +1,13 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.exception.DatabaseInterectionException;
+import by.eugenekulik.out.dao.AgreementRepository;
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.logic.MetersDataService;
+import by.eugenekulik.service.logic.impl.MetersDataServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -132,36 +137,26 @@ class MetersDataServiceTest {
 
     @Test
     void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
-        int page = 1;
-        int count = 10;
+        Pageable pageable = mock(Pageable.class);
         List<MetersData> metersData = mock(List.class);
 
-        when(metersDataRepository.getPage(page, count)).thenReturn(metersData);
+        when(metersDataRepository.getPage(pageable)).thenReturn(metersData);
 
-        assertEquals(metersData, metersDataService.getPage(page, count));
+        assertEquals(metersData, metersDataService.getPage(pageable));
 
-        verify(metersDataRepository).getPage(page, count);
+        verify(metersDataRepository).getPage(pageable);
     }
 
     @Test
-    void testGetPage_shouldThrowException_whenCountIsNotPositive() {
-        int count = 0;
-        int page = 1;
+    void testGetPage_shouldThrowException_whenNotValidPageable() {
+        Pageable pageable = mock(Pageable.class);
 
-        assertThrows(IllegalArgumentException.class, () -> metersDataService
-            .getPage(page, count), "count must be positive");
+        when(metersDataRepository.getPage(pageable))
+            .thenThrow(DatabaseInterectionException.class);
 
-        verify(metersDataRepository, never()).getPage(anyInt(), anyInt());
-    }
+        assertThrows(DatabaseInterectionException.class, () -> metersDataService
+            .getPage(pageable));
 
-    @Test
-    void testGetPage_shouldThrowException_whenPageIsNegative() {
-        int page = -1;
-        int count = 10;
-
-        assertThrows(IllegalArgumentException.class, () -> metersDataService.getPage(page, count),
-            "page must not be negative");
-
-        verify(metersDataRepository, never()).getPage(anyInt(), anyInt());
+        verify(metersDataRepository).getPage(pageable);
     }
 }
