@@ -10,7 +10,7 @@ public class MetersTypeExtractor implements ResultSetExtractor<MetersType> {
     @Override
     public MetersType extractData(ResultSet resultSet) throws SQLException {
         MetersType metersType = null;
-        if(resultSet.next()){
+        if (resultSet.next()) {
             metersType = new MetersType();
             metersType.setId(resultSet.getLong("id"));
             metersType.setName(resultSet.getString("name"));

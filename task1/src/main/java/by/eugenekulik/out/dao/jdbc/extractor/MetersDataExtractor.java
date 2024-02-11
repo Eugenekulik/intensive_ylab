@@ -2,6 +2,7 @@ package by.eugenekulik.out.dao.jdbc.extractor;
 
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.jdbc.utils.ResultSetExtractor;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -9,7 +10,7 @@ public class MetersDataExtractor implements ResultSetExtractor<MetersData> {
     @Override
     public MetersData extractData(ResultSet resultSet) throws SQLException {
         MetersData metersData = null;
-        if(resultSet.next()){
+        if (resultSet.next()) {
             metersData = new MetersData();
             metersData.setId(resultSet.getLong("id"));
             metersData.setAgreementId(resultSet.getLong("agreement_id"));

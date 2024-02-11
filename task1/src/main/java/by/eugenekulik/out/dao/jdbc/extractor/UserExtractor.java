@@ -11,7 +11,7 @@ public class UserExtractor implements ResultSetExtractor<User> {
     @Override
     public User extractData(ResultSet resultSet) throws SQLException {
         User user = null;
-        if(resultSet.next()){
+        if (resultSet.next()) {
             user = new User();
             user.setId(resultSet.getLong("id"));
             user.setUsername(resultSet.getString("username"));

@@ -10,7 +10,7 @@ public class AgreementExtractor implements ResultSetExtractor<Agreement> {
     @Override
     public Agreement extractData(ResultSet resultSet) throws SQLException {
         Agreement agreement = null;
-        if(resultSet.next()){
+        if (resultSet.next()) {
             agreement = new Agreement();
             agreement.setId(resultSet.getLong("id"));
             agreement.setUserId(resultSet.getLong("user_id"));

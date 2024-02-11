@@ -10,7 +10,7 @@ public class AddressExtractor implements ResultSetExtractor<Address> {
     @Override
     public Address extractData(ResultSet resultSet) throws SQLException {
         Address address = null;
-        if(resultSet.next()){
+        if (resultSet.next()) {
             address = new Address();
             address.setId(resultSet.getLong("id"));
             address.setRegion(resultSet.getString("region"));
