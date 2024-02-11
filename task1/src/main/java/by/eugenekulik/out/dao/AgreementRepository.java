@@ -38,17 +38,17 @@ public interface AgreementRepository {
     /**
      * Retrieves a page of agreements from the repository.
      *
-     * @param page  The page number (0-indexed).
-     * @param count The number of agreements per page.
+     * @param pageable class with information about page number and count number
      * @return A list of agreements for the specified page.
      */
-    List<Agreement> getPage(int page, int count);
+    List<Agreement> getPage(Pageable pageable);
 
     /**
      * Retrieves agreements by user ID.
      *
-     * @param userId The user ID.
+     * @param userId   The user ID.
+     * @param pageable class with information about page number and count number
      * @return A list of agreements for the specified user.
      */
-    List<Agreement> findByUserId(Long userId);
+    List<Agreement> findByUserId(Long userId, Pageable pageable);
 }

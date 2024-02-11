@@ -1,22 +1,30 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.UserExtractor;
 import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
+import by.eugenekulik.service.aspect.Loggable;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 
+@ApplicationScoped
+@NoArgsConstructor
+@Loggable
 public class JdbcUserRepository implements UserRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final UserExtractor extractor;
+    private JdbcTemplate jdbcTemplate;
+    private UserExtractor extractor = new UserExtractor();
 
+    @Inject
     public JdbcUserRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.extractor = new UserExtractor();
     }
 
 
@@ -24,9 +32,9 @@ public class JdbcUserRepository implements UserRepository {
     public Optional<User> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
-                    SELECT users.id, users.username, users.password, users.email, users.role
-                    FROM users
-                    WHERE users.id = ?;
+                    SELECT id, username, password, email, role
+                    FROM meters.users
+                    WHERE id = ?;
                 """, extractor, id));
     }
 
@@ -34,9 +42,9 @@ public class JdbcUserRepository implements UserRepository {
     public Optional<User> findByUsername(String username) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
-                    SELECT users.id, users.username, users.password, users.email, users.role
-                    FROM users
-                    WHERE users.username = ?;
+                    SELECT id, username, password, email, role
+                    FROM meters.users
+                    WHERE username = ?;
                 """, extractor, username));
     }
 
@@ -44,47 +52,40 @@ public class JdbcUserRepository implements UserRepository {
     public Optional<User> findByEmail(String email) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
-                    SELECT users.id, users.username, users.password, users.email, users.role
-                    FROM users
-                    WHERE users.email = ?;
+                    SELECT id, username, password, email, role
+                    FROM meters.users
+                    WHERE email = ?;
                 """, extractor, email));
     }
 
     @Override
     public User save(User user) {
-        Long id = jdbcTemplate.query("SELECT nextval ('user_sequence');",
-            rs -> {
-                rs.next();
-                return rs.getLong(1);
-            });
-        user.setId(id);
         jdbcTemplate.update(
             """
-                    INSERT INTO users(id, username, password, email, role)
-                    VALUES(?, ?, ?, ?, ?);
+                    INSERT INTO meters.users(id, username, password, email, role)
+                    VALUES(nextval('meters.user_sequence'), ?, ?, ?, ?);
                 """,
-            user.getId(), user.getUsername(), user.getPassword(), user.getEmail(), user.getRole().name()
+            user.getUsername(), user.getPassword(), user.getEmail(), user.getRole().name()
         );
+        user = jdbcTemplate.query("""
+                    SELECT id, username, password, email, role
+                    FROM meters.users
+                    where username = ?;
+            """, extractor, user.getUsername());
         return user;
     }
 
     @Override
-    public List<User> getPage(int page, int count) {
-        if (count < 1) {
-            throw new IllegalArgumentException("count should be positive");
-        }
-        if (page < 0) {
-            throw new IllegalArgumentException("page should be positive");
-        }
+    public List<User> getPage(Pageable pageable) {
         return jdbcTemplate.query(
             """
-                    SELECT users.id, users.username, users.password, users.email, users.role
-                    FROM users
-                    ORDER BY users.id
+                    SELECT id, username, password, email, role
+                    FROM meters.users
+                    ORDER BY id
                     LIMIT ?
                     OFFSET ?*?;
                 """,
-            new ListExtractor<>(extractor), count, page, count);
+            new ListExtractor<>(extractor), pageable.getCount(), pageable.getPage(), pageable.getCount());
 
     }
 }

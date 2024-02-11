@@ -1,5 +1,6 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.logic;
 
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Agreement;
 
 import java.util.List;
@@ -7,9 +8,10 @@ import java.util.List;
 public interface AgreementService {
     Agreement create(Agreement agreement);
 
-    List<Agreement> getPage(int page, int count);
+    List<Agreement> getPage(Pageable pageable);
 
-    List<Agreement> findByUser(Long userId);
+    List<Agreement> findByUser(Long userId, Pageable pageable);
 
     Agreement findById(Long agreementId);
+
 }

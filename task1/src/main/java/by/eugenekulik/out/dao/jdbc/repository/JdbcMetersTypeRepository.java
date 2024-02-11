@@ -5,17 +5,24 @@ import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersTypeExtractor;
 import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
+import by.eugenekulik.service.aspect.Loggable;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 
+@ApplicationScoped
+@NoArgsConstructor
+@Loggable
 public class JdbcMetersTypeRepository implements MetersTypeRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final MetersTypeExtractor extractor;
+    private JdbcTemplate jdbcTemplate;
+    private MetersTypeExtractor extractor = new MetersTypeExtractor();
 
+    @Inject
     public JdbcMetersTypeRepository(JdbcTemplate jdbcTemplate) {
-        this.extractor = new MetersTypeExtractor();
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -23,9 +30,9 @@ public class JdbcMetersTypeRepository implements MetersTypeRepository {
     public Optional<MetersType> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
-                    SELECT meters_type.id, meters_type.name
-                    FROM meters_type
-                    WHERE meters_type.id = ?;
+                    SELECT id, name
+                    FROM meters.meters_type
+                    WHERE id = ?;
                 """, extractor, id));
     }
 
@@ -33,26 +40,25 @@ public class JdbcMetersTypeRepository implements MetersTypeRepository {
     public Optional<MetersType> findByName(String name) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
-                    SELECT meters_type.id, meters_type.name
-                    FROM meters_type
-                    WHERE meters_type.name = ?;
+                    SELECT id, name
+                    FROM meters.meters_type
+                    WHERE name = ?;
                 """, extractor, name));
     }
 
     @Override
     public MetersType save(MetersType metersType) {
-        Long id = jdbcTemplate.query("SELECT nextval ('meters_type_sequence');",
-            rs -> {
-                rs.next();
-                return rs.getLong(1);
-            });
-        metersType.setId(id);
         jdbcTemplate.update(
             """
-                    INSERT INTO meters_type(id, name)
-                    VALUES(?, ?);
+                    INSERT INTO meters.meters_type(id, name)
+                    VALUES(nextval('meters.meters_type_sequence'), ?);
                 """,
-            metersType.getId(), metersType.getName());
+            metersType.getName());
+        metersType = jdbcTemplate.query("""
+                    SELECT id, name
+                    FROM meters.meters_type
+                    WHERE name = ?;
+            """, extractor, metersType.getName());
         return metersType;
     }
 
@@ -60,8 +66,8 @@ public class JdbcMetersTypeRepository implements MetersTypeRepository {
     public List<MetersType> findAll() {
         return jdbcTemplate.query(
             """
-                    SELECT meters_type.id, meters_type.name
-                    FROM meters_type;
+                    SELECT id, name
+                    FROM meters.meters_type;
                 """,
             new ListExtractor<>(extractor));
     }

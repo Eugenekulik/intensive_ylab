@@ -1,8 +1,14 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.logic.impl;
 
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.logic.MetersDataService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,17 +20,21 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
+@ApplicationScoped
+@NoArgsConstructor
+@Timed
 public class MetersDataServiceImpl implements MetersDataService {
 
-    private final MetersDataRepository metersDataRepository;
-    private final TransactionManager transactionManager;
+    private MetersDataRepository metersDataRepository;
+    private TransactionManager transactionManager;
 
     /**
      * Constructs a MetersDataService with the specified MetersDataRepository.
      *
      * @param metersDataRepository The repository responsible for managing meters data.
-     * @param transactionManager  It is needed to wrap certain database interaction logic in a transaction.
+     * @param transactionManager   It is needed to wrap certain database interaction logic in a transaction.
      */
+    @Inject
     public MetersDataServiceImpl(MetersDataRepository metersDataRepository, TransactionManager transactionManager) {
         this.metersDataRepository = metersDataRepository;
         this.transactionManager = transactionManager;
@@ -48,7 +58,7 @@ public class MetersDataServiceImpl implements MetersDataService {
             metersData.getPlacedAt().toLocalDate()).isPresent())
             throw new IllegalArgumentException("The readings of this meter have " +
                 "already been submitted this month");
-        return transactionManager.doInTransaction(()->metersDataRepository.save(metersData));
+        return transactionManager.doInTransaction(() -> metersDataRepository.save(metersData));
     }
 
     /**
@@ -83,19 +93,17 @@ public class MetersDataServiceImpl implements MetersDataService {
     /**
      * Retrieves a paginated list of meters data.
      *
-     * @param page  The page number (starting from 0).
-     * @param count The number of meters data to retrieve per page.
+     * @param pageable class with information about page number and count number
      * @return A list of meters data for the specified page and count.
      * @throws IllegalArgumentException If count is less than 1 or if page is negative.
      */
     @Override
-    public List<MetersData> getPage(int page, int count) {
-        if (count < 1) {
-            throw new IllegalArgumentException("count must be positive");
-        }
-        if (page < 0) {
-            throw new IllegalArgumentException("page must not be negative");
-        }
-        return metersDataRepository.getPage(page, count);
+    public List<MetersData> getPage(Pageable pageable) {
+        return metersDataRepository.getPage(pageable);
+    }
+
+    @Override
+    public List<MetersData> findByAgreementAndType(long agreementId, Long meterTypeId, Pageable pageable) {
+        return metersDataRepository.findByAgreementAndType(agreementId, meterTypeId, pageable);
     }
 }

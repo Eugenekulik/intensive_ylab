@@ -1,10 +1,14 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.logic.impl;
 
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Agreement;
-import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.AgreementRepository;
-import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.logic.AgreementService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -14,26 +18,25 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
+@ApplicationScoped
+@NoArgsConstructor
+@Timed
 public class AgreementServiceImpl implements AgreementService {
 
-    private final AgreementRepository agreementRepository;
-    private final AddressRepository addressRepository;
-    private final UserRepository userRepository;
-    private final TransactionManager transactionManager;
+    private AgreementRepository agreementRepository;
+    private TransactionManager transactionManager;
 
 
     /**
      * Constructs an AgreementService with the specified repositories.
      *
      * @param agreementRepository The repository responsible for managing agreements.
-     * @param addressRepository   The repository responsible for managing addresses.
-     * @param userRepository      The repository responsible for managing users.
      * @param transactionManager  It is needed to wrap certain database interaction logic in a transaction.
      */
-    public AgreementServiceImpl(AgreementRepository agreementRepository, AddressRepository addressRepository, UserRepository userRepository, TransactionManager transactionManager) {
+    @Inject
+    public AgreementServiceImpl(AgreementRepository agreementRepository, TransactionManager transactionManager) {
         this.agreementRepository = agreementRepository;
-        this.addressRepository = addressRepository;
-        this.userRepository = userRepository;
+
         this.transactionManager = transactionManager;
     }
 
@@ -48,36 +51,19 @@ public class AgreementServiceImpl implements AgreementService {
      */
     @Override
     public Agreement create(Agreement agreement) {
-        if (addressRepository.findById(agreement.getAddressId()).isEmpty()) {
-            throw new IllegalArgumentException("not found address with id: " + agreement.getAddressId());
-        }
-        if (userRepository.findById(agreement.getUserId()).isEmpty()) {
-            throw new IllegalArgumentException("not found user with id: " + agreement.getUserId());
-        }
-        if (!agreementRepository
-            .findByUserIdAndAddressId(agreement.getUserId(), agreement.getAddressId()).isEmpty()) {
-            throw new IllegalArgumentException("agreement with this user and address are already exist");
-        }
-        return transactionManager.doInTransaction(()->agreementRepository.save(agreement));
+        return transactionManager.doInTransaction(() -> agreementRepository.save(agreement));
     }
 
     /**
      * Retrieves a paginated list of agreements.
      *
-     * @param page  The page number (starting from 0).
-     * @param count The number of agreements to retrieve per page.
+     * @param pageable class with information about page number and count number
      * @return A list of agreements for the specified page and count.
      * @throws IllegalArgumentException If page is negative or if count is less than 1.
      */
     @Override
-    public List<Agreement> getPage(int page, int count) {
-        if (page < 0) {
-            throw new IllegalArgumentException("page must not be negative");
-        }
-        if (count < 1) {
-            throw new IllegalArgumentException("count must be positive");
-        }
-        return agreementRepository.getPage(page, count);
+    public List<Agreement> getPage(Pageable pageable) {
+        return agreementRepository.getPage(pageable);
     }
 
     /**
@@ -87,8 +73,8 @@ public class AgreementServiceImpl implements AgreementService {
      * @return A list of agreements associated with the specified user ID.
      */
     @Override
-    public List<Agreement> findByUser(Long userId) {
-        return agreementRepository.findByUserId(userId);
+    public List<Agreement> findByUser(Long userId, Pageable pageable) {
+        return agreementRepository.findByUserId(userId, pageable);
     }
 
     /**
@@ -103,4 +89,5 @@ public class AgreementServiceImpl implements AgreementService {
         return agreementRepository.findById(agreementId)
             .orElseThrow(() -> new IllegalArgumentException("Not found agreement with id: " + agreementId));
     }
+
 }

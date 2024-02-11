@@ -1,4 +1,4 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.logic;
 
 import by.eugenekulik.model.MetersType;
 

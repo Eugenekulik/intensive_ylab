@@ -1,5 +1,6 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.logic;
 
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 
 import java.time.LocalDate;
@@ -12,5 +13,7 @@ public interface MetersDataService {
 
     MetersData findLastByAgreementAndType(Long agreementId, Long metersTypeId);
 
-    List<MetersData> getPage(int page, int count);
+    List<MetersData> getPage(Pageable pageable);
+
+    List<MetersData> findByAgreementAndType(long agreementId, Long id, Pageable pageable);
 }

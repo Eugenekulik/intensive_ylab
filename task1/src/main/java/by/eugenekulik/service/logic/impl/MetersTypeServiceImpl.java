@@ -1,8 +1,13 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.logic.impl;
 
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.logic.MetersTypeService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -12,17 +17,21 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
+@ApplicationScoped
+@NoArgsConstructor
+@Timed
 public class MetersTypeServiceImpl implements MetersTypeService {
 
-    private final MetersTypeRepository metersTypeRepository;
-    private final TransactionManager transactionManager;
+    private MetersTypeRepository metersTypeRepository;
+    private TransactionManager transactionManager;
 
     /**
      * Constructs a MetersTypeService with the specified MetersTypeRepository.
      *
      * @param metersTypeRepository The repository responsible for managing meters types.
-     * @param transactionManager  It is needed to wrap certain database interaction logic in a transaction.
+     * @param transactionManager   It is needed to wrap certain database interaction logic in a transaction.
      */
+    @Inject
     public MetersTypeServiceImpl(MetersTypeRepository metersTypeRepository, TransactionManager transactionManager) {
         this.metersTypeRepository = metersTypeRepository;
         this.transactionManager = transactionManager;
@@ -37,7 +46,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
      */
     @Override
     public MetersType create(MetersType metersType) {
-        return transactionManager.doInTransaction(()->metersTypeRepository.save(metersType));
+        return transactionManager.doInTransaction(() -> metersTypeRepository.save(metersType));
     }
 
     /**

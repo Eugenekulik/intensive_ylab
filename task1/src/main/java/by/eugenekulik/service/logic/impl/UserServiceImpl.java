@@ -1,15 +1,21 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.logic.impl;
 
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.AuthenticationException;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.exception.RegistrationException;
-import by.eugenekulik.in.console.Session;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.logic.UserService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 
 /**
  * Service class for handling operations related to users.
@@ -17,21 +23,20 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
+@ApplicationScoped
+@NoArgsConstructor
+@Timed
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final TransactionManager transactionManager;
+    private UserRepository userRepository;
+    private TransactionManager transactionManager;
 
-    /**
-     * Constructs a UserService with the specified UserRepository.
-     *
-     * @param userRepository The repository responsible for managing users.
-     * @param transactionManager  It is needed to wrap certain database interaction logic in a transaction.
-     */
+    @Inject
     public UserServiceImpl(UserRepository userRepository, TransactionManager transactionManager) {
         this.userRepository = userRepository;
         this.transactionManager = transactionManager;
     }
+
 
     /**
      * Registers a new user if a user with the same username or email doesn't already exist.
@@ -46,9 +51,8 @@ public class UserServiceImpl implements UserService {
         try {
             user.setRole(Role.CLIENT);
             User saved = transactionManager.doInTransaction(() -> userRepository.save(user));
-            Session.setCurrentUser(saved);
             return saved;
-        } catch (DatabaseInterectionException e){
+        } catch (DatabaseInterectionException e) {
             throw new RegistrationException("user with this username or email already exists");
         }
     }
@@ -70,26 +74,18 @@ public class UserServiceImpl implements UserService {
         if (!user.getPassword().equals(password)) {
             throw new AuthenticationException("The username or password you entered is incorrect");
         }
-        Session.setCurrentUser(user);
         return user;
     }
 
     /**
      * Retrieves a paginated list of users.
      *
-     * @param page  The page number (starting from 0).
-     * @param count The number of users to retrieve per page.
+     * @param pageable class with information about page number and count number
      * @return A list of users for the specified page and count.
      * @throws IllegalArgumentException If page is negative or if count is less than 1.
      */
     @Override
-    public List<User> getPage(int page, int count) {
-        if (page < 0) {
-            throw new IllegalArgumentException("page must not be negative");
-        }
-        if (count < 1) {
-            throw new IllegalArgumentException("count must be positive");
-        }
-        return userRepository.getPage(page, count);
+    public List<User> getPage(Pageable pageable) {
+        return userRepository.getPage(pageable);
     }
 }
