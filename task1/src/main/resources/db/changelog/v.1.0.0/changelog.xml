@@ -1,0 +1,18 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd"
+        logicalFilePath="db/changelog/v.1.0.0">
+    <changeSet id="add-tag-1.0.0" author="Eugene Kulik">
+        <tagDatabase tag="1.0.0"/>
+    </changeSet>
+    <include file="init-schema-meters.xml" relativeToChangelogFile="true"/>
+    <include file="create-sequences.xml" relativeToChangelogFile="true"/>
+    <include file="create-table-users.xml" relativeToChangelogFile="true"/>
+    <include file="create-table-address.xml" relativeToChangelogFile="true"/>
+    <include file="create-table-agreement.xml" relativeToChangelogFile="true"/>
+    <include file="create-table-meters-type.xml" relativeToChangelogFile="true"/>
+    <include file="create-table-meters-data.xml" relativeToChangelogFile="true"/>
+    <include file="insert-default-data.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>
