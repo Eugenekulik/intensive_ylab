@@ -4,10 +4,10 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
     <changeSet id="create-sequences" author="Eugene Kulik">
-        <createSequence schemaName="meters" sequenceName="user_sequence" startValue="100" incrementBy="1"/>
-        <createSequence schemaName="meters" sequenceName="address_sequence" startValue="100" incrementBy="1"/>
-        <createSequence schemaName="meters" sequenceName="agreement_sequence" startValue="100" incrementBy="1"/>
-        <createSequence schemaName="meters" sequenceName="meters_data_sequence" startValue="100" incrementBy="1"/>
-        <createSequence schemaName="meters" sequenceName="meters_type_sequence" startValue="100" incrementBy="1"/>
+        <createSequence schemaName="meters" sequenceName="user_sequence" startValue="10" incrementBy="1"/>
+        <createSequence schemaName="meters" sequenceName="address_sequence" startValue="10" incrementBy="1"/>
+        <createSequence schemaName="meters" sequenceName="agreement_sequence" startValue="10" incrementBy="1"/>
+        <createSequence schemaName="meters" sequenceName="meters_data_sequence" startValue="10" incrementBy="1"/>
+        <createSequence schemaName="meters" sequenceName="meters_type_sequence" startValue="10" incrementBy="1"/>
     </changeSet>
 </databaseChangeLog>
