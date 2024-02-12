@@ -28,21 +28,23 @@ public class UserMetersDataLastServlet extends HttpServlet {
     private MetersDataService metersDataService;
     private MetersTypeService metersTypeService;
     private AgreementService agreementService;
+    private Converter converter;
 
     @Inject
-    public void inject(MetersDataMapper mapper, MetersDataService metersDataService,
+    public void inject(MetersDataMapper mapper, MetersDataService metersDataService, Converter converter,
                        MetersTypeService metersTypeService, AgreementService agreementService) {
         this.mapper = mapper;
         this.metersDataService = metersDataService;
         this.metersTypeService = metersTypeService;
         this.agreementService = agreementService;
+        this.converter = converter;
     }
 
     @Override
     @Auditable
     @AllowedRoles({Role.CLIENT})
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        long agreementId = Converter.getLong(req, "agreementId");
+        long agreementId = converter.getLong(req, "agreementId");
         Agreement agreement = agreementService.findById(agreementId);
         Authentication authentication = (Authentication) req.getSession().getAttribute("authentication");
         if (!agreement.getUserId().equals(authentication.getUser().getId())) {
@@ -54,7 +56,7 @@ public class UserMetersDataLastServlet extends HttpServlet {
             .findLastByAgreementAndType(agreementId, metersType.getId());
         try {
             resp.getWriter()
-                .append(Converter
+                .append(converter
                     .convertObjectToJson(mapper
                         .toMetersDataDto(metersData)));
         } catch (IOException e) {

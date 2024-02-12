@@ -30,23 +30,25 @@ public class UserMetersDataServlet extends HttpServlet {
     private AgreementService agreementService;
     private MetersDataMapper mapper;
     private MetersTypeService metersTypeService;
+    private Converter converter;
 
     @Inject
-    public void inject(MetersDataService metersDataService, MetersDataMapper mapper,
+    public void inject(MetersDataService metersDataService, MetersDataMapper mapper, Converter converter,
                        AgreementService agreementService, MetersTypeService metersTypeService) {
         this.metersDataService = metersDataService;
         this.mapper = mapper;
         this.agreementService = agreementService;
         this.metersTypeService = metersTypeService;
+        this.converter = converter;
     }
 
     @Override
     @Auditable
     @AllowedRoles({Role.CLIENT})
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        int page = Converter.getInteger(req, "page");
-        int count = Converter.getInteger(req, "count");
-        long agreementId = Converter.getLong(req, "agreementId");
+        int page = converter.getInteger(req, "page");
+        int count = converter.getInteger(req, "count");
+        long agreementId = converter.getLong(req, "agreementId");
         Agreement agreement = agreementService.findById(agreementId);
         Authentication authentication = (Authentication) req.getSession().getAttribute("authentication");
         if (!agreement.getUserId().equals(authentication.getUser().getId())) {
@@ -59,7 +61,7 @@ public class UserMetersDataServlet extends HttpServlet {
             .findByAgreementAndType(agreementId, metersType.getId(), new Pageable(page, count));
         try {
             resp.getWriter()
-                .append(Converter.convertObjectToJson(
+                .append(converter.convertObjectToJson(
                     metersData.stream().map(mapper::toMetersDataDto)
                         .toList()));
         } catch (IOException e) {

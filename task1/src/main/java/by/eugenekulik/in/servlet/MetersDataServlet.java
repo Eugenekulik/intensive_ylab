@@ -32,13 +32,15 @@ public class MetersDataServlet extends HttpServlet {
     private ValidationService validationService;
     private MetersDataService metersDataService;
     private MetersDataMapper mapper;
+    private Converter converter;
 
     @Inject
     public void inject(ValidationService validationService, MetersDataService metersDataService,
-                       MetersDataMapper mapper) {
+                       MetersDataMapper mapper, Converter converter) {
         this.validationService = validationService;
         this.metersDataService = metersDataService;
         this.mapper = mapper;
+        this.converter = converter;
     }
 
 
@@ -46,12 +48,12 @@ public class MetersDataServlet extends HttpServlet {
     @Auditable
     @AllowedRoles({Role.ADMIN})
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        int page = Converter.getInteger(req, "page");
-        int count = Converter.getInteger(req, "count");
+        int page = converter.getInteger(req, "page");
+        int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
         List<MetersData> metersData = metersDataService.getPage(new Pageable(page, count));
         try {
-            resp.getWriter().append(Converter
+            resp.getWriter().append(converter
                 .convertObjectToJson(
                     metersData.stream().map(mapper::toMetersDataDto).toList()));
         } catch (IOException e) {
@@ -64,7 +66,7 @@ public class MetersDataServlet extends HttpServlet {
     @Auditable
     @AllowedRoles({Role.ADMIN})
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        MetersDataDto metersDataDto = Converter.getRequestBody(req, MetersDataDto.class);
+        MetersDataDto metersDataDto = converter.getRequestBody(req, MetersDataDto.class);
         Set<ConstraintViolation<MetersDataDto>> errors = validationService.validateObject(metersDataDto);
         if (!errors.isEmpty()) {
             StringBuilder message = new StringBuilder();
@@ -74,7 +76,7 @@ public class MetersDataServlet extends HttpServlet {
         }
         MetersData metersData = metersDataService.create(mapper.toMetersData(metersDataDto));
         try {
-            resp.getWriter().append(Converter
+            resp.getWriter().append(converter
                 .convertObjectToJson(mapper
                     .toMetersDataDto(metersData)));
         } catch (IOException e) {

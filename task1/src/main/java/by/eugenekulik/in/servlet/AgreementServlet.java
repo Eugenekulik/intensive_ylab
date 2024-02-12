@@ -32,25 +32,28 @@ public class AgreementServlet extends HttpServlet {
     private AgreementService agreementService;
     private ValidationService validationService;
     private AgreementMapper mapper;
+    private Converter converter;
 
     @Inject
-    public void inject(AgreementService agreementService, ValidationService validationService, AgreementMapper mapper) {
+    public void inject(AgreementService agreementService, ValidationService validationService, 
+                       AgreementMapper mapper, Converter converter) {
         this.agreementService = agreementService;
         this.validationService = validationService;
         this.mapper = mapper;
+        this.converter = converter;
     }
 
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
     public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        int page = Converter.getInteger(req, "page");
-        int count = Converter.getInteger(req, "count");
+        int page = converter.getInteger(req, "page");
+        int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
         List<Agreement> agreements = agreementService.getPage(new Pageable(page, count));
         try {
             resp.getWriter()
-                .append(Converter.convertObjectToJson(
+                .append(converter.convertObjectToJson(
                     agreements.stream().map(mapper::toAgreementDto)
                         .toList()));
         } catch (IOException e) {
@@ -62,7 +65,7 @@ public class AgreementServlet extends HttpServlet {
     @Auditable
     @AllowedRoles({Role.ADMIN})
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        AgreementDto agreementDto = Converter.getRequestBody(req, AgreementDto.class);
+        AgreementDto agreementDto = converter.getRequestBody(req, AgreementDto.class);
         Set<ConstraintViolation<AgreementDto>> errors = validationService.validateObject(agreementDto);
         if (!errors.isEmpty()) {
             StringBuilder message = new StringBuilder();
@@ -73,7 +76,7 @@ public class AgreementServlet extends HttpServlet {
         Agreement agreement = agreementService.create(mapper.toAgreement(agreementDto));
         try {
             resp.getWriter()
-                .append(Converter
+                .append(converter
                     .convertObjectToJson(mapper
                         .toAgreementDto(agreement)));
         } catch (IOException e) {

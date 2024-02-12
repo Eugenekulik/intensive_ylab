@@ -26,26 +26,27 @@ import java.util.List;
 public class UserAgreementsServlet extends HttpServlet {
     private AgreementService agreementService;
     private AgreementMapper mapper;
-
+    private Converter converter;
     @Inject
-    public void inject(AgreementService agreementService, AgreementMapper mapper) {
+    public void inject(AgreementService agreementService, AgreementMapper mapper, Converter converter) {
         this.agreementService = agreementService;
         this.mapper = mapper;
+        this.converter = converter;
     }
 
     @Override
     @Auditable
     @AllowedRoles({Role.CLIENT})
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        int page = Converter.getInteger(req, "page");
-        int count = Converter.getInteger(req, "count");
+        int page = converter.getInteger(req, "page");
+        int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
         Authentication authentication = (Authentication) req.getSession().getAttribute("authentication");
         List<Agreement> agreements = agreementService
             .findByUser(authentication.getUser().getId(), new Pageable(page, count));
         try {
             resp.getWriter()
-                .append(Converter.convertObjectToJson(
+                .append(converter.convertObjectToJson(
                     agreements.stream().map(mapper::toAgreementDto)
                         .toList()));
         } catch (IOException e) {

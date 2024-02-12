@@ -30,10 +30,12 @@ import java.util.Set;
 public class AuthorizationServlet extends HttpServlet {
     private UserService userService;
     private ValidationService validationService;
+    private Converter converter;
 
     @Inject
-    public void inject(UserService userService, ValidationService validationService) {
+    public void inject(UserService userService, ValidationService validationService, Converter converter) {
         this.userService = userService;
+        this.converter = converter;
         this.validationService = validationService;
     }
 
@@ -41,7 +43,7 @@ public class AuthorizationServlet extends HttpServlet {
     @Auditable
     @AllowedRoles({Role.GUEST})
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        AuthDto authDto = Converter.getRequestBody(req, AuthDto.class);
+        AuthDto authDto = converter.getRequestBody(req, AuthDto.class);
         Set<ConstraintViolation<AuthDto>> errors = validationService.validateObject(authDto);
         if (!errors.isEmpty()) {
             StringBuilder message = new StringBuilder();
@@ -56,7 +58,7 @@ public class AuthorizationServlet extends HttpServlet {
                 new Authentication(user));
         try {
             resp.getWriter()
-                .append(Converter.convertObjectToJson("Authentication successful!"));
+                .append(converter.convertObjectToJson("Authentication successful!"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

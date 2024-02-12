@@ -1,5 +1,7 @@
 package by.eugenekulik.config;
 
+import by.eugenekulik.utils.Converter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
@@ -17,6 +19,12 @@ public class CommonConfig {
         return Validation.buildDefaultValidatorFactory().getValidator();
     }
 
+
+    @Produces
+    @Named("converter")
+    public Converter converter(){
+        return new Converter(new ObjectMapper());
+    }
 
 }
 

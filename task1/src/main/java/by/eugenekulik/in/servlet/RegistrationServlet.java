@@ -27,19 +27,22 @@ public class RegistrationServlet extends HttpServlet {
     private UserService userService;
     private ValidationService validationService;
     private UserMapper mapper;
+    private Converter converter;
 
     @Inject
-    public void inject(UserService userService, ValidationService validationService, UserMapper mapper) {
+    public void inject(UserService userService, ValidationService validationService, UserMapper mapper,
+                       Converter converter) {
         this.userService = userService;
         this.validationService = validationService;
         this.mapper = mapper;
+        this.converter = converter;
     }
 
     @Override
     @Auditable
     @AllowedRoles({Role.GUEST})
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        RegistrationDto registrationDto = Converter.getRequestBody(req, RegistrationDto.class);
+        RegistrationDto registrationDto = converter.getRequestBody(req, RegistrationDto.class);
         Set<ConstraintViolation<RegistrationDto>> errors =
             validationService.validateObject(registrationDto);
         if (!errors.isEmpty()) {
@@ -54,7 +57,7 @@ public class RegistrationServlet extends HttpServlet {
         req.getSession().setAttribute("authentication", new Authentication(user));
         try {
             resp.getWriter()
-                .append(Converter.convertObjectToJson("Registration successful"));
+                .append(converter.convertObjectToJson("Registration successful"));
         } catch (IOException e) {
             throw new RuntimeException(e);//TODO
         }

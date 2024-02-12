@@ -14,11 +14,13 @@ import java.util.Optional;
 @Slf4j
 public class Converter {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    private Converter() {}
+    public Converter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
-    public static <T> T getRequestBody(HttpServletRequest request, Class<T> valueType) {
+    public <T> T getRequestBody(HttpServletRequest request, Class<T> valueType) {
         if (!request.getContentType().equals("application/json")) {
             throw new UnsupportedMediaTypeException("not supported content type");
         }
@@ -34,7 +36,7 @@ public class Converter {
         }
     }
 
-    public static String convertObjectToJson(Object object) {
+    public String convertObjectToJson(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -42,7 +44,7 @@ public class Converter {
         }
     }
 
-    public static int getInteger(HttpServletRequest req, String paramName) {
+    public int getInteger(HttpServletRequest req, String paramName) {
         return Optional.ofNullable(req.getParameter(paramName)).map(p -> {
             try {
                 return Integer.parseInt(p);
@@ -53,7 +55,7 @@ public class Converter {
         }).orElse(0);
     }
 
-    public static long getLong(HttpServletRequest req, String paramName) {
+    public long getLong(HttpServletRequest req, String paramName) {
         return Optional.ofNullable(req.getParameter(paramName)).map(p -> {
             try {
                 return Long.parseLong(p);

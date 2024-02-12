@@ -26,11 +26,13 @@ public class UserServlet extends HttpServlet {
 
     private UserService userService;
     private UserMapper mapper;
+    private Converter converter;
 
     @Inject
-    public void inject(UserService userService, UserMapper userMapper) {
+    public void inject(UserService userService, UserMapper userMapper, Converter converter) {
         this.userService = userService;
         this.mapper = userMapper;
+        this.converter = converter;
     }
 
 
@@ -38,13 +40,13 @@ public class UserServlet extends HttpServlet {
     @Auditable
     @AllowedRoles({Role.ADMIN})
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        int page = Converter.getInteger(req, "page");
-        int count = Converter.getInteger(req, "count");
+        int page = converter.getInteger(req, "page");
+        int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
         List<User> users = userService.getPage(new Pageable(page, count));
         try {
             resp.getWriter()
-                .append(Converter.convertObjectToJson(
+                .append(converter.convertObjectToJson(
                     users.stream().map(mapper::fromUser).toList()));
         } catch (IOException e) {
             throw new RuntimeException(e);
