@@ -89,7 +89,7 @@ public class AspectService {
             long before = System.currentTimeMillis();
             Object retVal = joinPoint.proceed();
             long after = System.currentTimeMillis();
-            builder.append("execution time: ").append(after - before);
+            builder.append("execution time: ").append(after - before).append("ms");
             log.info(builder.toString());
             return retVal;
         } catch (Throwable e) {
