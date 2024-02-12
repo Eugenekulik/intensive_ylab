@@ -15,6 +15,7 @@
    <li>JDK 17</li>
    <li>Maven</li>
    <li>Docker</li>
+   <li>Tomcat</li>
 </ul>
 
 # Install
@@ -34,7 +35,6 @@
 3. **Запуск приложения:**
     ```bash
     docker-compose up
-    java -jar target/task1-1.0-SNAPSHOT.jar
     ```
 
 Если у вас возникнут проблемы в процессе установки или запуска, убедитесь, что на вашем компьютере установлен Maven, Java и Docker. Вы также можете проверить файл `pom.xml` на наличие всех необходимых зависимостей.
