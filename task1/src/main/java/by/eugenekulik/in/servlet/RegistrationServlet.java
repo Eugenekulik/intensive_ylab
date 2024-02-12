@@ -10,6 +10,7 @@ import by.eugenekulik.service.aspect.Auditable;
 import by.eugenekulik.service.logic.UserService;
 import by.eugenekulik.service.mapper.UserMapper;
 import by.eugenekulik.utils.Converter;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,7 +23,32 @@ import jakarta.validation.ValidationException;
 import java.io.IOException;
 import java.util.Set;
 
+/**
+ * {@code RegistrationServlet} is a servlet class that handles HTTP POST requests
+ * related to user registration. It is annotated with {@code @WebServlet} to define the
+ * servlet mapping for the "/register" URL and {@code @ApplicationScoped} to specify that
+ * the servlet instance is application-scoped.
+ *
+ * <p>The servlet relies on various injected services and components, such as
+ * {@code UserService}, {@code ValidationService}, {@code UserMapper}, and {@code Converter}.
+ * These dependencies are injected using the {@code @Inject} annotation on the {@code inject} method.
+ *
+ * <p>The servlet includes a main method: {@code doPost} for handling HTTP POST requests.
+ * This method processes user registration based on the provided registration data,
+ * responds with a JSON message indicating successful registration, and sets the HTTP response
+ * status to 200.
+ *
+ * @author Eugene Kulik
+ * @see HttpServlet
+ * @see UserService
+ * @see ValidationService
+ * @see UserMapper
+ * @see Converter
+ * @see Auditable
+ * @see AllowedRoles
+ */
 @WebServlet("/register")
+@ApplicationScoped
 public class RegistrationServlet extends HttpServlet {
     private UserService userService;
     private ValidationService validationService;
@@ -38,6 +64,14 @@ public class RegistrationServlet extends HttpServlet {
         this.converter = converter;
     }
 
+    /**
+     * Handles HTTP POST requests for user registration.
+     *
+     * @param req  The {@code HttpServletRequest} object.
+     * @param resp The {@code HttpServletResponse} object.
+     * @throws ServletException If a servlet-related exception occurs.
+     * @throws IOException      If an I/O error occurs.
+     */
     @Override
     @Auditable
     @AllowedRoles({Role.GUEST})
@@ -63,6 +97,4 @@ public class RegistrationServlet extends HttpServlet {
             throw new RuntimeException(e);//TODO
         }
     }
-
-
 }

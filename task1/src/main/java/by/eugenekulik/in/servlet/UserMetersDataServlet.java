@@ -14,6 +14,7 @@ import by.eugenekulik.service.logic.MetersDataService;
 import by.eugenekulik.service.logic.MetersTypeService;
 import by.eugenekulik.service.mapper.MetersDataMapper;
 import by.eugenekulik.utils.Converter;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -23,7 +24,32 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * {@code UserMetersDataServlet} is a servlet class that handles HTTP GET requests
+ * related to retrieving meters data for a specific user, agreement, and meters type.
+ * It is annotated with {@code @WebServlet} to define the servlet mapping for the "/user/md" URL.
+ *
+ * <p>The servlet relies on various injected services and components, such as
+ * {@code MetersDataService}, {@code MetersDataMapper}, {@code Converter},
+ * {@code AgreementService}, and {@code MetersTypeService}. These dependencies are injected
+ * using the {@code @Inject} annotation on the {@code inject} method.
+ *
+ * <p>The servlet includes a main method: {@code doGet} for handling HTTP GET requests.
+ * This method retrieves meters data associated with the authenticated user, agreement, and meters type,
+ * responds with a JSON representation of the meters data, and sets the HTTP response status to 200.
+ *
+ * @author Eugene Kulik
+ * @see HttpServlet
+ * @see MetersDataService
+ * @see MetersDataMapper
+ * @see Converter
+ * @see AgreementService
+ * @see MetersTypeService
+ * @see Auditable
+ * @see AllowedRoles
+ */
 @WebServlet("/user/md")
+@ApplicationScoped
 public class UserMetersDataServlet extends HttpServlet {
 
     private MetersDataService metersDataService;
@@ -42,6 +68,13 @@ public class UserMetersDataServlet extends HttpServlet {
         this.converter = converter;
     }
 
+    /**
+     * Handles HTTP GET requests for retrieving meters data associated with the authenticated user,
+     * agreement, and meters type.
+     *
+     * @param req  The {@code HttpServletRequest} object.
+     * @param resp The {@code HttpServletResponse} object.
+     */
     @Override
     @Auditable
     @AllowedRoles({Role.CLIENT})

@@ -14,6 +14,19 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JdbcAddressRepository is a JDBC implementation of the AddressRepository interface
+ * for performing CRUD operations related to addresses in the database.
+ *
+ * The class is annotated with @ApplicationScoped, indicating that it may be managed
+ * by a CDI (Contexts and Dependency Injection) container.
+ *
+ * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ *
+ * @author Eugene Kulik
+ * @see AddressRepository
+ * @see JdbcTemplate
+ */
 @ApplicationScoped
 @NoArgsConstructor
 @Loggable

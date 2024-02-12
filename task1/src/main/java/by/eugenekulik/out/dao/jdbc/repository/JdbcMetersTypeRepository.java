@@ -1,6 +1,7 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
 import by.eugenekulik.model.MetersType;
+import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersTypeExtractor;
@@ -13,6 +14,19 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JdbcMetersTypeRepository is a JDBC implementation of the MetersTypeRepository interface
+ * for performing CRUD operations related to addresses in the database.
+ *
+ * The class is annotated with @ApplicationScoped, indicating that it may be managed
+ * by a CDI (Contexts and Dependency Injection) container.
+ *
+ * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ *
+ * @author Eugene Kulik
+ * @see MetersTypeRepository
+ * @see JdbcTemplate
+ */
 @ApplicationScoped
 @NoArgsConstructor
 @Loggable

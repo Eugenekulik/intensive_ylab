@@ -24,6 +24,30 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * {@code MetersDataServlet} is a servlet class that handles HTTP GET and POST requests
+ * related to meters data operations. It is annotated with {@code @WebServlet} to define the
+ * servlet mapping for the "/metersdata" URL and {@code @ApplicationScoped} to specify that
+ * the servlet instance is application-scoped.
+ *
+ * <p>The servlet relies on various injected services and components, such as
+ * {@code ValidationService}, {@code MetersDataService}, {@code MetersDataMapper}, and {@code Converter}.
+ * These dependencies are injected using the {@code @Inject} annotation on the {@code inject} method.
+ *
+ * <p>The servlet includes two main methods: {@code doGet} for handling HTTP GET requests and
+ * {@code doPost} for handling HTTP POST requests. Both methods are annotated with custom
+ * annotations {@code @Auditable} and {@code @AllowedRoles} to denote auditing and role-based
+ * access control, respectively.
+ *
+ * @author Eugene Kulik
+ * @see HttpServlet
+ * @see ValidationService
+ * @see MetersDataService
+ * @see MetersDataMapper
+ * @see Converter
+ * @see Auditable
+ * @see AllowedRoles
+ */
 @WebServlet("/metersdata")
 @NoArgsConstructor
 @ApplicationScoped
@@ -43,7 +67,12 @@ public class MetersDataServlet extends HttpServlet {
         this.converter = converter;
     }
 
-
+    /**
+     * Handles HTTP GET requests for retrieving a paginated list of meters data.
+     *
+     * @param req  The {@code HttpServletRequest} object.
+     * @param resp The {@code HttpServletResponse} object.
+     */
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
@@ -63,6 +92,12 @@ public class MetersDataServlet extends HttpServlet {
 
     }
 
+    /**
+     * Handles HTTP POST requests for creating new meters data.
+     *
+     * @param req  The {@code HttpServletRequest} object.
+     * @param resp The {@code HttpServletResponse} object.
+     */
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})

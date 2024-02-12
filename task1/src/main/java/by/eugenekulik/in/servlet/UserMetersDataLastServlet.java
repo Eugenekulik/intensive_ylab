@@ -21,6 +21,31 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * {@code UserMetersDataLastServlet} is a servlet class that handles HTTP GET requests
+ * related to retrieving the last recorded meters data for a specific user and meters type.
+ * It is annotated with {@code @WebServlet} to define the servlet mapping for the "/user/md/last" URL.
+ *
+ * <p>The servlet relies on various injected services and components, such as
+ * {@code MetersDataMapper}, {@code MetersDataService}, {@code Converter},
+ * {@code MetersTypeService}, and {@code AgreementService}. These dependencies are injected
+ * using the {@code @Inject} annotation on the {@code inject} method.
+ *
+ * <p>The servlet includes a main method: {@code doGet} for handling HTTP GET requests.
+ * This method retrieves the last recorded meters data for a specified agreement and meters type
+ * associated with the authenticated user, responds with a JSON representation of the meters data,
+ * and sets the HTTP response status to 200.
+ *
+ * @author Eugene Kulik
+ * @see HttpServlet
+ * @see MetersDataMapper
+ * @see MetersDataService
+ * @see Converter
+ * @see MetersTypeService
+ * @see AgreementService
+ * @see Auditable
+ * @see AllowedRoles
+ */
 @WebServlet("/user/md/last")
 public class UserMetersDataLastServlet extends HttpServlet {
 
@@ -40,6 +65,13 @@ public class UserMetersDataLastServlet extends HttpServlet {
         this.converter = converter;
     }
 
+    /**
+     * Handles HTTP GET requests for retrieving the last recorded meters data
+     * associated with the authenticated user, agreement, and meters type.
+     *
+     * @param req  The {@code HttpServletRequest} object.
+     * @param resp The {@code HttpServletResponse} object.
+     */
     @Override
     @Auditable
     @AllowedRoles({Role.CLIENT})

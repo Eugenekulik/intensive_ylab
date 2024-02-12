@@ -1,5 +1,6 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
+import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
@@ -14,6 +15,19 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JdbcAgreementRepository is a JDBC implementation of the AgreementRepository interface
+ * for performing CRUD operations related to agreements in the database.
+ *
+ * The class is annotated with @ApplicationScoped, indicating that it may be managed
+ * by a CDI (Contexts and Dependency Injection) container.
+ *
+ * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ *
+ * @author Eugene Kulik
+ * @see AgreementRepository
+ * @see JdbcTemplate
+ */
 @ApplicationScoped
 @NoArgsConstructor
 @Loggable

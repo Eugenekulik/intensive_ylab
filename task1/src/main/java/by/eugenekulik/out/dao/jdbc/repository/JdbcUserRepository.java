@@ -1,5 +1,6 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
+import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
@@ -14,6 +15,19 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JdbcUserRepository is a JDBC implementation of the UserRepository interface
+ * for performing CRUD operations related to users in the database.
+ *
+ * The class is annotated with @ApplicationScoped, indicating that it may be managed
+ * by a CDI (Contexts and Dependency Injection) container.
+ *
+ * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ *
+ * @author Eugene Kulik
+ * @see UserRepository
+ * @see JdbcTemplate
+ */
 @ApplicationScoped
 @NoArgsConstructor
 @Loggable

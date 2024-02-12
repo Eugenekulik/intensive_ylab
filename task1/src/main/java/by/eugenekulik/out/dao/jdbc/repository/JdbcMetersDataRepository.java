@@ -1,5 +1,6 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
+import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
@@ -15,6 +16,19 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JdbcMetersDataRepository is a JDBC implementation of the MetersDataRepository interface
+ * for performing CRUD operations related to metersData in the database.
+ *
+ * The class is annotated with @ApplicationScoped, indicating that it may be managed
+ * by a CDI (Contexts and Dependency Injection) container.
+ *
+ * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ *
+ * @author Eugene Kulik
+ * @see MetersDataRepository
+ * @see JdbcTemplate
+ */
 @ApplicationScoped
 @NoArgsConstructor
 @Loggable

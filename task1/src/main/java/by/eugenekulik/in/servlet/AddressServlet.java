@@ -24,6 +24,30 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * {@code AddressServlet} is a servlet class that handles HTTP GET and POST requests
+ * related to address operations. It is annotated with {@code @WebServlet} to define the
+ * servlet mapping for the "/address" URL and {@code @ApplicationScoped} to specify that
+ * the servlet instance is application-scoped.
+ *
+ * <p>The servlet relies on various injected services and components, such as
+ * {@code AddressService}, {@code AddressMapper}, {@code ValidationService}, and {@code Converter}.
+ * These dependencies are injected using the {@code @Inject} annotation on the {@code inject} method.
+ *
+ * <p>The servlet includes two main methods: {@code doGet} for handling HTTP GET requests and
+ * {@code doPost} for handling HTTP POST requests. Both methods are annotated with custom
+ * annotations {@code @Auditable} and {@code @AllowedRoles} to denote auditing and role-based
+ * access control, respectively.
+ *
+ * @author Eugene Kulik
+ * @see HttpServlet
+ * @see AddressService
+ * @see AddressMapper
+ * @see ValidationService
+ * @see Converter
+ * @see Auditable
+ * @see AllowedRoles
+ */
 @WebServlet("/address")
 @ApplicationScoped
 @NoArgsConstructor
@@ -44,6 +68,12 @@ public class AddressServlet extends HttpServlet {
         this.converter = converter;
     }
 
+    /**
+     * Handles HTTP GET requests for retrieving a paginated list of addresses.
+     *
+     * @param req  The {@code HttpServletRequest} object.
+     * @param resp The {@code HttpServletResponse} object.
+     */
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
@@ -64,6 +94,12 @@ public class AddressServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles HTTP POST requests for creating a new address.
+     *
+     * @param req  The {@code HttpServletRequest} object.
+     * @param resp The {@code HttpServletResponse} object.
+     */
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
@@ -88,6 +124,4 @@ public class AddressServlet extends HttpServlet {
             throw new RuntimeException(e); //TODO
         }
     }
-
-
 }
