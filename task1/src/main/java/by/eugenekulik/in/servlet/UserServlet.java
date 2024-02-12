@@ -48,6 +48,7 @@ public class UserServlet extends HttpServlet {
             resp.getWriter()
                 .append(converter.convertObjectToJson(
                     users.stream().map(mapper::fromUser).toList()));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

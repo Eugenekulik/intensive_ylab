@@ -56,6 +56,7 @@ public class MetersDataServlet extends HttpServlet {
             resp.getWriter().append(converter
                 .convertObjectToJson(
                     metersData.stream().map(mapper::toMetersDataDto).toList()));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException();
         }
@@ -79,6 +80,7 @@ public class MetersDataServlet extends HttpServlet {
             resp.getWriter().append(converter
                 .convertObjectToJson(mapper
                     .toMetersDataDto(metersData)));
+            resp.setStatus(201);
         } catch (IOException e) {
             throw new RuntimeException(e); //TODO
         }

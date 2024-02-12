@@ -30,6 +30,7 @@ public class LogoutServlet extends HttpServlet {
         req.getSession().setAttribute("authentication", new Authentication(User.guest));
         try {
             resp.getWriter().append(converter.convertObjectToJson("Logout"));
+            resp.setStatus(200);
         } catch (IOException e){
             throw new RuntimeException(e);
         }

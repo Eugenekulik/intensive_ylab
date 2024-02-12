@@ -58,6 +58,7 @@ public class RegistrationServlet extends HttpServlet {
         try {
             resp.getWriter()
                 .append(converter.convertObjectToJson("Registration successful"));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);//TODO
         }

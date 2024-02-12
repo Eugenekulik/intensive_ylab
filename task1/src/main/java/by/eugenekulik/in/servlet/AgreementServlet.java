@@ -56,6 +56,7 @@ public class AgreementServlet extends HttpServlet {
                 .append(converter.convertObjectToJson(
                     agreements.stream().map(mapper::toAgreementDto)
                         .toList()));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -79,6 +80,7 @@ public class AgreementServlet extends HttpServlet {
                 .append(converter
                     .convertObjectToJson(mapper
                         .toAgreementDto(agreement)));
+            resp.setStatus(201);
         } catch (IOException e) {
             throw new RuntimeException(e);//TODO
         }

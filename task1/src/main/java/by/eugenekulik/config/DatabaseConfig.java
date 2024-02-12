@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 @ApplicationScoped
+@Slf4j
 public class DatabaseConfig {
 
 
@@ -42,12 +44,14 @@ public class DatabaseConfig {
 
     @Produces
     public DataSource getDataSource() {
-        return new DataSource(properties.getProperty("database.url"),
+        DataSource dataSource = new DataSource(properties.getProperty("database.url"),
             properties.getProperty("database.name"),
             properties.getProperty("database.port"),
             properties.getProperty("database.user"),
             properties.getProperty("database.password"),
             properties.getProperty("database.driver"));
+        log.info(dataSource.createUrl());
+        return dataSource;
     }
 
     @Produces

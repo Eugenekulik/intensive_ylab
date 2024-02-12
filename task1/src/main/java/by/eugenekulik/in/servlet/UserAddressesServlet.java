@@ -53,6 +53,7 @@ public class UserAddressesServlet extends HttpServlet {
                 .append(converter.convertObjectToJson(
                     agreements.stream().map(mapper::toAddressDto)
                         .toList()));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

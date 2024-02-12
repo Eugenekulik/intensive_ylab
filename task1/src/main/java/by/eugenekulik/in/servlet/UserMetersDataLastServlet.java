@@ -59,6 +59,7 @@ public class UserMetersDataLastServlet extends HttpServlet {
                 .append(converter
                     .convertObjectToJson(mapper
                         .toMetersDataDto(metersData)));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

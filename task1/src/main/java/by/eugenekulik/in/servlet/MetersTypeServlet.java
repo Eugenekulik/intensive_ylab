@@ -50,6 +50,7 @@ public class MetersTypeServlet extends HttpServlet {
         try {
             resp.getWriter().append(converter
                 .convertObjectToJson(metersTypes.stream().map(mapper::toMetersTypeDto).toList()));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);//TODO
         }
@@ -74,6 +75,7 @@ public class MetersTypeServlet extends HttpServlet {
                 .convertObjectToJson(mapper
                     .toMetersTypeDto(metersTypeService
                         .create(metersType))));
+            resp.setStatus(201);
         } catch (IOException e) {
             throw new RuntimeException();//TODO
         }

@@ -58,6 +58,7 @@ public class AddressServlet extends HttpServlet {
                     addresses.stream().map(mapper::toAddressDto)
                         .toList()
                 ));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -82,6 +83,7 @@ public class AddressServlet extends HttpServlet {
                 .append(converter
                     .convertObjectToJson(mapper
                         .toAddressDto(addressService.create(address))));
+            resp.setStatus(201);
         } catch (IOException e) {
             throw new RuntimeException(e); //TODO
         }

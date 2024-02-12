@@ -56,6 +56,7 @@ public class AuthorizationServlet extends HttpServlet {
         req.getSession()
             .setAttribute("authentication",
                 new Authentication(user));
+        resp.setStatus(200);
         try {
             resp.getWriter()
                 .append(converter.convertObjectToJson("Authentication successful!"));

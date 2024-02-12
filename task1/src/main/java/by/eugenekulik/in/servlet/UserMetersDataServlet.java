@@ -64,6 +64,7 @@ public class UserMetersDataServlet extends HttpServlet {
                 .append(converter.convertObjectToJson(
                     metersData.stream().map(mapper::toMetersDataDto)
                         .toList()));
+            resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
