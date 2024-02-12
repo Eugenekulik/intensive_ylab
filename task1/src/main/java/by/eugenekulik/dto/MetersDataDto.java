@@ -1,5 +1,6 @@
 package by.eugenekulik.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -16,6 +17,7 @@ public record MetersDataDto(
     @Positive
     Double value,
     @NotNull
+    @JsonFormat(pattern = "dd/MM/yyyy")
     LocalDateTime placedAt) {
     @Override
     public String toString() {

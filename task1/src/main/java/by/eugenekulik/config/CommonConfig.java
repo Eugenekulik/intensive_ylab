@@ -23,7 +23,7 @@ public class CommonConfig {
     @Produces
     @Named("converter")
     public Converter converter(){
-        return new Converter(new ObjectMapper());
+        return new Converter(new ObjectMapper().findAndRegisterModules());
     }
 
 }

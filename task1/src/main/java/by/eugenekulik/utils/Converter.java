@@ -40,7 +40,7 @@ public class Converter {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(); //TODO
+            throw new RuntimeException(e); //TODO
         }
     }
 
