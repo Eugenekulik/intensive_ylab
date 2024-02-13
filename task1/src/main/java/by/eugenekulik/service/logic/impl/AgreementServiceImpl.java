@@ -5,6 +5,7 @@ import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.aspect.Transactional;
 import by.eugenekulik.service.logic.AgreementService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,20 +25,16 @@ import java.util.List;
 public class AgreementServiceImpl implements AgreementService {
 
     private AgreementRepository agreementRepository;
-    private TransactionManager transactionManager;
 
 
     /**
      * Constructs an AgreementService with the specified repositories.
      *
      * @param agreementRepository The repository responsible for managing agreements.
-     * @param transactionManager  It is needed to wrap certain database interaction logic in a transaction.
      */
     @Inject
-    public AgreementServiceImpl(AgreementRepository agreementRepository, TransactionManager transactionManager) {
+    public AgreementServiceImpl(AgreementRepository agreementRepository) {
         this.agreementRepository = agreementRepository;
-
-        this.transactionManager = transactionManager;
     }
 
     /**
@@ -50,8 +47,9 @@ public class AgreementServiceImpl implements AgreementService {
      *                                  or if an agreement with the same user and address already exists.
      */
     @Override
+    @Transactional
     public Agreement create(Agreement agreement) {
-        return transactionManager.doInTransaction(() -> agreementRepository.save(agreement));
+        return agreementRepository.save(agreement);
     }
 
     /**

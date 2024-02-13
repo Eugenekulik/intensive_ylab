@@ -5,6 +5,7 @@ import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.aspect.Transactional;
 import by.eugenekulik.service.logic.MetersDataService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,18 +27,15 @@ import java.util.List;
 public class MetersDataServiceImpl implements MetersDataService {
 
     private MetersDataRepository metersDataRepository;
-    private TransactionManager transactionManager;
 
     /**
      * Constructs a MetersDataService with the specified MetersDataRepository.
      *
      * @param metersDataRepository The repository responsible for managing meters data.
-     * @param transactionManager   It is needed to wrap certain database interaction logic in a transaction.
      */
     @Inject
-    public MetersDataServiceImpl(MetersDataRepository metersDataRepository, TransactionManager transactionManager) {
+    public MetersDataServiceImpl(MetersDataRepository metersDataRepository) {
         this.metersDataRepository = metersDataRepository;
-        this.transactionManager = transactionManager;
     }
 
     /**
@@ -51,6 +49,7 @@ public class MetersDataServiceImpl implements MetersDataService {
      *                                  have already been submitted for the current month.
      */
     @Override
+    @Transactional
     public MetersData create(MetersData metersData) {
         metersData.setPlacedAt(LocalDateTime.now());
         if (metersDataRepository.findByAgreementAndTypeAndMonth(metersData.getAgreementId(),
@@ -58,7 +57,7 @@ public class MetersDataServiceImpl implements MetersDataService {
             metersData.getPlacedAt().toLocalDate()).isPresent())
             throw new IllegalArgumentException("The readings of this meter have " +
                 "already been submitted this month");
-        return transactionManager.doInTransaction(() -> metersDataRepository.save(metersData));
+        return metersDataRepository.save(metersData);
     }
 
     /**

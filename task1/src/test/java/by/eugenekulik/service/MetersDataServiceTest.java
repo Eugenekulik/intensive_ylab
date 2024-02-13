@@ -27,12 +27,10 @@ class MetersDataServiceTest {
     private MetersDataService metersDataService;
     private MetersDataRepository metersDataRepository;
 
-    private TransactionManager transactionManager;
     @BeforeEach
     void setUp() {
         metersDataRepository = mock(MetersDataRepository.class);
-        transactionManager = mock(TransactionManager.class);
-        metersDataService = new MetersDataServiceImpl(metersDataRepository, transactionManager);
+        metersDataService = new MetersDataServiceImpl(metersDataRepository);
     }
 
     @Test
@@ -42,7 +40,7 @@ class MetersDataServiceTest {
         when(metersData.getPlacedAt()).thenReturn(LocalDateTime.now());
         when(metersDataRepository.findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any()))
             .thenReturn(Optional.empty());
-        when(transactionManager.doInTransaction(any()))
+        when(metersDataRepository.save(metersData))
             .thenReturn(metersData);
         assertEquals(metersData, metersDataService.create(metersData));
 
@@ -51,7 +49,7 @@ class MetersDataServiceTest {
             metersData.getMetersTypeId(),
             metersData.getPlacedAt().toLocalDate()
         );
-        verify(transactionManager).doInTransaction(any());
+        verify(metersDataRepository).save(metersData);
     }
 
     @Test

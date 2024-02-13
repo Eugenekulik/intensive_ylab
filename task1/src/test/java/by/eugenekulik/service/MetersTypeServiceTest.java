@@ -6,6 +6,7 @@ import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.service.logic.MetersTypeService;
 import by.eugenekulik.service.logic.impl.MetersTypeServiceImpl;
+import jakarta.enterprise.inject.spi.CDI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,37 +20,34 @@ class MetersTypeServiceTest {
 
     private MetersTypeService metersTypeService;
     private MetersTypeRepository metersTypeRepository;
-    private TransactionManager transactionManager;
 
     @BeforeEach
     void setUp() {
-        transactionManager = mock(TransactionManager.class);
         metersTypeRepository = mock(MetersTypeRepository.class);
-        metersTypeService = new MetersTypeServiceImpl(metersTypeRepository, transactionManager);
+        metersTypeService = new MetersTypeServiceImpl(metersTypeRepository);
     }
 
     @Test
     void testCreate_shouldSaveMetersType_whenNotExists() {
         MetersType metersType = mock(MetersType.class);
 
-        when(transactionManager.doInTransaction(any()))
-            .thenReturn(metersType);
+        when(metersTypeRepository.save(metersType)).thenReturn(metersType);
 
         assertEquals(metersType, metersTypeService.create(metersType));
 
-        verify(transactionManager).doInTransaction(any());
+        verify(metersTypeRepository).save(metersType);
     }
 
     @Test
     void testCreate_shouldThrowException_whenExists() {
         MetersType metersType = mock(MetersType.class);
 
-        when(transactionManager.doInTransaction(any()))
+        when(metersTypeRepository.save(metersType))
             .thenThrow(DatabaseInterectionException.class);
 
         assertThrows(DatabaseInterectionException.class, () -> metersTypeService.create(metersType));
 
-        verify(metersTypeRepository, never()).save(any());
+        verify(metersTypeRepository).save(metersType);
     }
 
     @Test

@@ -9,6 +9,7 @@ import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.aspect.Transactional;
 import by.eugenekulik.service.logic.UserService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -29,29 +30,26 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
-    private TransactionManager transactionManager;
-
     @Inject
-    public UserServiceImpl(UserRepository userRepository, TransactionManager transactionManager) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.transactionManager = transactionManager;
     }
 
 
     /**
      * Registers a new user if a user with the same username or email doesn't already exist.
-     * Sets the user role to CLIENT and logs in the registered user.
+     * Sets the user role to CLIENT.
      *
      * @param user The user to be registered.
      * @return The registered user.
      * @throws RegistrationException If a user with the same username or email already exists.
      */
     @Override
+    @Transactional
     public User register(User user) {
         try {
             user.setRole(Role.CLIENT);
-            User saved = transactionManager.doInTransaction(() -> userRepository.save(user));
-            return saved;
+            return userRepository.save(user);
         } catch (DatabaseInterectionException e) {
             throw new RegistrationException("user with this username or email already exists");
         }

@@ -23,26 +23,24 @@ class AddressServiceTest {
 
     private AddressRepository addressRepository;
 
-    private TransactionManager transactionManager;
     private AddressService addressService;
 
     @BeforeEach
     void setUp() {
         addressRepository = mock(AddressRepository.class);
-        transactionManager = mock(TransactionManager.class);
-        addressService = new AddressServiceImpl(addressRepository, transactionManager);
+        addressService = new AddressServiceImpl(addressRepository);
     }
 
     @Test
     void testCreate_shouldSave_whenNotExists() {
         Address address = mock(Address.class);
 
-        when(transactionManager.doInTransaction(any()))
+        when(addressRepository.save(address))
             .thenReturn(address);
 
         assertEquals(address, addressService.create(address));
 
-        verify(transactionManager).doInTransaction(any());
+        verify(addressRepository).save(address);
     }
 
 
@@ -50,12 +48,12 @@ class AddressServiceTest {
     void testCreate_shouldThrowException_whenExists() {
         Address address = mock(Address.class);
 
-        when(transactionManager.doInTransaction(any()))
+        when(addressRepository.save(address))
             .thenThrow(DatabaseInterectionException.class);
 
         assertThrows(DatabaseInterectionException.class, () -> addressService.create(address));
 
-        verify(transactionManager).doInTransaction(any());
+        verify(addressRepository).save(address);
     }
 
 

@@ -25,9 +25,7 @@ public class AspectService {
     private RecRepository recRepository;
 
     @Pointcut(value = "@annotation(allowedRoles) && execution(* *(..)) ")
-    public void callAllowedRolesMethod(AllowedRoles allowedRoles) {
-
-    }
+    public void callAllowedRolesMethod(AllowedRoles allowedRoles) {}
 
     @Pointcut(value = "@within(by.eugenekulik.service.aspect.Auditable) && execution(* *(..))")
     public void callAuditableMethod() {

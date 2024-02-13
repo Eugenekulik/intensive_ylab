@@ -23,13 +23,11 @@ class UserServiceTest {
 
     private UserService userService;
     private UserRepository userRepository;
-    private TransactionManager transactionManager;
 
     @BeforeEach
     void setUp() {
-        transactionManager = mock(TransactionManager.class);
         userRepository = mock(UserRepository.class);
-        userService = new UserServiceImpl(userRepository, transactionManager);
+        userService = new UserServiceImpl(userRepository);
     }
 
 
@@ -37,21 +35,24 @@ class UserServiceTest {
     void testRegister_shouldRegisterUser_whenNotExists() {
         User user = mock(User.class);
 
-        when(transactionManager.doInTransaction(any())).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
 
         assertEquals(user, userService.register(user));
+
+        verify(userRepository).save(user);
     }
 
     @Test
     void testRegister_shouldThrowException_whenUsernameOrEmailExists() {
         User user = mock(User.class);
 
-        when(transactionManager.doInTransaction(any())).thenThrow(DatabaseInterectionException.class);
+        when(userRepository.save(user))
+            .thenThrow(DatabaseInterectionException.class);
 
         assertThrows(RegistrationException.class, () -> userService.register(user),
             "user with this username or email already exists");
 
-        verify(transactionManager).doInTransaction(any());
+        verify(userRepository).save(user);
     }
 
 

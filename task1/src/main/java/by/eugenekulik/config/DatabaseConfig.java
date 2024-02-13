@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -16,14 +17,12 @@ import java.util.Properties;
 
 @ApplicationScoped
 @Slf4j
+@NoArgsConstructor
 public class DatabaseConfig {
 
 
     private Properties properties;
 
-    public DatabaseConfig() {
-
-    }
 
     @PostConstruct
     public void init() {

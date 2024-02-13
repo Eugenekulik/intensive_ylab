@@ -2,8 +2,8 @@ package by.eugenekulik.service.logic.impl;
 
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.aspect.Transactional;
 import by.eugenekulik.service.logic.MetersTypeService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -23,18 +23,16 @@ import java.util.List;
 public class MetersTypeServiceImpl implements MetersTypeService {
 
     private MetersTypeRepository metersTypeRepository;
-    private TransactionManager transactionManager;
+
 
     /**
      * Constructs a MetersTypeService with the specified MetersTypeRepository.
      *
      * @param metersTypeRepository The repository responsible for managing meters types.
-     * @param transactionManager   It is needed to wrap certain database interaction logic in a transaction.
      */
     @Inject
-    public MetersTypeServiceImpl(MetersTypeRepository metersTypeRepository, TransactionManager transactionManager) {
+    public MetersTypeServiceImpl(MetersTypeRepository metersTypeRepository) {
         this.metersTypeRepository = metersTypeRepository;
-        this.transactionManager = transactionManager;
     }
 
     /**
@@ -45,8 +43,9 @@ public class MetersTypeServiceImpl implements MetersTypeService {
      * @throws IllegalArgumentException If a meters type with the same name already exists.
      */
     @Override
+    @Transactional
     public MetersType create(MetersType metersType) {
-        return transactionManager.doInTransaction(() -> metersTypeRepository.save(metersType));
+        return metersTypeRepository.save(metersType);
     }
 
     /**

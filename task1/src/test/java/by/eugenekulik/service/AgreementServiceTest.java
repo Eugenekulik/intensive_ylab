@@ -24,37 +24,34 @@ class AgreementServiceTest {
 
     private AgreementRepository agreementRepository;
     private AgreementService agreementService;
-    private TransactionManager transactionManager;
 
     @BeforeEach
     void setup(){
-        transactionManager = mock(TransactionManager.class);
         agreementRepository = mock(AgreementRepository.class);
-        agreementService = new AgreementServiceImpl(agreementRepository,
-                                                    transactionManager);
+        agreementService = new AgreementServiceImpl(agreementRepository);
     }
 
     @Test
     void testCreate_shouldReturnAgreement_whenAddressAndUserValid(){
         Agreement agreement = Agreement.builder().userId(1L).addressId(1L).build();
 
-        when(transactionManager.doInTransaction(any())).thenReturn(agreement);
+        when(agreementRepository.save(agreement)).thenReturn(agreement);
 
         assertEquals(agreement, agreementService.create(agreement));
 
-        verify(transactionManager).doInTransaction(any());
+        verify(agreementRepository).save(agreement);
     }
 
     @Test
     void testCreate_shouldThrowException_whenNotValidConstraintsInRepository() {
         Agreement agreement = mock(Agreement.class);
 
-        when(transactionManager.doInTransaction(any()))
+        when(agreementRepository.save(agreement))
             .thenThrow(DatabaseInterectionException.class);
 
         assertThrows(DatabaseInterectionException.class, () -> agreementService.create(agreement));
 
-        verify(transactionManager).doInTransaction(any());
+        verify(agreementRepository).save(agreement);
     }
 
 

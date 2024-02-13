@@ -14,8 +14,6 @@ public record RegistrationDto(
     String password,
     @Email
     @NotNull
-    String email,
-    @NotNull
-    Role role
+    String email
 ) {
 }

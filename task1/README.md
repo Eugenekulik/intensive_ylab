@@ -15,7 +15,6 @@
    <li>JDK 17</li>
    <li>Maven</li>
    <li>Docker</li>
-   <li>Tomcat</li>
 </ul>
 
 # Install

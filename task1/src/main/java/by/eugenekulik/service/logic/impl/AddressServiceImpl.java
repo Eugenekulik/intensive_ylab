@@ -6,6 +6,7 @@ import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.service.aspect.Auditable;
 import by.eugenekulik.service.aspect.Timed;
+import by.eugenekulik.service.aspect.Transactional;
 import by.eugenekulik.service.logic.AddressService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,19 +26,16 @@ import java.util.List;
 public class AddressServiceImpl implements AddressService {
 
     private AddressRepository addressRepository;
-    private TransactionManager transactionManager;
 
 
     /**
      * Constructs an AddressService with the specified AddressRepository.
      *
      * @param addressRepository  The repository responsible for managing addresses.
-     * @param transactionManager It is needed to wrap certain database interaction logic in a transaction.
      */
     @Inject
-    public AddressServiceImpl(AddressRepository addressRepository, TransactionManager transactionManager) {
+    public AddressServiceImpl(AddressRepository addressRepository) {
         this.addressRepository = addressRepository;
-        this.transactionManager = transactionManager;
     }
 
 
@@ -49,8 +47,9 @@ public class AddressServiceImpl implements AddressService {
      * @throws IllegalArgumentException If the address already exists.
      */
     @Override
+    @Transactional
     public Address create(Address address) {
-        return transactionManager.doInTransaction(() -> addressRepository.save(address));
+        return addressRepository.save(address);
     }
 
 
