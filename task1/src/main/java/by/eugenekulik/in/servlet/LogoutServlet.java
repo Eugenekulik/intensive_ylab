@@ -48,11 +48,9 @@ public class LogoutServlet extends HttpServlet {
      *
      * @param req  The {@code HttpServletRequest} object.
      * @param resp The {@code HttpServletResponse} object.
-     * @throws ServletException If a servlet-related exception occurs.
-     * @throws IOException      If an I/O error occurs.
      */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         req.getSession().setAttribute("authentication", new Authentication(User.guest));
         try {
             resp.getWriter().append(converter.convertObjectToJson("Logout"));

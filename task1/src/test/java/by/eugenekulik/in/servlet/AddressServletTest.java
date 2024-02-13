@@ -1,25 +1,25 @@
 package by.eugenekulik.in.servlet;
 
+import by.eugenekulik.dto.AddressDto;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.service.ValidationService;
 import by.eugenekulik.service.logic.AddressService;
 import by.eugenekulik.service.mapper.AddressMapper;
-import by.eugenekulik.service.mapper.AddressMapperImpl;
 import by.eugenekulik.utils.Converter;
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeAll;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Path;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,26 +28,27 @@ import static org.mockito.Mockito.*;
 
 class AddressServletTest {
 
-    private static AddressServlet addressServlet;
-    private static AddressService addressService;
-    private static ValidationService validationService;
-    private static AddressMapper mapper;
+    private AddressServlet addressServlet;
+    private AddressService addressService;
+    private ValidationService validationService;
+    private AddressMapper mapper;
+    private Converter converter;
 
-    @BeforeAll
-    static void setUp(){
+    @BeforeEach
+    void setUp() {
         addressServlet = new AddressServlet();
         addressService = mock(AddressService.class);
-        mapper = new AddressMapperImpl();
+        mapper = mock(AddressMapper.class);
         validationService = mock(ValidationService.class);
-        addressServlet.inject(addressService, mapper, validationService);
+        converter = mock(Converter.class);
+        addressServlet.inject(addressService, mapper, validationService, converter);
     }
 
     @Test
-    void testDoGet_should() throws IOException {
+    void testDoGet_shouldWriteToResponseJsonOfListOfAddressDto() throws IOException {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         List<Address> addresses = new ArrayList<>();
-        PrintWriter writer = mock(PrintWriter.class);
         Address address = Address.builder()
             .id(1L)
             .region("region")
@@ -58,65 +59,80 @@ class AddressServletTest {
             .apartment("apartment")
             .build();
         addresses.add(address);
+        PrintWriter printWriter = mock(PrintWriter.class);
 
-        when(request.getParameter("page")).thenReturn("0");
-        when(request.getParameter("count")).thenReturn("10");
-        when(response.getWriter()).thenReturn(writer);
-        when(addressService.getPage(new Pageable(0,10))).thenReturn(addresses);
+        when(converter.getInteger(request, "page")).thenReturn(0);
+        when(converter.getInteger(request, "count")).thenReturn(10);
+        when(mapper.fromAddress(any())).thenReturn(mock(AddressDto.class));
+        when(converter.convertObjectToJson(any())).thenReturn("json");
+        when(response.getWriter()).thenReturn(printWriter);
+        when(addressService.getPage(new Pageable(0, 10))).thenReturn(addresses);
 
         addressServlet.doGet(request, response);
 
-        verify(writer).append("[{\"id\":1," +
-                "\"region\":\"region\"," +
-                "\"district\":\"district\"," +
-                "\"city\":\"city\"," +
-                "\"street\":\"street\"," +
-                "\"house\":\"house\"," +
-                "\"apartment\":\"apartment\"}]");
-
+        verify(converter).getInteger(request, "page");
+        verify(converter).getInteger(request, "count");
+        verify(mapper).fromAddress(any());
+        verify(addressService).getPage(new Pageable(0, 10));
+        verify(converter).convertObjectToJson(any());
+        verify(printWriter).append("json");
     }
 
 
     @Test
-    void testDoPost() throws IOException {
-        URL url = new URL("http://localhost:8080/ylab");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
+    void testDoPost_shouldSaveAndWriteJsonOfSavedAddress_whenAddressValid() throws IOException {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        AddressDto addressDto = mock(AddressDto.class);
+        Set<ConstraintViolation<AddressDto>> error = Collections.emptySet();
+        Address address = mock(Address.class);
+        PrintWriter printWriter = mock(PrintWriter.class);
 
-        String validJsonData = Converter.convertObjectToJson(Address.builder()
-            .id(1L)
-            .region("region")
-            .district("district")
-            .city("city")
-            .street("street")
-            .house("house")
-            .apartment("apartment")
-            .build());
+        when(converter.getRequestBody(request, AddressDto.class))
+            .thenReturn(addressDto);
+        when(validationService.validateObject(addressDto, "id"))
+            .thenReturn(error);
+        when(mapper.fromAddressDto(addressDto)).thenReturn(address);
+        when(addressService.create(address)).thenReturn(address);
+        when(mapper.fromAddress(address)).thenReturn(addressDto);
+        when(converter.convertObjectToJson(addressDto))
+            .thenReturn("json");
+        when(response.getWriter()).thenReturn(printWriter);
 
-        // Act
-        try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = validJsonData.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
+        addressServlet.doPost(request, response);
 
-        // Assert
-        int responseCode = connection.getResponseCode();
-        assertEquals(200, responseCode);
+        verify(converter).getRequestBody(request, AddressDto.class);
+        verify(validationService).validateObject(addressDto, "id");
+        verify(mapper).fromAddressDto(addressDto);
+        verify(addressService).create(address);
+        verify(mapper).fromAddress(address);
+        verify(converter).convertObjectToJson(addressDto);
+        verify(printWriter).append("json");
+    }
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
+    @Test
+    void testDoPost_shouldThrowValidationException_whenAddressNotValid() throws IOException {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        AddressDto addressDto = mock(AddressDto.class);
+        ConstraintViolation<AddressDto> error = mock(ConstraintViolation.class);
+        Set<ConstraintViolation<AddressDto>> errors = Set.of(error);
+        Path path = mock(Path.class);
 
-            // Add your assertions based on the response content
-            // assertEquals(expectedResponse, response.toString());
-        } finally {
-            connection.disconnect();
-        }
+        when(converter.getRequestBody(request, AddressDto.class))
+            .thenReturn(addressDto);
+        when(validationService.validateObject(addressDto, "id"))
+            .thenReturn(errors);
+        when(error.getMessage()).thenReturn("constraint message");
+        when(error.getPropertyPath()).thenReturn(path);
+        when(path.toString()).thenReturn("property name");
+
+
+        assertThrows(ValidationException.class, ()->addressServlet.doPost(request, response));
+
+        verify(converter).getRequestBody(request, AddressDto.class);
+        verify(validationService).validateObject(addressDto, "id");
+        verify(addressService, never()).create(any());
     }
 
 }
