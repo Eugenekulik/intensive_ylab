@@ -40,9 +40,8 @@ public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestConta
     public void start() {
         super.start();
         dataSource = new DataSource(
-            "jdbc:postgresql://localhost",
-            getDatabaseName(),
-            getFirstMappedPort().toString(),
+            "jdbc:postgresql://localhost:" +
+                getFirstMappedPort().toString() + "/" + getDatabaseName(),
             getUsername(),
             getPassword(),
             "org.postgresql.Driver");
@@ -52,7 +51,7 @@ public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestConta
 
     private void migration() {
         try{
-            Connection connection = DriverManager.getConnection(dataSource.createUrl(),
+            Connection connection = DriverManager.getConnection(dataSource.getUrl(),
                 dataSource.getUser(),
                 dataSource.getPassword());
             Database database = DatabaseFactory.getInstance()

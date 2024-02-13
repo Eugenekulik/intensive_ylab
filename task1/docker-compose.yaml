@@ -1,11 +1,23 @@
 services:
   ylab:
+    container_name: ylab
+    image: ylab:latest
     build:
-      dockerfile: Dockerfile
-      context: ./
+      args:
+        - d
+      dockerfile: ../Dockerfile
+      context: ./target
     ports:
       - "8080:8080"
+      - "5005:5005"
+    environment:
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n
+      DATABASE_URL: jdbc:postgresql://postgres:5432/ylab
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+
   postgres:
+    container_name: postgres
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: ylab

@@ -8,11 +8,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 @ApplicationScoped
@@ -20,7 +19,6 @@ import java.util.Properties;
 public class DatabaseConfig {
 
 
-    private static final Logger LOGGER = LogManager.getLogger(DatabaseConfig.class);
     private Properties properties;
 
     public DatabaseConfig() {
@@ -30,13 +28,17 @@ public class DatabaseConfig {
     @PostConstruct
     public void init() {
         properties = new Properties();
+        String currentDirectory = System.getProperty("java.class.path");
+        String filePath = currentDirectory + "/application.properties";
         try (InputStream resourceAsStream = getClass().getClassLoader()
             .getResourceAsStream("application.properties")) {
             properties.load(resourceAsStream);
         } catch (IOException e) {
-            LOGGER.error("unable to load configuration file");
-            throw new RuntimeException();
+            log.error("unable to load configuration file");
         }
+        Map<String, String> getenv = System.getenv();
+        getenv.entrySet().forEach(e-> properties.put(e.getKey()
+            .toLowerCase().replace('_','.'), e.getValue()));
         MigrationService migrationService = new MigrationService(getDataSource());
         migrationService.applyChanges();
     }
@@ -45,12 +47,9 @@ public class DatabaseConfig {
     @Produces
     public DataSource getDataSource() {
         DataSource dataSource = new DataSource(properties.getProperty("database.url"),
-            properties.getProperty("database.name"),
-            properties.getProperty("database.port"),
             properties.getProperty("database.user"),
             properties.getProperty("database.password"),
             properties.getProperty("database.driver"));
-        log.info(dataSource.createUrl());
         return dataSource;
     }
 

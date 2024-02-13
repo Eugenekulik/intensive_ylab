@@ -59,7 +59,7 @@ public class ConnectionPool {
 
     private PooledConnection createConnection() throws SQLException {
         return new PooledConnection(DriverManager
-            .getConnection(dataSource.createUrl(), dataSource.getUser(), dataSource.getPassword()));
+            .getConnection(dataSource.getUrl(), dataSource.getUser(), dataSource.getPassword()));
     }
 
     private void freeConnection(PooledConnection connection) {

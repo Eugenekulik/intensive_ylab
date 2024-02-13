@@ -28,7 +28,7 @@ public class MigrationService {
 
     public void applyChanges() {
         try {
-            Connection connection = DriverManager.getConnection(dataSource.createUrl(),
+            Connection connection = DriverManager.getConnection(dataSource.getUrl(),
                 dataSource.getUser(),
                 dataSource.getPassword());
             Database database = DatabaseFactory.getInstance()

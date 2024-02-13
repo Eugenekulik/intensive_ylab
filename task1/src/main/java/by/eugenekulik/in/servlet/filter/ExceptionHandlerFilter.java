@@ -16,14 +16,12 @@ import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
 /**
- * {@code ExseptionHandlerFilter} is a servlet filter responsible for handling exceptions
+ * {@code ExceptionHandlerFilter} is a servlet filter responsible for handling exceptions
  * thrown during the processing of requests. It catches specified runtime exceptions and
  * customizes the HTTP response accordingly.
  *
@@ -55,7 +53,7 @@ import java.util.Map;
 @WebFilter(filterName = "a_exception_handler", value = "/*")
 @ApplicationScoped
 @Slf4j
-public class ExseptionHandlerFilter implements Filter {
+public class ExceptionHandlerFilter implements Filter {
 
     private Converter converter;
     private Map<Class<? extends Exception>, Integer> exceptions;
