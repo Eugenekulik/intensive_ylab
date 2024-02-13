@@ -6,8 +6,8 @@ import org.mapstruct.Mapper;
 
 @Mapper
 public interface AgreementMapper {
-    Agreement toAgreement(AgreementDto agreementDto);
+    Agreement fromAgreementDto(AgreementDto agreementDto);
 
-    AgreementDto toAgreementDto(Agreement agreement);
+    AgreementDto fromAgreement(Agreement agreement);
 
 }

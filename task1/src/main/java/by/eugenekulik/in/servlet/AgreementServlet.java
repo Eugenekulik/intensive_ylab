@@ -59,8 +59,8 @@ public class AgreementServlet extends HttpServlet {
     private Converter converter;
 
     @Inject
-    public void inject(AgreementService agreementService, ValidationService validationService, 
-                       AgreementMapper mapper, Converter converter) {
+    public void inject(AgreementService agreementService, AgreementMapper mapper,
+                       ValidationService validationService, Converter converter) {
         this.agreementService = agreementService;
         this.validationService = validationService;
         this.mapper = mapper;
@@ -85,7 +85,7 @@ public class AgreementServlet extends HttpServlet {
         try {
             resp.getWriter()
                 .append(converter.convertObjectToJson(
-                    agreements.stream().map(mapper::toAgreementDto)
+                    agreements.stream().map(mapper::fromAgreement)
                         .toList()));
             resp.setStatus(200);
         } catch (IOException e) {
@@ -104,19 +104,20 @@ public class AgreementServlet extends HttpServlet {
     @AllowedRoles({Role.ADMIN})
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         AgreementDto agreementDto = converter.getRequestBody(req, AgreementDto.class);
-        Set<ConstraintViolation<AgreementDto>> errors = validationService.validateObject(agreementDto);
+        Set<ConstraintViolation<AgreementDto>> errors = validationService
+            .validateObject(agreementDto, "id");
         if (!errors.isEmpty()) {
             StringBuilder message = new StringBuilder();
             errors.stream().forEach(e -> message.append(e.getPropertyPath()).append(": ")
                 .append(e.getMessage()).append(", "));
             throw new ValidationException(message.toString());
         }
-        Agreement agreement = agreementService.create(mapper.toAgreement(agreementDto));
+        Agreement agreement = agreementService.create(mapper.fromAgreementDto(agreementDto));
         try {
             resp.getWriter()
                 .append(converter
                     .convertObjectToJson(mapper
-                        .toAgreementDto(agreement)));
+                        .fromAgreement(agreement)));
             resp.setStatus(201);
         } catch (IOException e) {
             throw new RuntimeException(e);//TODO

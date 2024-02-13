@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface MetersTypeMapper {
 
-    MetersType toMetersType(MetersTypeDto metersTypeDto);
+    MetersType fromMetersTypeDto(MetersTypeDto metersTypeDto);
 
-    MetersTypeDto toMetersTypeDto(MetersType metersType);
+    MetersTypeDto fromMetersType(MetersType metersType);
 }

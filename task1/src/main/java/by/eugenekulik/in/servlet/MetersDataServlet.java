@@ -59,8 +59,8 @@ public class MetersDataServlet extends HttpServlet {
     private Converter converter;
 
     @Inject
-    public void inject(ValidationService validationService, MetersDataService metersDataService,
-                       MetersDataMapper mapper, Converter converter) {
+    public void inject(MetersDataService metersDataService, MetersDataMapper mapper,
+                       ValidationService validationService,  Converter converter) {
         this.validationService = validationService;
         this.metersDataService = metersDataService;
         this.mapper = mapper;
@@ -84,7 +84,7 @@ public class MetersDataServlet extends HttpServlet {
         try {
             resp.getWriter().append(converter
                 .convertObjectToJson(
-                    metersData.stream().map(mapper::toMetersDataDto).toList()));
+                    metersData.stream().map(mapper::fromMetersData).toList()));
             resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException();
@@ -103,18 +103,19 @@ public class MetersDataServlet extends HttpServlet {
     @AllowedRoles({Role.ADMIN})
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         MetersDataDto metersDataDto = converter.getRequestBody(req, MetersDataDto.class);
-        Set<ConstraintViolation<MetersDataDto>> errors = validationService.validateObject(metersDataDto);
+        Set<ConstraintViolation<MetersDataDto>> errors = validationService
+            .validateObject(metersDataDto, "id");
         if (!errors.isEmpty()) {
             StringBuilder message = new StringBuilder();
             errors.stream().forEach(e -> message.append(e.getPropertyPath()).append(": ")
                 .append(e.getMessage()).append(", "));
             throw new ValidationException(message.toString());
         }
-        MetersData metersData = metersDataService.create(mapper.toMetersData(metersDataDto));
+        MetersData metersData = metersDataService.create(mapper.fromMetersDataDto(metersDataDto));
         try {
             resp.getWriter().append(converter
                 .convertObjectToJson(mapper
-                    .toMetersDataDto(metersData)));
+                    .fromMetersData(metersData)));
             resp.setStatus(201);
         } catch (IOException e) {
             throw new RuntimeException(e); //TODO

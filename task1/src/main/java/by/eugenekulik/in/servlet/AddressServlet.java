@@ -85,7 +85,7 @@ public class AddressServlet extends HttpServlet {
         try {
             resp.getWriter()
                 .append(converter.convertObjectToJson(
-                    addresses.stream().map(mapper::toAddressDto)
+                    addresses.stream().map(mapper::fromAddress)
                         .toList()
                 ));
             resp.setStatus(200);
@@ -105,7 +105,8 @@ public class AddressServlet extends HttpServlet {
     @AllowedRoles({Role.ADMIN})
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         AddressDto addressDto = converter.getRequestBody(req, AddressDto.class);
-        Set<ConstraintViolation<AddressDto>> errors = validationService.validateObject(addressDto);
+        Set<ConstraintViolation<AddressDto>> errors = validationService
+            .validateObject(addressDto, "id");
         if (!errors.isEmpty()) {
             StringBuilder message = new StringBuilder();
             message.append("errors: ");
@@ -113,12 +114,12 @@ public class AddressServlet extends HttpServlet {
                 .append(e.getMessage()).append(", "));
             throw new ValidationException(message.toString());
         }
-        Address address = mapper.toAddress(addressDto);
+        Address address = mapper.fromAddressDto(addressDto);
         try {
             resp.getWriter()
                 .append(converter
                     .convertObjectToJson(mapper
-                        .toAddressDto(addressService.create(address))));
+                        .fromAddress(addressService.create(address))));
             resp.setStatus(201);
         } catch (IOException e) {
             throw new RuntimeException(e); //TODO

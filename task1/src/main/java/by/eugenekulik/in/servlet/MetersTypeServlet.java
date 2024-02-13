@@ -58,8 +58,8 @@ public class MetersTypeServlet extends HttpServlet {
     private Converter converter;
 
     @Inject
-    public void inject(MetersTypeService metersTypeService, ValidationService validationService,
-                       MetersTypeMapper mapper, Converter converter) {
+    public void inject(MetersTypeService metersTypeService, MetersTypeMapper mapper,
+                       ValidationService validationService, Converter converter) {
         this.metersTypeService = metersTypeService;
         this.validationService = validationService;
         this.mapper = mapper;
@@ -79,7 +79,7 @@ public class MetersTypeServlet extends HttpServlet {
         List<MetersType> metersTypes = metersTypeService.findAll();
         try {
             resp.getWriter().append(converter
-                .convertObjectToJson(metersTypes.stream().map(mapper::toMetersTypeDto).toList()));
+                .convertObjectToJson(metersTypes.stream().map(mapper::fromMetersType).toList()));
             resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);//TODO
@@ -97,7 +97,8 @@ public class MetersTypeServlet extends HttpServlet {
     @AllowedRoles({Role.ADMIN})
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         MetersTypeDto metersTypeDto = converter.getRequestBody(req, MetersTypeDto.class);
-        Set<ConstraintViolation<MetersTypeDto>> errors = validationService.validateObject(metersTypeDto, "id");
+        Set<ConstraintViolation<MetersTypeDto>> errors = validationService
+            .validateObject(metersTypeDto, "id");
         if (!errors.isEmpty()) {
             StringBuilder message = new StringBuilder();
             message.append("errors: ");
@@ -105,11 +106,11 @@ public class MetersTypeServlet extends HttpServlet {
                 .append(e.getMessage()).append(", "));
             throw new ValidationException(message.toString());
         }
-        MetersType metersType = mapper.toMetersType(metersTypeDto);
+        MetersType metersType = mapper.fromMetersTypeDto(metersTypeDto);
         try {
             resp.getWriter().append(converter
                 .convertObjectToJson(mapper
-                    .toMetersTypeDto(metersTypeService
+                    .fromMetersType(metersTypeService
                         .create(metersType))));
             resp.setStatus(201);
         } catch (IOException e) {

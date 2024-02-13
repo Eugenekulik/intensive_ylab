@@ -75,7 +75,7 @@ public class UserAgreementsServlet extends HttpServlet {
         try {
             resp.getWriter()
                 .append(converter.convertObjectToJson(
-                    agreements.stream().map(mapper::toAgreementDto)
+                    agreements.stream().map(mapper::fromAgreement)
                         .toList()));
             resp.setStatus(200);
         } catch (IOException e) {

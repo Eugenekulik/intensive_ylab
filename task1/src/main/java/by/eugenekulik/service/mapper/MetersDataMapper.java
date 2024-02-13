@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper
 public interface MetersDataMapper {
-    MetersData toMetersData(MetersDataDto metersDataDto);
+    MetersData fromMetersDataDto(MetersDataDto metersDataDto);
 
-    MetersDataDto toMetersDataDto(MetersData metersData);
+    MetersDataDto fromMetersData(MetersData metersData);
 }

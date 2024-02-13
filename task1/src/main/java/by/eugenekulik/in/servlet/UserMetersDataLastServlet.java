@@ -90,7 +90,7 @@ public class UserMetersDataLastServlet extends HttpServlet {
             resp.getWriter()
                 .append(converter
                     .convertObjectToJson(mapper
-                        .toMetersDataDto(metersData)));
+                        .fromMetersData(metersData)));
             resp.setStatus(200);
         } catch (IOException e) {
             throw new RuntimeException(e);
