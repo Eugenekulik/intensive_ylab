@@ -19,10 +19,10 @@ import java.util.Optional;
 /**
  * JdbcMetersDataRepository is a JDBC implementation of the MetersDataRepository interface
  * for performing CRUD operations related to metersData in the database.
- *
+ * <p>
  * The class is annotated with @ApplicationScoped, indicating that it may be managed
  * by a CDI (Contexts and Dependency Injection) container.
- *
+ * <p>
  * It also uses the @Loggable annotation to enable logging for the methods in the class.
  *
  * @author Eugene Kulik
@@ -31,7 +31,6 @@ import java.util.Optional;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Loggable
 public class JdbcMetersDataRepository implements MetersDataRepository {
     private JdbcTemplate jdbcTemplate;
     private MetersDataExtractor extractor = new MetersDataExtractor();
@@ -43,6 +42,7 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
 
 
     @Override
+    @Loggable
     public Optional<MetersData> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
@@ -53,6 +53,7 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
     }
 
     @Override
+    @Loggable
     public MetersData save(MetersData metersData) {
         jdbcTemplate.update(
             """
@@ -70,6 +71,7 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
     }
 
     @Override
+    @Loggable
     public Optional<MetersData> findByAgreementAndTypeAndMonth(Long agreementId,
                                                                Long metersTypeId,
                                                                LocalDate placedAt) {
@@ -84,6 +86,7 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
     }
 
     @Override
+    @Loggable
     public List<MetersData> getPage(Pageable pageable) {
         return jdbcTemplate.query(
             """
@@ -98,6 +101,7 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
     }
 
     @Override
+    @Loggable
     public List<MetersData> getPageByAgreement(Long agreementId, int page, int count) {
         return jdbcTemplate.query(
             """
@@ -113,6 +117,7 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
     }
 
     @Override
+    @Loggable
     public Optional<MetersData> findLastByAgreementAndType(Long agreementId, Long metersTypeId) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
@@ -125,6 +130,7 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
     }
 
     @Override
+    @Loggable
     public List<MetersData> findByAgreementAndType(long agreementId, Long meterTypeId, Pageable pageable) {
         return jdbcTemplate.query("""
                         SELECT id, meters_type_id, agreement_id, value, placed_at

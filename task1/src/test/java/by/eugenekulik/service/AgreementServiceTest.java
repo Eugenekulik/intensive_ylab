@@ -1,5 +1,6 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Address;
@@ -20,7 +21,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class AgreementServiceTest {
+class AgreementServiceTest extends TestConfigurationEnvironment {
 
     private AgreementRepository agreementRepository;
     private AgreementService agreementService;

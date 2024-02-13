@@ -1,5 +1,6 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
@@ -16,7 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class MetersTypeServiceTest {
+class MetersTypeServiceTest extends TestConfigurationEnvironment {
 
     private MetersTypeService metersTypeService;
     private MetersTypeRepository metersTypeRepository;
@@ -64,15 +65,15 @@ class MetersTypeServiceTest {
 
     @Test
     void testFindByName_shouldThrowException_whenNotExists() {
-        String nonExistentMetersTypeName = "electric";
+        String name = "electric";
 
-        when(metersTypeRepository.findByName(nonExistentMetersTypeName)).thenReturn(Optional.empty());
+        when(metersTypeRepository.findByName(name)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> metersTypeService.findByName(nonExistentMetersTypeName),
-            "not found metersType with name: " + nonExistentMetersTypeName);
+        assertThrows(IllegalArgumentException.class,
+            () -> metersTypeService.findByName(name),
+            "not found metersType with name: " + name);
 
-        verify(metersTypeRepository).findByName(nonExistentMetersTypeName);
+        verify(metersTypeRepository).findByName(name);
     }
 
     @Test

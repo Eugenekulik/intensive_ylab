@@ -1,5 +1,6 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.Address;
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class AddressServiceTest {
+class AddressServiceTest extends TestConfigurationEnvironment {
 
 
     private AddressRepository addressRepository;

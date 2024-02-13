@@ -18,10 +18,10 @@ import java.util.Optional;
 /**
  * JdbcUserRepository is a JDBC implementation of the UserRepository interface
  * for performing CRUD operations related to users in the database.
- *
+ * <p>
  * The class is annotated with @ApplicationScoped, indicating that it may be managed
  * by a CDI (Contexts and Dependency Injection) container.
- *
+ * <p>
  * It also uses the @Loggable annotation to enable logging for the methods in the class.
  *
  * @author Eugene Kulik
@@ -30,7 +30,6 @@ import java.util.Optional;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Loggable
 public class JdbcUserRepository implements UserRepository {
 
     private JdbcTemplate jdbcTemplate;
@@ -43,6 +42,7 @@ public class JdbcUserRepository implements UserRepository {
 
 
     @Override
+    @Loggable
     public Optional<User> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
@@ -53,6 +53,7 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
+    @Loggable
     public Optional<User> findByUsername(String username) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
@@ -63,6 +64,7 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
+    @Loggable
     public Optional<User> findByEmail(String email) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
@@ -73,6 +75,7 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
+    @Loggable
     public User save(User user) {
         jdbcTemplate.update(
             """
@@ -90,6 +93,7 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
+    @Loggable
     public List<User> getPage(Pageable pageable) {
         return jdbcTemplate.query(
             """

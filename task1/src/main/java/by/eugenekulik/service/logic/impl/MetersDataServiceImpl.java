@@ -23,7 +23,6 @@ import java.util.List;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Timed
 public class MetersDataServiceImpl implements MetersDataService {
 
     private MetersDataRepository metersDataRepository;
@@ -49,6 +48,7 @@ public class MetersDataServiceImpl implements MetersDataService {
      *                                  have already been submitted for the current month.
      */
     @Override
+    @Timed
     @Transactional
     public MetersData create(MetersData metersData) {
         metersData.setPlacedAt(LocalDateTime.now());
@@ -70,6 +70,7 @@ public class MetersDataServiceImpl implements MetersDataService {
      * @throws IllegalArgumentException If no meters data is found.
      */
     @Override
+    @Timed
     public MetersData findByAgreementAndTypeAndMonth(Long agreementId, Long metersTypeId, LocalDate localDate) {
         return metersDataRepository.findByAgreementAndTypeAndMonth(agreementId, metersTypeId, localDate)
             .orElseThrow(() -> new IllegalArgumentException("not fount metersData"));
@@ -84,6 +85,7 @@ public class MetersDataServiceImpl implements MetersDataService {
      * @throws IllegalArgumentException If no meters data is found.
      */
     @Override
+    @Timed
     public MetersData findLastByAgreementAndType(Long agreementId, Long metersTypeId) {
         return metersDataRepository.findLastByAgreementAndType(agreementId, metersTypeId)
             .orElseThrow(() -> new IllegalArgumentException("not found metersData"));
@@ -97,11 +99,13 @@ public class MetersDataServiceImpl implements MetersDataService {
      * @throws IllegalArgumentException If count is less than 1 or if page is negative.
      */
     @Override
+    @Timed
     public List<MetersData> getPage(Pageable pageable) {
         return metersDataRepository.getPage(pageable);
     }
 
     @Override
+    @Timed
     public List<MetersData> findByAgreementAndType(long agreementId, Long meterTypeId, Pageable pageable) {
         return metersDataRepository.findByAgreementAndType(agreementId, meterTypeId, pageable);
     }

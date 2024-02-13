@@ -1,5 +1,6 @@
 package by.eugenekulik.in.servlet;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.dto.UserDto;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.Pageable;
@@ -19,7 +20,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class UserServletTest {
+class UserServletTest extends TestConfigurationEnvironment {
     private UserServlet userServlet;
     private UserService userService;
     private UserMapper mapper;

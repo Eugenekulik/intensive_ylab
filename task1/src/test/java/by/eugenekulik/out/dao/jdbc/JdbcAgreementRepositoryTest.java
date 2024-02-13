@@ -1,5 +1,7 @@
 package by.eugenekulik.out.dao.jdbc;
 
+import by.eugenekulik.PostgresTestContainer;
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.Pageable;
@@ -13,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-class JdbcAgreementRepositoryTest extends ConfiguraionEnviroment{
+class JdbcAgreementRepositoryTest extends TestConfigurationEnvironment {
 
 
 
@@ -21,6 +23,7 @@ class JdbcAgreementRepositoryTest extends ConfiguraionEnviroment{
 
     @BeforeAll
     static void setUp(){
+        postgreSQLContainer = PostgresTestContainer.getInstance();
         ConnectionPool connectionPool =
             new ConnectionPool(postgreSQLContainer.getDataSource(), 1, 30);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);

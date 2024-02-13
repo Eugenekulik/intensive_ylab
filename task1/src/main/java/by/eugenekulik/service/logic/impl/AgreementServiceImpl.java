@@ -21,7 +21,6 @@ import java.util.List;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Timed
 public class AgreementServiceImpl implements AgreementService {
 
     private AgreementRepository agreementRepository;
@@ -47,6 +46,7 @@ public class AgreementServiceImpl implements AgreementService {
      *                                  or if an agreement with the same user and address already exists.
      */
     @Override
+    @Timed
     @Transactional
     public Agreement create(Agreement agreement) {
         return agreementRepository.save(agreement);
@@ -60,6 +60,7 @@ public class AgreementServiceImpl implements AgreementService {
      * @throws IllegalArgumentException If page is negative or if count is less than 1.
      */
     @Override
+    @Timed
     public List<Agreement> getPage(Pageable pageable) {
         return agreementRepository.getPage(pageable);
     }
@@ -71,6 +72,7 @@ public class AgreementServiceImpl implements AgreementService {
      * @return A list of agreements associated with the specified user ID.
      */
     @Override
+    @Timed
     public List<Agreement> findByUser(Long userId, Pageable pageable) {
         return agreementRepository.findByUserId(userId, pageable);
     }
@@ -83,6 +85,7 @@ public class AgreementServiceImpl implements AgreementService {
      * @throws IllegalArgumentException If no agreement is found with the specified ID.
      */
     @Override
+    @Timed
     public Agreement findById(Long agreementId) {
         return agreementRepository.findById(agreementId)
             .orElseThrow(() -> new IllegalArgumentException("Not found agreement with id: " + agreementId));

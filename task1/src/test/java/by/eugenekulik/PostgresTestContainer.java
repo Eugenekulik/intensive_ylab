@@ -1,9 +1,6 @@
-package by.eugenekulik.out.dao.jdbc;
+package by.eugenekulik;
 
-import by.eugenekulik.out.dao.jdbc.repository.JdbcAgreementRepository;
-import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
 import by.eugenekulik.out.dao.jdbc.utils.DataSource;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;

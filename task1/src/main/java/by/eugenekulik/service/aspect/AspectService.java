@@ -2,30 +2,49 @@ package by.eugenekulik.service.aspect;
 
 import by.eugenekulik.exception.AccessDeniedException;
 import by.eugenekulik.model.Rec;
-import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.jdbc.repository.RecRepository;
+import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.security.Authentication;
 import by.eugenekulik.utils.ContextUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 
 @Aspect
+@Slf4j
 public class AspectService {
 
-    private Logger log = LoggerFactory.getLogger(AspectService.class);
+    private static AspectService INSTANCE = new AspectService();
     private RecRepository recRepository;
+    private ContextUtils contextUtils;
+    private TransactionManager transactionManager;
+
+    public static AspectService aspectOf() {
+        return INSTANCE;
+    }
+
+    public void inject(RecRepository recRepository, ContextUtils contextUtils,
+                       TransactionManager transactionManager) {
+        this.recRepository = recRepository;
+        this.contextUtils = contextUtils;
+        this.transactionManager = transactionManager;
+    }
+
+    @Pointcut(value = "@within(by.eugenekulik.service.aspect.Transactional) && execution(* *(..))")
+    public void callTransactionMethod() {
+    }
 
     @Pointcut(value = "@annotation(allowedRoles) && execution(* *(..)) ")
-    public void callAllowedRolesMethod(AllowedRoles allowedRoles) {}
+    public void callAllowedRolesMethod(AllowedRoles allowedRoles) {
+    }
 
     @Pointcut(value = "@within(by.eugenekulik.service.aspect.Auditable) && execution(* *(..))")
     public void callAuditableMethod() {
@@ -39,10 +58,15 @@ public class AspectService {
     public void callLoggableMethod() {
     }
 
+    @Around("callTransactionMethod()")
+    public Object transaction(ProceedingJoinPoint joinPoint) {
+        return transactionManager.doInTransaction(joinPoint::proceed);
+    }
+
     @Before(value = "callAllowedRolesMethod(allowedRoles)", argNames = "allowedRoles")
     public void secure(AllowedRoles allowedRoles) {
-        HttpServletRequest request = ContextUtils.getBean(HttpServletRequest.class);
-        Object object = request.getSession().getAttribute("authentication");
+        HttpSession session = contextUtils.getBean(HttpSession.class);
+        Object object = session.getAttribute("authentication");
         Authentication authentication;
         if (object == null) {
             authentication = new Authentication(User.guest);
@@ -58,50 +82,38 @@ public class AspectService {
     }
 
     @Around("callLoggableMethod()")
-    public Object log(ProceedingJoinPoint joinPoint) {
-        try {
-            StringBuilder builder = new StringBuilder();
-            builder.append("class: ").append(joinPoint.getSignature().getDeclaringType().getName());
-            builder.append(", method: ").append(joinPoint.getSignature().getName());
-            builder.append(", params: ");
-            Arrays.stream(joinPoint.getArgs()).forEach(arg -> builder.append(arg.toString()).append(", "));
-            log.info("before: {}", builder);
-            Object retVal = joinPoint.proceed();
-            log.info("after: {}", builder);
-            return retVal;
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-
+    public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
+        StringBuilder builder = new StringBuilder();
+        builder.append("class: ").append(joinPoint.getSignature().getDeclaringType().getName());
+        builder.append(", method: ").append(joinPoint.getSignature().getName());
+        builder.append(", params: ");
+        Arrays.stream(joinPoint.getArgs()).forEach(arg -> builder.append(arg.toString()).append(", "));
+        log.info("before: {}", builder);
+        Object retVal = joinPoint.proceed();
+        log.info("after: {}", builder);
+        return retVal;
     }
 
 
     @Around("callTimedMethod()")
-    public Object timed(ProceedingJoinPoint joinPoint) {
-        try {
-            StringBuilder builder = new StringBuilder();
-            builder.append(joinPoint.getSignature().getDeclaringType().getName());
-            builder.append(".").append(joinPoint.getSignature().getName());
-            builder.append("(");
-            Arrays.stream(joinPoint.getArgs()).forEach(arg -> builder.append(arg.toString()).append(", "));
-            long before = System.currentTimeMillis();
-            Object retVal = joinPoint.proceed();
-            long after = System.currentTimeMillis();
-            builder.append("execution time: ").append(after - before).append("ms");
-            log.info(builder.toString());
-            return retVal;
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
+    public Object timed(ProceedingJoinPoint joinPoint) throws Throwable {
+        StringBuilder builder = new StringBuilder();
+        builder.append(joinPoint.getSignature().getDeclaringType().getName());
+        builder.append(".").append(joinPoint.getSignature().getName());
+        builder.append("(");
+        Arrays.stream(joinPoint.getArgs()).forEach(arg -> builder.append(arg.toString()).append(", "));
+        long before = System.currentTimeMillis();
+        Object retVal = joinPoint.proceed();
+        long after = System.currentTimeMillis();
+        builder.append("execution time: ").append(after - before).append("ms");
+        log.info(builder.toString());
+        return retVal;
     }
 
     @AfterReturning("callAuditableMethod()")
     public void audit(JoinPoint joinPoint) {
-        if (recRepository == null) {
-            recRepository = ContextUtils.getBean(RecRepository.class);
-        }
         StringBuilder builder = new StringBuilder();
-        HttpServletRequest httpServletRequest = ContextUtils.getBean(HttpServletRequest.class);
+        HttpServletRequest httpServletRequest = contextUtils.getBean(HttpServletRequest.class);
         Authentication authentication = (Authentication) httpServletRequest.getAttribute("authentication");
         builder.append("User: ").append(authentication.getUser().getUsername())
             .append(", with role: ").append(authentication.getUser().getRole().toString())

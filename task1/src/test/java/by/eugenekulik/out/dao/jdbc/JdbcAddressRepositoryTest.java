@@ -1,38 +1,29 @@
 package by.eugenekulik.out.dao.jdbc;
 
+import by.eugenekulik.PostgresTestContainer;
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.jdbc.repository.JdbcAddressRepository;
 import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
-import by.eugenekulik.out.dao.jdbc.utils.DataSource;
 import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
 import org.junit.jupiter.api.*;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class JdbcAddressRepositoryTest extends ConfiguraionEnviroment{
+class JdbcAddressRepositoryTest extends TestConfigurationEnvironment {
 
 
     private static JdbcAddressRepository addressRepository;
 
     @BeforeAll
     static void setUp() {
+        postgreSQLContainer = PostgresTestContainer.getInstance();
         ConnectionPool connectionPool =
             new ConnectionPool(postgreSQLContainer.getDataSource(), 2, 30);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);

@@ -22,7 +22,6 @@ import java.util.List;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Timed
 public class AddressServiceImpl implements AddressService {
 
     private AddressRepository addressRepository;
@@ -31,7 +30,7 @@ public class AddressServiceImpl implements AddressService {
     /**
      * Constructs an AddressService with the specified AddressRepository.
      *
-     * @param addressRepository  The repository responsible for managing addresses.
+     * @param addressRepository The repository responsible for managing addresses.
      */
     @Inject
     public AddressServiceImpl(AddressRepository addressRepository) {
@@ -47,6 +46,7 @@ public class AddressServiceImpl implements AddressService {
      * @throws IllegalArgumentException If the address already exists.
      */
     @Override
+    @Timed
     @Transactional
     public Address create(Address address) {
         return addressRepository.save(address);
@@ -61,18 +61,21 @@ public class AddressServiceImpl implements AddressService {
      * @throws IllegalArgumentException If count is less than 1 or if page is negative.
      */
     @Override
+    @Timed
     public List<Address> getPage(Pageable pageable) {
         return addressRepository.getPage(pageable);
     }
 
     @Auditable
     @Override
+    @Timed
     public Address findById(long id) {
         return addressRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("address with this id is not exists"));
     }
 
     @Override
+    @Timed
     public List<Address> findByUser(Long userId, Pageable pageable) {
         return addressRepository.findByUserId(userId, pageable);
     }

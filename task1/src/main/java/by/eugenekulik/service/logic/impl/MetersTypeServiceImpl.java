@@ -19,7 +19,6 @@ import java.util.List;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Timed
 public class MetersTypeServiceImpl implements MetersTypeService {
 
     private MetersTypeRepository metersTypeRepository;
@@ -44,6 +43,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
      */
     @Override
     @Transactional
+    @Timed
     public MetersType create(MetersType metersType) {
         return metersTypeRepository.save(metersType);
     }
@@ -56,6 +56,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
      * @throws IllegalArgumentException If no meters type is found with the specified name.
      */
     @Override
+    @Timed
     public MetersType findByName(String name) {
         return metersTypeRepository.findByName(name).orElseThrow(() -> new IllegalArgumentException("not found metersType with name: " + name));
     }
@@ -66,6 +67,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
      * @return A list of all meters types.
      */
     @Override
+    @Timed
     public List<MetersType> findAll() {
         return metersTypeRepository.findAll();
     }

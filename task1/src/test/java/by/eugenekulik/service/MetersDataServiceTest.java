@@ -1,5 +1,6 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.out.dao.Pageable;
@@ -21,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-class MetersDataServiceTest {
+class MetersDataServiceTest extends TestConfigurationEnvironment {
 
 
     private MetersDataService metersDataService;

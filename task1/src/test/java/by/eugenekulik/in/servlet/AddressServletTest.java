@@ -1,5 +1,6 @@
 package by.eugenekulik.in.servlet;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.dto.AddressDto;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.Pageable;
@@ -26,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-class AddressServletTest {
+class AddressServletTest extends TestConfigurationEnvironment {
 
     private AddressServlet addressServlet;
     private AddressService addressService;

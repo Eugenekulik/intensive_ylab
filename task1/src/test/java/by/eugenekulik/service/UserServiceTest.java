@@ -1,5 +1,6 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.AuthenticationException;
 import by.eugenekulik.exception.DatabaseInterectionException;
@@ -18,7 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class UserServiceTest {
+class UserServiceTest extends TestConfigurationEnvironment {
 
 
     private UserService userService;

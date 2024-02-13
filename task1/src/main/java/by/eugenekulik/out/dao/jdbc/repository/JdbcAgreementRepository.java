@@ -18,10 +18,10 @@ import java.util.Optional;
 /**
  * JdbcAgreementRepository is a JDBC implementation of the AgreementRepository interface
  * for performing CRUD operations related to agreements in the database.
- *
+ * <p>
  * The class is annotated with @ApplicationScoped, indicating that it may be managed
  * by a CDI (Contexts and Dependency Injection) container.
- *
+ * <p>
  * It also uses the @Loggable annotation to enable logging for the methods in the class.
  *
  * @author Eugene Kulik
@@ -30,7 +30,6 @@ import java.util.Optional;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Loggable
 public class JdbcAgreementRepository implements AgreementRepository {
     private JdbcTemplate jdbcTemplate;
     private AgreementExtractor extractor = new AgreementExtractor();
@@ -41,6 +40,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     }
 
     @Override
+    @Loggable
     public Optional<Agreement> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
@@ -51,6 +51,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     }
 
     @Override
+    @Loggable
     public Agreement save(Agreement agreement) {
         jdbcTemplate.update(
             """
@@ -66,6 +67,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     }
 
     @Override
+    @Loggable
     public List<Agreement> findByUserIdAndAddressId(Long userId, Long addressId) {
         return jdbcTemplate.query(
             """
@@ -76,6 +78,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     }
 
     @Override
+    @Loggable
     public List<Agreement> getPage(Pageable pageable) {
         return jdbcTemplate.query(
             """
@@ -89,6 +92,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     }
 
     @Override
+    @Loggable
     public List<Agreement> findByUserId(Long userId, Pageable pageable) {
         return jdbcTemplate.query(
             """

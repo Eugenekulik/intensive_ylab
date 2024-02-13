@@ -1,5 +1,7 @@
 package by.eugenekulik.out.dao.jdbc;
 
+import by.eugenekulik.PostgresTestContainer;
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
@@ -16,13 +18,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 
-class JdbcUserRepositoryTest extends ConfiguraionEnviroment{
+class JdbcUserRepositoryTest extends TestConfigurationEnvironment {
 
 
     private static JdbcUserRepository userRepository;
 
     @BeforeAll
     static void setUp(){
+        postgreSQLContainer = PostgresTestContainer.getInstance();
         ConnectionPool connectionPool =
             new ConnectionPool(postgreSQLContainer.getDataSource(), 1, 30);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);

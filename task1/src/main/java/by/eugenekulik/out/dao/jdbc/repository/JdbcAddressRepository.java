@@ -29,7 +29,6 @@ import java.util.Optional;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Loggable
 public class JdbcAddressRepository implements AddressRepository {
 
     private JdbcTemplate jdbcTemplate;
@@ -42,6 +41,7 @@ public class JdbcAddressRepository implements AddressRepository {
 
 
     @Override
+    @Loggable
     public Optional<Address> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate
             .query("""
@@ -52,6 +52,7 @@ public class JdbcAddressRepository implements AddressRepository {
     }
 
     @Override
+    @Loggable
     public Address save(Address address) {
         jdbcTemplate.update(
             """
@@ -72,6 +73,7 @@ public class JdbcAddressRepository implements AddressRepository {
     }
 
     @Override
+    @Loggable
     public List<Address> getPage(Pageable pageable) {
         return jdbcTemplate.query(
             """
@@ -85,6 +87,7 @@ public class JdbcAddressRepository implements AddressRepository {
     }
 
     @Override
+    @Loggable
     public List<Address> findByUserId(Long userId, Pageable pageable) {
         return jdbcTemplate.query(
             """

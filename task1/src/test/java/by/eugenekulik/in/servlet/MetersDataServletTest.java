@@ -1,5 +1,6 @@
 package by.eugenekulik.in.servlet;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.dto.MetersDataDto;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.Pageable;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class MetersDataServletTest {
+class MetersDataServletTest extends TestConfigurationEnvironment {
 
     private MetersDataServlet metersDataServlet;
     private MetersDataService metersDataService;

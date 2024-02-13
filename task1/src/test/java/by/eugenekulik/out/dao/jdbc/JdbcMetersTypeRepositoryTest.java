@@ -1,5 +1,7 @@
 package by.eugenekulik.out.dao.jdbc;
 
+import by.eugenekulik.PostgresTestContainer;
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.jdbc.repository.JdbcMetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
@@ -11,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 
-class JdbcMetersTypeRepositoryTest extends ConfiguraionEnviroment{
+class JdbcMetersTypeRepositoryTest extends TestConfigurationEnvironment {
 
 
 
@@ -19,6 +21,7 @@ class JdbcMetersTypeRepositoryTest extends ConfiguraionEnviroment{
 
     @BeforeAll
     static void setUp(){
+        postgreSQLContainer = PostgresTestContainer.getInstance();
         ConnectionPool connectionPool =
             new ConnectionPool(postgreSQLContainer.getDataSource(), 1, 30);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);

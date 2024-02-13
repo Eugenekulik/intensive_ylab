@@ -7,7 +7,6 @@ import by.eugenekulik.exception.RegistrationException;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
 import by.eugenekulik.service.aspect.Timed;
 import by.eugenekulik.service.aspect.Transactional;
 import by.eugenekulik.service.logic.UserService;
@@ -26,10 +25,10 @@ import java.util.List;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Timed
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
+
     @Inject
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -45,6 +44,7 @@ public class UserServiceImpl implements UserService {
      * @throws RegistrationException If a user with the same username or email already exists.
      */
     @Override
+    @Timed
     @Transactional
     public User register(User user) {
         try {
@@ -65,6 +65,7 @@ public class UserServiceImpl implements UserService {
      * @throws AuthenticationException If the username or password is incorrect.
      */
     @Override
+    @Timed
     public User authorize(String username, String password) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new AuthenticationException(
@@ -83,6 +84,7 @@ public class UserServiceImpl implements UserService {
      * @throws IllegalArgumentException If page is negative or if count is less than 1.
      */
     @Override
+    @Timed
     public List<User> getPage(Pageable pageable) {
         return userRepository.getPage(pageable);
     }

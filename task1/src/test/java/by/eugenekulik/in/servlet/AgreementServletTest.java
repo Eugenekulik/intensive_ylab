@@ -2,13 +2,17 @@ package by.eugenekulik.in.servlet;
 
 import by.eugenekulik.dto.AgreementDto;
 import by.eugenekulik.model.Agreement;
+import by.eugenekulik.model.Role;
+import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.Pageable;
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.service.ValidationService;
 import by.eugenekulik.service.logic.AgreementService;
 import by.eugenekulik.service.mapper.AgreementMapper;
 import by.eugenekulik.utils.Converter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Path;
 import jakarta.validation.ValidationException;
@@ -27,7 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
-class AgreementServletTest {
+class AgreementServletTest extends TestConfigurationEnvironment {
 
     private AgreementServlet agreementServlet;
     private AgreementService agreementService;
@@ -64,6 +68,7 @@ class AgreementServletTest {
         when(converter.convertObjectToJson(any())).thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
         when(agreementService.getPage(new Pageable(0, 10))).thenReturn(agreementes);
+        when(authentication.getUser()).thenReturn(User.builder().role(Role.ADMIN).build());
 
         agreementServlet.doGet(request, response);
 
@@ -95,6 +100,7 @@ class AgreementServletTest {
         when(converter.convertObjectToJson(agreementDto))
             .thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
+        when(authentication.getUser()).thenReturn(User.builder().role(Role.ADMIN).build());
 
         agreementServlet.doPost(request, response);
 

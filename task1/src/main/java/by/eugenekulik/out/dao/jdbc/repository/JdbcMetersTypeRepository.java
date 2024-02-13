@@ -17,10 +17,10 @@ import java.util.Optional;
 /**
  * JdbcMetersTypeRepository is a JDBC implementation of the MetersTypeRepository interface
  * for performing CRUD operations related to addresses in the database.
- *
+ * <p>
  * The class is annotated with @ApplicationScoped, indicating that it may be managed
  * by a CDI (Contexts and Dependency Injection) container.
- *
+ * <p>
  * It also uses the @Loggable annotation to enable logging for the methods in the class.
  *
  * @author Eugene Kulik
@@ -29,7 +29,6 @@ import java.util.Optional;
  */
 @ApplicationScoped
 @NoArgsConstructor
-@Loggable
 public class JdbcMetersTypeRepository implements MetersTypeRepository {
 
     private JdbcTemplate jdbcTemplate;
@@ -41,6 +40,7 @@ public class JdbcMetersTypeRepository implements MetersTypeRepository {
     }
 
     @Override
+    @Loggable
     public Optional<MetersType> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
@@ -51,6 +51,7 @@ public class JdbcMetersTypeRepository implements MetersTypeRepository {
     }
 
     @Override
+    @Loggable
     public Optional<MetersType> findByName(String name) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
@@ -61,6 +62,7 @@ public class JdbcMetersTypeRepository implements MetersTypeRepository {
     }
 
     @Override
+    @Loggable
     public MetersType save(MetersType metersType) {
         jdbcTemplate.update(
             """
@@ -77,6 +79,7 @@ public class JdbcMetersTypeRepository implements MetersTypeRepository {
     }
 
     @Override
+    @Loggable
     public List<MetersType> findAll() {
         return jdbcTemplate.query(
             """

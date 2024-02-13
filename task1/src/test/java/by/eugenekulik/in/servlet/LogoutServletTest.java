@@ -1,5 +1,6 @@
 package by.eugenekulik.in.servlet;
 
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.utils.Converter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,10 +11,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class LogoutServletTest {
+class LogoutServletTest extends TestConfigurationEnvironment {
 
 
     private Converter converter;
