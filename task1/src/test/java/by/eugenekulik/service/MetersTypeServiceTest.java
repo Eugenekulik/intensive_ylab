@@ -4,10 +4,7 @@ import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
-import by.eugenekulik.service.logic.MetersTypeService;
-import by.eugenekulik.service.logic.impl.MetersTypeServiceImpl;
-import jakarta.enterprise.inject.spi.CDI;
+import by.eugenekulik.service.impl.MetersTypeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -7,9 +7,7 @@ import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.exception.RegistrationException;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
-import by.eugenekulik.service.logic.UserService;
-import by.eugenekulik.service.logic.impl.UserServiceImpl;
+import by.eugenekulik.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

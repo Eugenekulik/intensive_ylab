@@ -3,7 +3,6 @@ package by.eugenekulik.utils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
 
@@ -11,13 +10,13 @@ import java.util.Set;
 
 @ApplicationScoped
 @NoArgsConstructor
-public class ContextUtils {
+public class ContextManager {
 
 
     private BeanManager beanManager;
 
     @Inject
-    public ContextUtils(BeanManager beanManager){
+    public ContextManager(BeanManager beanManager){
         this.beanManager = beanManager;
     }
 

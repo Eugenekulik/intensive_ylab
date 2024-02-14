@@ -1,13 +1,12 @@
-package by.eugenekulik.service.logic.impl;
+package by.eugenekulik.service.impl;
 
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.AddressRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
-import by.eugenekulik.service.aspect.Auditable;
-import by.eugenekulik.service.aspect.Timed;
-import by.eugenekulik.service.aspect.Transactional;
-import by.eugenekulik.service.logic.AddressService;
+import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.service.annotation.Timed;
+import by.eugenekulik.service.annotation.Transactional;
+import by.eugenekulik.service.AddressService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;

@@ -5,7 +5,7 @@ import by.eugenekulik.exception.AccessDeniedException;
 import by.eugenekulik.exception.AuthenticationException;
 import by.eugenekulik.exception.RegistrationException;
 import by.eugenekulik.exception.UnsupportedMediaTypeException;
-import by.eugenekulik.service.aspect.Loggable;
+import by.eugenekulik.service.annotation.Loggable;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

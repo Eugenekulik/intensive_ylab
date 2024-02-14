@@ -1,4 +1,4 @@
-package by.eugenekulik.service.mapper;
+package by.eugenekulik.service;
 
 import by.eugenekulik.dto.MetersTypeDto;
 import by.eugenekulik.model.MetersType;

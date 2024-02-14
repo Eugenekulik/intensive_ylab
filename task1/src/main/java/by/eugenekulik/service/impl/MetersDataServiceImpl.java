@@ -1,12 +1,11 @@
-package by.eugenekulik.service.logic.impl;
+package by.eugenekulik.service.impl;
 
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
-import by.eugenekulik.service.aspect.Timed;
-import by.eugenekulik.service.aspect.Transactional;
-import by.eugenekulik.service.logic.MetersDataService;
+import by.eugenekulik.service.annotation.Timed;
+import by.eugenekulik.service.annotation.Transactional;
+import by.eugenekulik.service.MetersDataService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;

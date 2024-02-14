@@ -34,8 +34,26 @@
         <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
         <weld-servlet-core.version>5.1.2.Final</weld-servlet-core.version>
         <slf4j.version>2.0.12</slf4j.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <aspectj-maven-plugin.version>1.13.1</aspectj-maven-plugin.version>
+        <spring.framework.version>6.1.1</spring.framework.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
@@ -172,7 +190,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -198,7 +216,7 @@
             <plugin>
                 <groupId>dev.aspectj</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.13.1</version>
+                <version>${aspectj-maven-plugin.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>

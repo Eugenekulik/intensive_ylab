@@ -2,13 +2,10 @@ package by.eugenekulik.service;
 
 import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
-import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
-import by.eugenekulik.service.logic.MetersDataService;
-import by.eugenekulik.service.logic.impl.MetersDataServiceImpl;
+import by.eugenekulik.service.impl.MetersDataServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

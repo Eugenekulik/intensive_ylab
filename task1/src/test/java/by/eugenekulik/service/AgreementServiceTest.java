@@ -3,15 +3,9 @@ package by.eugenekulik.service;
 import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.model.Address;
 import by.eugenekulik.model.Agreement;
-import by.eugenekulik.model.User;
-import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.AgreementRepository;
-import by.eugenekulik.out.dao.UserRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
-import by.eugenekulik.service.logic.AgreementService;
-import by.eugenekulik.service.logic.impl.AgreementServiceImpl;
+import by.eugenekulik.service.impl.AgreementServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -2,8 +2,8 @@ package by.eugenekulik.config;
 
 import by.eugenekulik.out.dao.jdbc.repository.RecRepository;
 import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
-import by.eugenekulik.service.aspect.AspectService;
-import by.eugenekulik.utils.ContextUtils;
+import by.eugenekulik.service.*;
+import by.eugenekulik.utils.ContextManager;
 import by.eugenekulik.utils.Converter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,13 +31,35 @@ public class CommonConfig {
     }
 
     @Produces
-    @Named("aspectService")
-    public AspectService aspectService(RecRepository recRepository, ContextUtils contextUtils,
-                                       TransactionManager transactionManager){
-        AspectService aspectService = AspectService.aspectOf();
-        aspectService.inject(recRepository, contextUtils, transactionManager);
-        return aspectService;
+    @Named("securityAspect")
+    public SecurityAspect securityAspect(ContextManager contextManager){
+        SecurityAspect securityAspect = SecurityAspect.aspectOf();
+        securityAspect.inject(contextManager);
+        return securityAspect;
     }
+
+    @Produces
+    @Named("validationAspect")
+    public ValidationAspect validationAspect(ValidationService validationService){
+        ValidationAspect validationAspect = ValidationAspect.aspectOf();
+        validationAspect.inject(validationService);
+        return validationAspect;
+    }
+    @Produces
+    @Named("auditAspect")
+    public AuditAspect auditAspect(ContextManager contextManager, RecRepository recRepository){
+        AuditAspect auditAspect = AuditAspect.aspectOf();
+        auditAspect.inject(contextManager, recRepository);
+        return auditAspect;
+    }
+    @Produces
+    @Named("transactionAspect")
+    public TransactionAspect transactionAspect(TransactionManager transactionManager){
+        TransactionAspect transactionAspect = TransactionAspect.aspectOf();
+        transactionAspect.inject(transactionManager);
+        return transactionAspect;
+    }
+
 
 }
 

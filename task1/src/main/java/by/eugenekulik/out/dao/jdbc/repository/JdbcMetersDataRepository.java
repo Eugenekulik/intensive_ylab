@@ -1,13 +1,12 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
-import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersDataExtractor;
 import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
-import by.eugenekulik.service.aspect.Loggable;
+import by.eugenekulik.service.annotation.Loggable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;

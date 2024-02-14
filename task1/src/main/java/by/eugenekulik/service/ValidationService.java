@@ -1,6 +1,6 @@
 package by.eugenekulik.service;
 
-import by.eugenekulik.service.aspect.Loggable;
+import by.eugenekulik.service.annotation.Loggable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.*;
@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 public class ValidationService {
 
 
-    private static final Logger LOGGER = LogManager.getLogger(ValidationService.class);
     private Validator validator;
 
     @Inject

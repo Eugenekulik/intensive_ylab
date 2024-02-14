@@ -1,4 +1,4 @@
-package by.eugenekulik.service.logic;
+package by.eugenekulik.service;
 
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Address;

@@ -1,4 +1,4 @@
-package by.eugenekulik.service.aspect;
+package by.eugenekulik.service.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package by.eugenekulik.service.logic.impl;
+package by.eugenekulik.service.impl;
 
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.AuthenticationException;
@@ -7,9 +7,9 @@ import by.eugenekulik.exception.RegistrationException;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
-import by.eugenekulik.service.aspect.Timed;
-import by.eugenekulik.service.aspect.Transactional;
-import by.eugenekulik.service.logic.UserService;
+import by.eugenekulik.service.annotation.Timed;
+import by.eugenekulik.service.annotation.Transactional;
+import by.eugenekulik.service.UserService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;

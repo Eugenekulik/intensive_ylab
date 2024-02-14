@@ -1,4 +1,4 @@
-package by.eugenekulik.service.mapper;
+package by.eugenekulik.service;
 
 import by.eugenekulik.dto.RegistrationDto;
 import by.eugenekulik.dto.UserDto;

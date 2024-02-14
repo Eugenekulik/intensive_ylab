@@ -1,10 +1,10 @@
-package by.eugenekulik.service.logic.impl;
+package by.eugenekulik.service.impl;
 
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
-import by.eugenekulik.service.aspect.Timed;
-import by.eugenekulik.service.aspect.Transactional;
-import by.eugenekulik.service.logic.MetersTypeService;
+import by.eugenekulik.service.annotation.Timed;
+import by.eugenekulik.service.annotation.Transactional;
+import by.eugenekulik.service.MetersTypeService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;

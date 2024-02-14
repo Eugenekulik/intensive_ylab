@@ -4,9 +4,9 @@ import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.security.Authentication;
 import by.eugenekulik.service.ValidationService;
-import by.eugenekulik.service.aspect.AllowedRoles;
-import by.eugenekulik.service.aspect.Auditable;
-import by.eugenekulik.service.logic.UserService;
+import by.eugenekulik.service.annotation.AllowedRoles;
+import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.service.UserService;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -93,7 +93,7 @@ public class AuthorizationServlet extends HttpServlet {
             resp.getWriter()
                 .append(converter.convertObjectToJson("Authentication successful!"));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e);//TODO change more specific exception
         }
     }
 

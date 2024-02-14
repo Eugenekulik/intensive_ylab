@@ -5,10 +5,10 @@ import by.eugenekulik.model.Address;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.service.ValidationService;
-import by.eugenekulik.service.aspect.AllowedRoles;
-import by.eugenekulik.service.aspect.Auditable;
-import by.eugenekulik.service.logic.AddressService;
-import by.eugenekulik.service.mapper.AddressMapper;
+import by.eugenekulik.service.annotation.AllowedRoles;
+import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.service.AddressService;
+import by.eugenekulik.service.AddressMapper;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -90,7 +90,7 @@ public class AddressServlet extends HttpServlet {
                 ));
             resp.setStatus(200);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e);//TODO change exception more specific
         }
     }
 
@@ -122,7 +122,7 @@ public class AddressServlet extends HttpServlet {
                         .fromAddress(addressService.create(address))));
             resp.setStatus(201);
         } catch (IOException e) {
-            throw new RuntimeException(e); //TODO
+            throw new RuntimeException(e); //TODO change exception more specific
         }
     }
 }

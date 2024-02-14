@@ -5,9 +5,7 @@ import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.AddressRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
-import by.eugenekulik.service.logic.AddressService;
-import by.eugenekulik.service.logic.impl.AddressServiceImpl;
+import by.eugenekulik.service.impl.AddressServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
