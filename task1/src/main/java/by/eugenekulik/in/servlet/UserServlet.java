@@ -1,12 +1,12 @@
 package by.eugenekulik.in.servlet;
 
+import by.eugenekulik.dto.UserDto;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.model.User;
+import by.eugenekulik.service.UserMapper;
+import by.eugenekulik.service.UserService;
 import by.eugenekulik.service.annotation.AllowedRoles;
 import by.eugenekulik.service.annotation.Auditable;
-import by.eugenekulik.service.UserService;
-import by.eugenekulik.service.UserMapper;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -47,13 +47,11 @@ import java.util.List;
 public class UserServlet extends HttpServlet {
 
     private UserService userService;
-    private UserMapper mapper;
     private Converter converter;
 
     @Inject
-    public void inject(UserService userService, UserMapper userMapper, Converter converter) {
+    public void inject(UserService userService, Converter converter) {
         this.userService = userService;
-        this.mapper = userMapper;
         this.converter = converter;
     }
 
@@ -66,19 +64,14 @@ public class UserServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int page = converter.getInteger(req, "page");
         int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
-        List<User> users = userService.getPage(new Pageable(page, count));
-        try {
-            resp.getWriter()
-                .append(converter.convertObjectToJson(
-                    users.stream().map(mapper::fromUser).toList()));
-            resp.setStatus(200);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        List<UserDto> users = userService.getPage(new Pageable(page, count));
+        resp.getWriter()
+            .append(converter.convertObjectToJson(users));
+        resp.setStatus(200);
     }
 
 

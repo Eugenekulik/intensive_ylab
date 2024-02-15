@@ -23,30 +23,27 @@ import static org.mockito.Mockito.*;
 class UserServletTest extends TestConfigurationEnvironment {
     private UserServlet userServlet;
     private UserService userService;
-    private UserMapper mapper;
     private Converter converter;
 
     @BeforeEach
     void setUp() {
         userServlet = new UserServlet();
         userService = mock(UserService.class);
-        mapper = mock(UserMapper.class);
         converter = mock(Converter.class);
-        userServlet.inject(userService, mapper, converter);
+        userServlet.inject(userService, converter);
     }
 
     @Test
     void testDoGet_shouldWriteToResponseJsonOfListOfUserDto() throws IOException {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
-        List<User> users = new ArrayList<>();
-        User user = mock(User.class);
-        users.add(user);
+        List<UserDto> users = new ArrayList<>();
+        UserDto userDto = mock(UserDto.class);
+        users.add(userDto);
         PrintWriter printWriter = mock(PrintWriter.class);
 
         when(converter.getInteger(request, "page")).thenReturn(0);
         when(converter.getInteger(request, "count")).thenReturn(10);
-        when(mapper.fromUser(any())).thenReturn(mock(UserDto.class));
         when(converter.convertObjectToJson(any())).thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
         when(userService.getPage(new Pageable(0, 10))).thenReturn(users);
@@ -55,7 +52,6 @@ class UserServletTest extends TestConfigurationEnvironment {
 
         verify(converter).getInteger(request, "page");
         verify(converter).getInteger(request, "count");
-        verify(mapper).fromUser(any());
         verify(userService).getPage(new Pageable(0, 10));
         verify(converter).convertObjectToJson(any());
         verify(printWriter).append("json");

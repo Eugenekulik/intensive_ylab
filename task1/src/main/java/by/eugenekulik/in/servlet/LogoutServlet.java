@@ -5,7 +5,6 @@ import by.eugenekulik.security.Authentication;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,13 +49,9 @@ public class LogoutServlet extends HttpServlet {
      * @param resp The {@code HttpServletResponse} object.
      */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.getSession().setAttribute("authentication", new Authentication(User.guest));
-        try {
-            resp.getWriter().append(converter.convertObjectToJson("Logout"));
-            resp.setStatus(200);
-        } catch (IOException e){
-            throw new RuntimeException(e);
-        }
+        resp.getWriter().append(converter.convertObjectToJson("Logout"));
+        resp.setStatus(200);
     }
 }

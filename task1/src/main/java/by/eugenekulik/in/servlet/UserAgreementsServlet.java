@@ -1,13 +1,13 @@
 package by.eugenekulik.in.servlet;
 
-import by.eugenekulik.model.Agreement;
+import by.eugenekulik.dto.AgreementDto;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.security.Authentication;
+import by.eugenekulik.service.AgreementMapper;
+import by.eugenekulik.service.AgreementService;
 import by.eugenekulik.service.annotation.AllowedRoles;
 import by.eugenekulik.service.annotation.Auditable;
-import by.eugenekulik.service.AgreementService;
-import by.eugenekulik.service.AgreementMapper;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -49,6 +49,7 @@ public class UserAgreementsServlet extends HttpServlet {
     private AgreementService agreementService;
     private AgreementMapper mapper;
     private Converter converter;
+
     @Inject
     public void inject(AgreementService agreementService, AgreementMapper mapper, Converter converter) {
         this.agreementService = agreementService;
@@ -65,21 +66,15 @@ public class UserAgreementsServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.CLIENT})
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int page = converter.getInteger(req, "page");
         int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
         Authentication authentication = (Authentication) req.getSession().getAttribute("authentication");
-        List<Agreement> agreements = agreementService
+        List<AgreementDto> agreements = agreementService
             .findByUser(authentication.getUser().getId(), new Pageable(page, count));
-        try {
-            resp.getWriter()
-                .append(converter.convertObjectToJson(
-                    agreements.stream().map(mapper::fromAgreement)
-                        .toList()));
-            resp.setStatus(200);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        resp.getWriter()
+            .append(converter.convertObjectToJson(agreements));
+        resp.setStatus(200);
     }
 }

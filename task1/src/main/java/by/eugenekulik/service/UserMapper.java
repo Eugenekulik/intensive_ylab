@@ -16,5 +16,6 @@ public interface UserMapper {
     UserDto fromUser(User user);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
     User fromRegistrationDto(RegistrationDto registrationDto);
 }

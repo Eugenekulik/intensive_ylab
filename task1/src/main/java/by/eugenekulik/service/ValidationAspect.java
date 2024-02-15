@@ -1,7 +1,7 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.service.annotation.Valid;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,7 +24,7 @@ public class ValidationAspect {
         this.validationService = validationService;
     }
 
-    @Pointcut("execution(* *(.., @jakarta.validation.Valid (*), ..))")
+    @Pointcut("execution(* *(.., @by.eugenekulik.service.annotation.Valid (*), ..))")
     public void callValidationParam(){}
 
 
@@ -33,7 +33,8 @@ public class ValidationAspect {
         Object[] args = joinPoint.getArgs();
         for (Object arg : args) {
             if (arg != null && arg.getClass().isAnnotationPresent(Valid.class)) {
-                Set<ConstraintViolation<Object>> errors = validationService.validateObject(arg);
+                Valid valid = arg.getClass().getAnnotation(Valid.class);
+                Set<ConstraintViolation<Object>> errors = validationService.validateObject(arg, valid.value());
                 if(!errors.isEmpty()){
                     StringBuilder message = new StringBuilder();
                     message.append("errors: ");

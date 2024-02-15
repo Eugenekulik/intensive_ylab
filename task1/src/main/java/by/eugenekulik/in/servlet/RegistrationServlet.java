@@ -1,14 +1,13 @@
 package by.eugenekulik.in.servlet;
 
 import by.eugenekulik.dto.RegistrationDto;
+import by.eugenekulik.dto.UserDto;
 import by.eugenekulik.model.Role;
-import by.eugenekulik.model.User;
-import by.eugenekulik.security.Authentication;
+import by.eugenekulik.service.UserMapper;
+import by.eugenekulik.service.UserService;
 import by.eugenekulik.service.ValidationService;
 import by.eugenekulik.service.annotation.AllowedRoles;
 import by.eugenekulik.service.annotation.Auditable;
-import by.eugenekulik.service.UserService;
-import by.eugenekulik.service.UserMapper;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -17,11 +16,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ValidationException;
 
 import java.io.IOException;
-import java.util.Set;
 
 /**
  * {@code RegistrationServlet} is a servlet class that handles HTTP POST requests
@@ -51,16 +47,11 @@ import java.util.Set;
 @ApplicationScoped
 public class RegistrationServlet extends HttpServlet {
     private UserService userService;
-    private ValidationService validationService;
-    private UserMapper mapper;
     private Converter converter;
 
     @Inject
-    public void inject(UserService userService, ValidationService validationService, UserMapper mapper,
-                       Converter converter) {
+    public void inject(UserService userService, Converter converter) {
         this.userService = userService;
-        this.validationService = validationService;
-        this.mapper = mapper;
         this.converter = converter;
     }
 
@@ -75,26 +66,12 @@ public class RegistrationServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.GUEST})
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         RegistrationDto registrationDto = converter.getRequestBody(req, RegistrationDto.class);
-        Set<ConstraintViolation<RegistrationDto>> errors =
-            validationService.validateObject(registrationDto);
-        if (!errors.isEmpty()) {
-            StringBuilder message = new StringBuilder();
-            message.append("errors: ");
-            errors.stream().forEach(e -> message.append(e.getPropertyPath()).append(": ")
-                .append(e.getMessage()).append(", "));
-            throw new ValidationException(message.toString());
-        }
-        User user = mapper.fromRegistrationDto(registrationDto);
-        userService.register(user);
-        req.getSession().setAttribute("authentication", new Authentication(user));
-        try {
-            resp.getWriter()
-                .append(converter.convertObjectToJson("Registration successful"));
-            resp.setStatus(200);
-        } catch (IOException e) {
-            throw new RuntimeException(e);//TODO
-        }
+        UserDto userDto = userService.register(registrationDto);
+        resp.getWriter()
+            .append(converter
+                .convertObjectToJson(new Object[]{"Registration successful", userDto}));
+        resp.setStatus(200);
     }
 }

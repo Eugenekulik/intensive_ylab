@@ -1,15 +1,17 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.dto.AuthDto;
+import by.eugenekulik.dto.RegistrationDto;
+import by.eugenekulik.dto.UserDto;
 import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.model.User;
 
 import java.util.List;
 
 
 public interface UserService {
-    User register(User user);
+    UserDto register(RegistrationDto registrationDto);
 
-    User authorize(String username, String password);
+    UserDto authorize(AuthDto authDto);
 
-    List<User> getPage(Pageable pageable);
+    List<UserDto> getPage(Pageable pageable);
 }

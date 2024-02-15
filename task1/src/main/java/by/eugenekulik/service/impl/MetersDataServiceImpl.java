@@ -1,16 +1,19 @@
 package by.eugenekulik.service.impl;
 
-import by.eugenekulik.out.dao.Pageable;
+import by.eugenekulik.dto.MetersDataDto;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
+import by.eugenekulik.out.dao.MetersTypeRepository;
+import by.eugenekulik.out.dao.Pageable;
+import by.eugenekulik.service.MetersDataMapper;
+import by.eugenekulik.service.MetersDataService;
 import by.eugenekulik.service.annotation.Timed;
 import by.eugenekulik.service.annotation.Transactional;
-import by.eugenekulik.service.MetersDataService;
+import by.eugenekulik.service.annotation.Valid;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,15 +28,21 @@ import java.util.List;
 public class MetersDataServiceImpl implements MetersDataService {
 
     private MetersDataRepository metersDataRepository;
+    private MetersTypeRepository metersTypeRepository;
+    private MetersDataMapper mapper;
 
     /**
      * Constructs a MetersDataService with the specified MetersDataRepository.
      *
      * @param metersDataRepository The repository responsible for managing meters data.
+     * @param metersTypeRepository The repository responsible for managing meters type.
+     * @param mapper               The mapper for model MetersData.
      */
     @Inject
-    public MetersDataServiceImpl(MetersDataRepository metersDataRepository) {
+    public MetersDataServiceImpl(MetersDataRepository metersDataRepository, MetersTypeRepository metersTypeRepository, MetersDataMapper mapper) {
         this.metersDataRepository = metersDataRepository;
+        this.metersTypeRepository = metersTypeRepository;
+        this.mapper = mapper;
     }
 
     /**
@@ -41,7 +50,7 @@ public class MetersDataServiceImpl implements MetersDataService {
      * for the same meter type and agreement have already been submitted for the
      * current month.
      *
-     * @param metersData The meters data to be created.
+     * @param metersDataDto The information of meters data to be created.
      * @return The created meters data.
      * @throws IllegalArgumentException If readings for the same meter type and agreement
      *                                  have already been submitted for the current month.
@@ -49,45 +58,33 @@ public class MetersDataServiceImpl implements MetersDataService {
     @Override
     @Timed
     @Transactional
-    public MetersData create(MetersData metersData) {
+    public MetersDataDto create(@Valid({"id", "placedAt"}) MetersDataDto metersDataDto) {
+        MetersData metersData = mapper.fromMetersDataDto(metersDataDto);
         metersData.setPlacedAt(LocalDateTime.now());
         if (metersDataRepository.findByAgreementAndTypeAndMonth(metersData.getAgreementId(),
             metersData.getMetersTypeId(),
             metersData.getPlacedAt().toLocalDate()).isPresent())
             throw new IllegalArgumentException("The readings of this meter have " +
                 "already been submitted this month");
-        return metersDataRepository.save(metersData);
+        return mapper.fromMetersData(metersDataRepository.save(metersData));
     }
 
-    /**
-     * Retrieves meters data by agreement, type, and month.
-     *
-     * @param agreementId  The ID of the agreement.
-     * @param metersTypeId The ID of the meter type.
-     * @param localDate    The timestamp representing the month.
-     * @return The meters data for the specified agreement, type, and month.
-     * @throws IllegalArgumentException If no meters data is found.
-     */
-    @Override
-    @Timed
-    public MetersData findByAgreementAndTypeAndMonth(Long agreementId, Long metersTypeId, LocalDate localDate) {
-        return metersDataRepository.findByAgreementAndTypeAndMonth(agreementId, metersTypeId, localDate)
-            .orElseThrow(() -> new IllegalArgumentException("not fount metersData"));
-    }
 
     /**
      * Retrieves the last meters data by agreement and type.
      *
      * @param agreementId  The ID of the agreement.
-     * @param metersTypeId The ID of the meter type.
+     * @param typeName The name of the meter type.
      * @return The last meters data for the specified agreement and type.
      * @throws IllegalArgumentException If no meters data is found.
      */
     @Override
     @Timed
-    public MetersData findLastByAgreementAndType(Long agreementId, Long metersTypeId) {
-        return metersDataRepository.findLastByAgreementAndType(agreementId, metersTypeId)
-            .orElseThrow(() -> new IllegalArgumentException("not found metersData"));
+    public MetersDataDto findLastByAgreementAndType(Long agreementId, String typeName) {
+        return metersTypeRepository.findByName(typeName)
+            .flatMap(metersType -> metersDataRepository.findLastByAgreementAndType(agreementId, metersType.getId()))
+            .map(mapper::fromMetersData)
+            .orElseThrow(()->new IllegalArgumentException("not found metersData"));
     }
 
     /**
@@ -99,13 +96,19 @@ public class MetersDataServiceImpl implements MetersDataService {
      */
     @Override
     @Timed
-    public List<MetersData> getPage(Pageable pageable) {
-        return metersDataRepository.getPage(pageable);
+    public List<MetersDataDto> getPage(Pageable pageable) {
+        return metersDataRepository.getPage(pageable).stream()
+            .map(mapper::fromMetersData)
+            .toList();
     }
 
     @Override
     @Timed
-    public List<MetersData> findByAgreementAndType(long agreementId, Long meterTypeId, Pageable pageable) {
-        return metersDataRepository.findByAgreementAndType(agreementId, meterTypeId, pageable);
+    public List<MetersDataDto> findByAgreementAndType(long agreementId, String typeName, Pageable pageable) {
+        return metersTypeRepository.findByName(typeName)
+            .map(metersType -> metersDataRepository
+                .findByAgreementAndType(agreementId, metersType.getId(), pageable)
+                .stream().map(mapper::fromMetersData).toList())
+            .orElseThrow(()->new IllegalArgumentException("not found"));
     }
 }

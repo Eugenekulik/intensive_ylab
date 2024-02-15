@@ -34,46 +34,34 @@ class AgreementServletTest extends TestConfigurationEnvironment {
 
     private AgreementServlet agreementServlet;
     private AgreementService agreementService;
-    private ValidationService validationService;
-    private AgreementMapper mapper;
     private Converter converter;
 
     @BeforeEach
     void setUp() {
         agreementServlet = new AgreementServlet();
         agreementService = mock(AgreementService.class);
-        mapper = mock(AgreementMapper.class);
-        validationService = mock(ValidationService.class);
         converter = mock(Converter.class);
-        agreementServlet.inject(agreementService, mapper, validationService, converter);
+        agreementServlet.inject(agreementService, converter);
     }
 
     @Test
     void testDoGet_shouldWriteToResponseJsonOfListOfAgreementDto() throws IOException {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
-        List<Agreement> agreementes = new ArrayList<>();
-        Agreement agreement = Agreement.builder()
-            .id(1L)
-            .userId(1L)
-            .addressId(1L)
-            .build();
-        agreementes.add(agreement);
+        List<AgreementDto> agreements = new ArrayList<>();
         PrintWriter printWriter = mock(PrintWriter.class);
 
         when(converter.getInteger(request, "page")).thenReturn(0);
         when(converter.getInteger(request, "count")).thenReturn(10);
-        when(mapper.fromAgreement(any())).thenReturn(mock(AgreementDto.class));
         when(converter.convertObjectToJson(any())).thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
-        when(agreementService.getPage(new Pageable(0, 10))).thenReturn(agreementes);
+        when(agreementService.getPage(new Pageable(0, 10))).thenReturn(agreements);
         when(authentication.getUser()).thenReturn(User.builder().role(Role.ADMIN).build());
 
         agreementServlet.doGet(request, response);
 
         verify(converter).getInteger(request, "page");
         verify(converter).getInteger(request, "count");
-        verify(mapper).fromAgreement(any());
         verify(agreementService).getPage(new Pageable(0, 10));
         verify(converter).convertObjectToJson(any());
         verify(printWriter).append("json");
@@ -85,17 +73,11 @@ class AgreementServletTest extends TestConfigurationEnvironment {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         AgreementDto agreementDto = mock(AgreementDto.class);
-        Set<ConstraintViolation<AgreementDto>> error = Collections.emptySet();
-        Agreement agreement = mock(Agreement.class);
         PrintWriter printWriter = mock(PrintWriter.class);
 
         when(converter.getRequestBody(request, AgreementDto.class))
             .thenReturn(agreementDto);
-        when(validationService.validateObject(agreementDto, "id"))
-            .thenReturn(error);
-        when(mapper.fromAgreementDto(agreementDto)).thenReturn(agreement);
-        when(agreementService.create(agreement)).thenReturn(agreement);
-        when(mapper.fromAgreement(agreement)).thenReturn(agreementDto);
+        when(agreementService.create(agreementDto)).thenReturn(agreementDto);
         when(converter.convertObjectToJson(agreementDto))
             .thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
@@ -104,10 +86,7 @@ class AgreementServletTest extends TestConfigurationEnvironment {
         agreementServlet.doPost(request, response);
 
         verify(converter).getRequestBody(request, AgreementDto.class);
-        verify(validationService).validateObject(agreementDto, "id");
-        verify(mapper).fromAgreementDto(agreementDto);
-        verify(agreementService).create(agreement);
-        verify(mapper).fromAgreement(agreement);
+        verify(agreementService).create(agreementDto);
         verify(converter).convertObjectToJson(agreementDto);
         verify(printWriter).append("json");
     }
@@ -117,24 +96,18 @@ class AgreementServletTest extends TestConfigurationEnvironment {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         AgreementDto agreementDto = mock(AgreementDto.class);
-        ConstraintViolation<AgreementDto> error = mock(ConstraintViolation.class);
-        Set<ConstraintViolation<AgreementDto>> errors = Set.of(error);
         Path path = mock(Path.class);
 
         when(converter.getRequestBody(request, AgreementDto.class))
             .thenReturn(agreementDto);
-        when(validationService.validateObject(agreementDto, "id"))
-            .thenReturn(errors);
-        when(error.getMessage()).thenReturn("constraint message");
-        when(error.getPropertyPath()).thenReturn(path);
         when(path.toString()).thenReturn("property name");
+        when(agreementService.create(agreementDto)).thenThrow(ValidationException.class);
 
 
         assertThrows(ValidationException.class, ()->agreementServlet.doPost(request, response));
 
         verify(converter).getRequestBody(request, AgreementDto.class);
-        verify(validationService).validateObject(agreementDto, "id");
-        verify(agreementService, never()).create(any());
+        verify(agreementService).create(agreementDto);
     }
 
 }

@@ -31,45 +31,33 @@ class MetersDataServletTest extends TestConfigurationEnvironment {
 
     private MetersDataServlet metersDataServlet;
     private MetersDataService metersDataService;
-    private ValidationService validationService;
-    private MetersDataMapper mapper;
     private Converter converter;
 
     @BeforeEach
     void setUp() {
         metersDataServlet = new MetersDataServlet();
         metersDataService = mock(MetersDataService.class);
-        mapper = mock(MetersDataMapper.class);
-        validationService = mock(ValidationService.class);
         converter = mock(Converter.class);
-        metersDataServlet.inject(metersDataService, mapper, validationService, converter);
+        metersDataServlet.inject(metersDataService, converter);
     }
 
     @Test
     void testDoGet_shouldWriteToResponseJsonOfListOfMetersDataDto() throws IOException {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
-        List<MetersData> metersDataes = new ArrayList<>();
-        MetersData metersData = MetersData.builder()
-            .id(1L)
-            .agreementId(1L)
-            .metersTypeId(1L)
-            .build();
-        metersDataes.add(metersData);
+        List<MetersDataDto> metersData = new ArrayList<>();
         PrintWriter printWriter = mock(PrintWriter.class);
 
         when(converter.getInteger(request, "page")).thenReturn(0);
         when(converter.getInteger(request, "count")).thenReturn(10);
-        when(mapper.fromMetersData(any())).thenReturn(mock(MetersDataDto.class));
         when(converter.convertObjectToJson(any())).thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
-        when(metersDataService.getPage(new Pageable(0, 10))).thenReturn(metersDataes);
+        when(metersDataService.getPage(new Pageable(0, 10))).thenReturn(metersData);
 
         metersDataServlet.doGet(request, response);
 
         verify(converter).getInteger(request, "page");
         verify(converter).getInteger(request, "count");
-        verify(mapper).fromMetersData(any());
         verify(metersDataService).getPage(new Pageable(0, 10));
         verify(converter).convertObjectToJson(any());
         verify(printWriter).append("json");
@@ -81,17 +69,11 @@ class MetersDataServletTest extends TestConfigurationEnvironment {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         MetersDataDto metersDataDto = mock(MetersDataDto.class);
-        Set<ConstraintViolation<MetersDataDto>> error = Collections.emptySet();
-        MetersData metersData = mock(MetersData.class);
         PrintWriter printWriter = mock(PrintWriter.class);
 
         when(converter.getRequestBody(request, MetersDataDto.class))
             .thenReturn(metersDataDto);
-        when(validationService.validateObject(metersDataDto, "id"))
-            .thenReturn(error);
-        when(mapper.fromMetersDataDto(metersDataDto)).thenReturn(metersData);
-        when(metersDataService.create(metersData)).thenReturn(metersData);
-        when(mapper.fromMetersData(metersData)).thenReturn(metersDataDto);
+        when(metersDataService.create(metersDataDto)).thenReturn(metersDataDto);
         when(converter.convertObjectToJson(metersDataDto))
             .thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
@@ -99,10 +81,7 @@ class MetersDataServletTest extends TestConfigurationEnvironment {
         metersDataServlet.doPost(request, response);
 
         verify(converter).getRequestBody(request, MetersDataDto.class);
-        verify(validationService).validateObject(metersDataDto, "id");
-        verify(mapper).fromMetersDataDto(metersDataDto);
-        verify(metersDataService).create(metersData);
-        verify(mapper).fromMetersData(metersData);
+        verify(metersDataService).create(metersDataDto);
         verify(converter).convertObjectToJson(metersDataDto);
         verify(printWriter).append("json");
     }
@@ -112,24 +91,19 @@ class MetersDataServletTest extends TestConfigurationEnvironment {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         MetersDataDto metersDataDto = mock(MetersDataDto.class);
-        ConstraintViolation<MetersDataDto> error = mock(ConstraintViolation.class);
-        Set<ConstraintViolation<MetersDataDto>> errors = Set.of(error);
         Path path = mock(Path.class);
 
         when(converter.getRequestBody(request, MetersDataDto.class))
             .thenReturn(metersDataDto);
-        when(validationService.validateObject(metersDataDto, "id"))
-            .thenReturn(errors);
-        when(error.getMessage()).thenReturn("constraint message");
-        when(error.getPropertyPath()).thenReturn(path);
         when(path.toString()).thenReturn("property name");
+        when(metersDataService.create(metersDataDto))
+            .thenThrow(ValidationException.class);
 
 
         assertThrows(ValidationException.class, ()->metersDataServlet.doPost(request, response));
 
         verify(converter).getRequestBody(request, MetersDataDto.class);
-        verify(validationService).validateObject(metersDataDto, "id");
-        verify(metersDataService, never()).create(any());
+        verify(metersDataService).create(metersDataDto);
     }
 
 }

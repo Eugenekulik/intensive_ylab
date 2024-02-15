@@ -1,6 +1,7 @@
 package by.eugenekulik.service;
 
 import by.eugenekulik.TestConfigurationEnvironment;
+import by.eugenekulik.dto.AddressDto;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.Address;
@@ -23,21 +24,26 @@ class AddressServiceTest extends TestConfigurationEnvironment {
     private AddressRepository addressRepository;
 
     private AddressService addressService;
+    private AddressMapper addressMapper;
 
     @BeforeEach
     void setUp() {
         addressRepository = mock(AddressRepository.class);
-        addressService = new AddressServiceImpl(addressRepository);
+        addressMapper = mock(AddressMapper.class);
+        addressService = new AddressServiceImpl(addressRepository, addressMapper);
     }
 
     @Test
     void testCreate_shouldSave_whenNotExists() {
         Address address = mock(Address.class);
+        AddressDto addressDto = mock(AddressDto.class);
 
+        when(addressMapper.fromAddressDto(addressDto)).thenReturn(address);
         when(addressRepository.save(address))
             .thenReturn(address);
+        when(addressMapper.fromAddress(address)).thenReturn(addressDto);
 
-        assertEquals(address, addressService.create(address));
+        assertEquals(addressDto, addressService.create(addressDto));
 
         verify(addressRepository).save(address);
     }
@@ -45,12 +51,14 @@ class AddressServiceTest extends TestConfigurationEnvironment {
 
     @Test
     void testCreate_shouldThrowException_whenExists() {
+        AddressDto addressDto = mock(AddressDto.class);
         Address address = mock(Address.class);
 
+        when(addressMapper.fromAddressDto(addressDto)).thenReturn(address);
         when(addressRepository.save(address))
             .thenThrow(DatabaseInterectionException.class);
 
-        assertThrows(DatabaseInterectionException.class, () -> addressService.create(address));
+        assertThrows(DatabaseInterectionException.class, () -> addressService.create(addressDto));
 
         verify(addressRepository).save(address);
     }
@@ -59,11 +67,18 @@ class AddressServiceTest extends TestConfigurationEnvironment {
     @Test
     void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
         Pageable pageable = mock(Pageable.class);
-        List<Address> expectedAddresses = mock(List.class);
+        Address address = mock(Address.class);
+        AddressDto addressDto = mock(AddressDto.class);
+        List<Address> addresses = List.of(address);
 
-        when(addressRepository.getPage(pageable)).thenReturn(expectedAddresses);
+        when(addressRepository.getPage(pageable)).thenReturn(addresses);
+        when(addressMapper.fromAddress(address))
+            .thenReturn(addressDto);
 
-        assertEquals(expectedAddresses, addressService.getPage(pageable));
+        assertThat(addressService.getPage(pageable))
+            .hasSize(1)
+            .first()
+            .isEqualTo(addressDto);
 
         verify(addressRepository).getPage(pageable);
     }
@@ -93,11 +108,13 @@ class AddressServiceTest extends TestConfigurationEnvironment {
     @Test
     void testFindById_shouldReturnAddress_whenExists() {
         Address address = mock(Address.class);
+        AddressDto addressDto = mock(AddressDto.class);
 
         when(addressRepository.findById(1L))
             .thenReturn(Optional.of(address));
+        when(addressMapper.fromAddress(address)).thenReturn(addressDto);
 
-        assertEquals(address, addressService.findById(1L));
+        assertEquals(addressDto, addressService.findById(1L));
 
     }
 

@@ -1,13 +1,12 @@
 package by.eugenekulik.in.servlet;
 
 import by.eugenekulik.dto.MetersTypeDto;
-import by.eugenekulik.model.MetersType;
 import by.eugenekulik.model.Role;
+import by.eugenekulik.service.MetersTypeMapper;
+import by.eugenekulik.service.MetersTypeService;
 import by.eugenekulik.service.ValidationService;
 import by.eugenekulik.service.annotation.AllowedRoles;
 import by.eugenekulik.service.annotation.Auditable;
-import by.eugenekulik.service.MetersTypeService;
-import by.eugenekulik.service.MetersTypeMapper;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,13 +14,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ValidationException;
 import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@code MetersTypeServlet} is a servlet class that handles HTTP GET and POST requests
@@ -53,16 +49,11 @@ import java.util.Set;
 public class MetersTypeServlet extends HttpServlet {
 
     private MetersTypeService metersTypeService;
-    private ValidationService validationService;
-    private MetersTypeMapper mapper;
     private Converter converter;
 
     @Inject
-    public void inject(MetersTypeService metersTypeService, MetersTypeMapper mapper,
-                       ValidationService validationService, Converter converter) {
+    public void inject(MetersTypeService metersTypeService, Converter converter) {
         this.metersTypeService = metersTypeService;
-        this.validationService = validationService;
-        this.mapper = mapper;
         this.converter = converter;
     }
 
@@ -75,15 +66,11 @@ public class MetersTypeServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN, Role.CLIENT})
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        List<MetersType> metersTypes = metersTypeService.findAll();
-        try {
-            resp.getWriter().append(converter
-                .convertObjectToJson(metersTypes.stream().map(mapper::fromMetersType).toList()));
-            resp.setStatus(200);
-        } catch (IOException e) {
-            throw new RuntimeException(e);//TODO
-        }
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        List<MetersTypeDto> metersTypes = metersTypeService.findAll();
+        resp.getWriter().append(converter
+            .convertObjectToJson(metersTypes));
+        resp.setStatus(200);
     }
 
     /**
@@ -95,26 +82,11 @@ public class MetersTypeServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         MetersTypeDto metersTypeDto = converter.getRequestBody(req, MetersTypeDto.class);
-        Set<ConstraintViolation<MetersTypeDto>> errors = validationService
-            .validateObject(metersTypeDto, "id");
-        if (!errors.isEmpty()) {
-            StringBuilder message = new StringBuilder();
-            message.append("errors: ");
-            errors.stream().forEach(e -> message.append(e.getPropertyPath()).append(": ")
-                .append(e.getMessage()).append(", "));
-            throw new ValidationException(message.toString());
-        }
-        MetersType metersType = mapper.fromMetersTypeDto(metersTypeDto);
-        try {
-            resp.getWriter().append(converter
-                .convertObjectToJson(mapper
-                    .fromMetersType(metersTypeService
-                        .create(metersType))));
-            resp.setStatus(201);
-        } catch (IOException e) {
-            throw new RuntimeException();//TODO
-        }
+        resp.getWriter().append(converter
+            .convertObjectToJson(metersTypeService
+                .create(metersTypeDto)));
+        resp.setStatus(201);
     }
 }

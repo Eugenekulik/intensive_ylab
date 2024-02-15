@@ -31,40 +31,35 @@ class AddressServletTest extends TestConfigurationEnvironment {
 
     private AddressServlet addressServlet;
     private AddressService addressService;
-    private ValidationService validationService;
-    private AddressMapper mapper;
     private Converter converter;
 
     @BeforeEach
     void setUp() {
         addressServlet = new AddressServlet();
         addressService = mock(AddressService.class);
-        mapper = mock(AddressMapper.class);
-        validationService = mock(ValidationService.class);
         converter = mock(Converter.class);
-        addressServlet.inject(addressService, mapper, validationService, converter);
+        addressServlet.inject(addressService, converter);
     }
 
     @Test
     void testDoGet_shouldWriteToResponseJsonOfListOfAddressDto() throws IOException {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
-        List<Address> addresses = new ArrayList<>();
-        Address address = Address.builder()
-            .id(1L)
-            .region("region")
-            .district("district")
-            .city("city")
-            .street("street")
-            .house("house")
-            .apartment("apartment")
-            .build();
-        addresses.add(address);
+        List<AddressDto> addresses = new ArrayList<>();
+        AddressDto addressDto = new AddressDto(
+            1L,
+            "region",
+            "district",
+            "city",
+            "street",
+            "house",
+            "apartment"
+            );
+        addresses.add(addressDto);
         PrintWriter printWriter = mock(PrintWriter.class);
 
         when(converter.getInteger(request, "page")).thenReturn(0);
         when(converter.getInteger(request, "count")).thenReturn(10);
-        when(mapper.fromAddress(any())).thenReturn(mock(AddressDto.class));
         when(converter.convertObjectToJson(any())).thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
         when(addressService.getPage(new Pageable(0, 10))).thenReturn(addresses);
@@ -73,7 +68,6 @@ class AddressServletTest extends TestConfigurationEnvironment {
 
         verify(converter).getInteger(request, "page");
         verify(converter).getInteger(request, "count");
-        verify(mapper).fromAddress(any());
         verify(addressService).getPage(new Pageable(0, 10));
         verify(converter).convertObjectToJson(any());
         verify(printWriter).append("json");
@@ -86,16 +80,11 @@ class AddressServletTest extends TestConfigurationEnvironment {
         HttpServletResponse response = mock(HttpServletResponse.class);
         AddressDto addressDto = mock(AddressDto.class);
         Set<ConstraintViolation<AddressDto>> error = Collections.emptySet();
-        Address address = mock(Address.class);
         PrintWriter printWriter = mock(PrintWriter.class);
 
         when(converter.getRequestBody(request, AddressDto.class))
             .thenReturn(addressDto);
-        when(validationService.validateObject(addressDto, "id"))
-            .thenReturn(error);
-        when(mapper.fromAddressDto(addressDto)).thenReturn(address);
-        when(addressService.create(address)).thenReturn(address);
-        when(mapper.fromAddress(address)).thenReturn(addressDto);
+        when(addressService.create(addressDto)).thenReturn(addressDto);
         when(converter.convertObjectToJson(addressDto))
             .thenReturn("json");
         when(response.getWriter()).thenReturn(printWriter);
@@ -103,10 +92,7 @@ class AddressServletTest extends TestConfigurationEnvironment {
         addressServlet.doPost(request, response);
 
         verify(converter).getRequestBody(request, AddressDto.class);
-        verify(validationService).validateObject(addressDto, "id");
-        verify(mapper).fromAddressDto(addressDto);
-        verify(addressService).create(address);
-        verify(mapper).fromAddress(address);
+        verify(addressService).create(addressDto);
         verify(converter).convertObjectToJson(addressDto);
         verify(printWriter).append("json");
     }
@@ -122,18 +108,16 @@ class AddressServletTest extends TestConfigurationEnvironment {
 
         when(converter.getRequestBody(request, AddressDto.class))
             .thenReturn(addressDto);
-        when(validationService.validateObject(addressDto, "id"))
-            .thenReturn(errors);
         when(error.getMessage()).thenReturn("constraint message");
         when(error.getPropertyPath()).thenReturn(path);
         when(path.toString()).thenReturn("property name");
-
+        when(addressService.create(addressDto))
+            .thenThrow(ValidationException.class);
 
         assertThrows(ValidationException.class, ()->addressServlet.doPost(request, response));
 
         verify(converter).getRequestBody(request, AddressDto.class);
-        verify(validationService).validateObject(addressDto, "id");
-        verify(addressService, never()).create(any());
+        verify(addressService).create(addressDto);
     }
 
 }

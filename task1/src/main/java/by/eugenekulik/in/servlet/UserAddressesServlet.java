@@ -1,13 +1,13 @@
 package by.eugenekulik.in.servlet;
 
-import by.eugenekulik.model.Address;
+import by.eugenekulik.dto.AddressDto;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.security.Authentication;
+import by.eugenekulik.service.AddressMapper;
+import by.eugenekulik.service.AddressService;
 import by.eugenekulik.service.annotation.AllowedRoles;
 import by.eugenekulik.service.annotation.Auditable;
-import by.eugenekulik.service.AddressService;
-import by.eugenekulik.service.AddressMapper;
 import by.eugenekulik.utils.Converter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -48,13 +48,12 @@ import java.util.List;
 public class UserAddressesServlet extends HttpServlet {
 
     private AddressService addressService;
-    private AddressMapper mapper;
-    
+
     private Converter converter;
+
     @Inject
-    public void inject(AddressService addressService, AddressMapper mapper, Converter converter) {
+    public void inject(AddressService addressService, Converter converter) {
         this.addressService = addressService;
-        this.mapper = mapper;
         this.converter = converter;
     }
 
@@ -67,21 +66,15 @@ public class UserAddressesServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.CLIENT})
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int page = converter.getInteger(req, "page");
         int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
         Authentication authentication = (Authentication) req.getSession().getAttribute("authentication");
-        List<Address> agreements = addressService
+        List<AddressDto> addresses = addressService
             .findByUser(authentication.getUser().getId(), new Pageable(page, count));
-        try {
-            resp.getWriter()
-                .append(converter.convertObjectToJson(
-                    agreements.stream().map(mapper::fromAddress)
-                        .toList()));
-            resp.setStatus(200);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        resp.getWriter()
+            .append(converter.convertObjectToJson(addresses));
+        resp.setStatus(200);
     }
 }

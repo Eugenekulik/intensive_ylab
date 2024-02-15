@@ -1,17 +1,17 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.dto.AgreementDto;
 import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.model.Agreement;
 
 import java.util.List;
 
 public interface AgreementService {
-    Agreement create(Agreement agreement);
+    AgreementDto create(AgreementDto agreementDto);
 
-    List<Agreement> getPage(Pageable pageable);
+    List<AgreementDto> getPage(Pageable pageable);
 
-    List<Agreement> findByUser(Long userId, Pageable pageable);
+    List<AgreementDto> findByUser(Long userId, Pageable pageable);
 
-    Agreement findById(Long agreementId);
+    AgreementDto findById(Long agreementId);
 
 }

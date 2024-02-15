@@ -4,26 +4,22 @@ package by.eugenekulik.in.servlet;
 import by.eugenekulik.dto.AgreementDto;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.model.Agreement;
+import by.eugenekulik.service.AgreementMapper;
+import by.eugenekulik.service.AgreementService;
+import by.eugenekulik.service.ValidationService;
 import by.eugenekulik.service.annotation.AllowedRoles;
 import by.eugenekulik.service.annotation.Auditable;
 import by.eugenekulik.utils.Converter;
-import by.eugenekulik.service.ValidationService;
-import by.eugenekulik.service.AgreementService;
-import by.eugenekulik.service.AgreementMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ValidationException;
 import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@code AgreementServlet} is a servlet class that handles HTTP GET and POST requests
@@ -54,16 +50,11 @@ import java.util.Set;
 @ApplicationScoped
 public class AgreementServlet extends HttpServlet {
     private AgreementService agreementService;
-    private ValidationService validationService;
-    private AgreementMapper mapper;
     private Converter converter;
 
     @Inject
-    public void inject(AgreementService agreementService, AgreementMapper mapper,
-                       ValidationService validationService, Converter converter) {
+    public void inject(AgreementService agreementService, Converter converter) {
         this.agreementService = agreementService;
-        this.validationService = validationService;
-        this.mapper = mapper;
         this.converter = converter;
     }
 
@@ -77,20 +68,14 @@ public class AgreementServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int page = converter.getInteger(req, "page");
         int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
-        List<Agreement> agreements = agreementService.getPage(new Pageable(page, count));
-        try {
-            resp.getWriter()
-                .append(converter.convertObjectToJson(
-                    agreements.stream().map(mapper::fromAgreement)
-                        .toList()));
-            resp.setStatus(200);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        List<AgreementDto> agreements = agreementService.getPage(new Pageable(page, count));
+        resp.getWriter()
+            .append(converter.convertObjectToJson(agreements));
+        resp.setStatus(200);
     }
 
     /**
@@ -102,26 +87,12 @@ public class AgreementServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         AgreementDto agreementDto = converter.getRequestBody(req, AgreementDto.class);
-        Set<ConstraintViolation<AgreementDto>> errors = validationService
-            .validateObject(agreementDto, "id");
-        if (!errors.isEmpty()) {
-            StringBuilder message = new StringBuilder();
-            errors.stream().forEach(e -> message.append(e.getPropertyPath()).append(": ")
-                .append(e.getMessage()).append(", "));
-            throw new ValidationException(message.toString());
-        }
-        Agreement agreement = agreementService.create(mapper.fromAgreementDto(agreementDto));
-        try {
-            resp.getWriter()
-                .append(converter
-                    .convertObjectToJson(mapper
-                        .fromAgreement(agreement)));
-            resp.setStatus(201);
-        } catch (IOException e) {
-            throw new RuntimeException(e);//TODO
-        }
+        agreementDto = agreementService.create(agreementDto);
+        resp.getWriter()
+            .append(converter.convertObjectToJson(agreementDto));
+        resp.setStatus(201);
     }
 
 }

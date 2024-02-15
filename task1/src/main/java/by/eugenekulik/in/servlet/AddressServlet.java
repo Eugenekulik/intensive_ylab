@@ -1,7 +1,6 @@
 package by.eugenekulik.in.servlet;
 
 import by.eugenekulik.dto.AddressDto;
-import by.eugenekulik.model.Address;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.service.ValidationService;
@@ -16,13 +15,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ValidationException;
 import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@code AddressServlet} is a servlet class that handles HTTP GET and POST requests
@@ -54,17 +50,12 @@ import java.util.Set;
 public class AddressServlet extends HttpServlet {
 
     private AddressService addressService;
-    private AddressMapper mapper;
-    private ValidationService validationService;
     private Converter converter;
 
 
     @Inject
-    public void inject(AddressService addressService, AddressMapper mapper, 
-                       ValidationService validationService, Converter converter) {
+    public void inject(AddressService addressService, Converter converter) {
         this.addressService = addressService;
-        this.mapper = mapper;
-        this.validationService = validationService;
         this.converter = converter;
     }
 
@@ -77,21 +68,14 @@ public class AddressServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int page = converter.getInteger(req, "page");
         int count = converter.getInteger(req, "count");
         if (count == 0) count = 10;
-        List<Address> addresses = addressService.getPage(new Pageable(page, count));
-        try {
-            resp.getWriter()
-                .append(converter.convertObjectToJson(
-                    addresses.stream().map(mapper::fromAddress)
-                        .toList()
-                ));
-            resp.setStatus(200);
-        } catch (IOException e) {
-            throw new RuntimeException(e);//TODO change exception more specific
-        }
+        List<AddressDto> addresses = addressService.getPage(new Pageable(page, count));
+        resp.getWriter()
+            .append(converter.convertObjectToJson(addresses));
+        resp.setStatus(200);
     }
 
     /**
@@ -103,26 +87,11 @@ public class AddressServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.ADMIN})
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         AddressDto addressDto = converter.getRequestBody(req, AddressDto.class);
-        Set<ConstraintViolation<AddressDto>> errors = validationService
-            .validateObject(addressDto, "id");
-        if (!errors.isEmpty()) {
-            StringBuilder message = new StringBuilder();
-            message.append("errors: ");
-            errors.stream().forEach(e -> message.append(e.getPropertyPath()).append(": ")
-                .append(e.getMessage()).append(", "));
-            throw new ValidationException(message.toString());
-        }
-        Address address = mapper.fromAddressDto(addressDto);
-        try {
-            resp.getWriter()
-                .append(converter
-                    .convertObjectToJson(mapper
-                        .fromAddress(addressService.create(address))));
-            resp.setStatus(201);
-        } catch (IOException e) {
-            throw new RuntimeException(e); //TODO change exception more specific
-        }
+        resp.getWriter()
+            .append(converter
+                .convertObjectToJson(addressService.create(addressDto)));
+        resp.setStatus(201);
     }
 }

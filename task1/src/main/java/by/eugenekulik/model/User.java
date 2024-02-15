@@ -42,8 +42,7 @@ public class User {
      * The password of the user.
      */
     @NotNull
-    @Min(8)
-    @Max(128)
+    @Length(min = 8,max = 128)
     private String password;
     /**
      * The email address of the user.

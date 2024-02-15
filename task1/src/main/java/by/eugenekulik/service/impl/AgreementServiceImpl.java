@@ -1,8 +1,9 @@
 package by.eugenekulik.service.impl;
 
+import by.eugenekulik.dto.AgreementDto;
 import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
+import by.eugenekulik.service.AgreementMapper;
 import by.eugenekulik.service.annotation.Timed;
 import by.eugenekulik.service.annotation.Transactional;
 import by.eugenekulik.service.AgreementService;
@@ -23,23 +24,25 @@ import java.util.List;
 public class AgreementServiceImpl implements AgreementService {
 
     private AgreementRepository agreementRepository;
-
+    private AgreementMapper agreementMapper;
 
     /**
      * Constructs an AgreementService with the specified repositories.
      *
      * @param agreementRepository The repository responsible for managing agreements.
+     * @param agreementMapper The mapper for agreement model.
      */
     @Inject
-    public AgreementServiceImpl(AgreementRepository agreementRepository) {
+    public AgreementServiceImpl(AgreementRepository agreementRepository, AgreementMapper agreementMapper) {
         this.agreementRepository = agreementRepository;
+        this.agreementMapper = agreementMapper;
     }
 
     /**
      * Creates a new agreement if the associated user and address exist,
      * and if an agreement with the same user and address doesn't already exist.
      *
-     * @param agreement The agreement to be created.
+     * @param agreementDto The information of agreement to be created.
      * @return The created agreement.
      * @throws IllegalArgumentException If the associated user or address doesn't exist,
      *                                  or if an agreement with the same user and address already exists.
@@ -47,8 +50,11 @@ public class AgreementServiceImpl implements AgreementService {
     @Override
     @Timed
     @Transactional
-    public Agreement create(Agreement agreement) {
-        return agreementRepository.save(agreement);
+    public AgreementDto create(AgreementDto agreementDto) {
+        return agreementMapper
+            .fromAgreement(agreementRepository
+                .save(agreementMapper
+                    .fromAgreementDto(agreementDto)));
     }
 
     /**
@@ -60,8 +66,11 @@ public class AgreementServiceImpl implements AgreementService {
      */
     @Override
     @Timed
-    public List<Agreement> getPage(Pageable pageable) {
-        return agreementRepository.getPage(pageable);
+    public List<AgreementDto> getPage(Pageable pageable) {
+        return agreementRepository.getPage(pageable)
+            .stream()
+            .map(agreementMapper::fromAgreement)
+            .toList();
     }
 
     /**
@@ -72,8 +81,11 @@ public class AgreementServiceImpl implements AgreementService {
      */
     @Override
     @Timed
-    public List<Agreement> findByUser(Long userId, Pageable pageable) {
-        return agreementRepository.findByUserId(userId, pageable);
+    public List<AgreementDto> findByUser(Long userId, Pageable pageable) {
+        return agreementRepository.findByUserId(userId, pageable)
+            .stream()
+            .map(agreementMapper::fromAgreement)
+            .toList();
     }
 
     /**
@@ -85,8 +97,9 @@ public class AgreementServiceImpl implements AgreementService {
      */
     @Override
     @Timed
-    public Agreement findById(Long agreementId) {
+    public AgreementDto findById(Long agreementId) {
         return agreementRepository.findById(agreementId)
+            .map(agreementMapper::fromAgreement)
             .orElseThrow(() -> new IllegalArgumentException("Not found agreement with id: " + agreementId));
     }
 

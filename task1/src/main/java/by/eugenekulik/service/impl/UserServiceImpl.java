@@ -1,17 +1,24 @@
 package by.eugenekulik.service.impl;
 
-import by.eugenekulik.out.dao.Pageable;
+import by.eugenekulik.dto.AuthDto;
+import by.eugenekulik.dto.RegistrationDto;
+import by.eugenekulik.dto.UserDto;
 import by.eugenekulik.exception.AuthenticationException;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.exception.RegistrationException;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.out.dao.UserRepository;
+import by.eugenekulik.security.Authentication;
+import by.eugenekulik.service.UserMapper;
+import by.eugenekulik.service.UserService;
 import by.eugenekulik.service.annotation.Timed;
 import by.eugenekulik.service.annotation.Transactional;
-import by.eugenekulik.service.UserService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -28,10 +35,14 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
+    private UserMapper userMapper;
+    private HttpSession session;
 
     @Inject
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, HttpSession httpSession) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.session = httpSession;
     }
 
 
@@ -39,17 +50,20 @@ public class UserServiceImpl implements UserService {
      * Registers a new user if a user with the same username or email doesn't already exist.
      * Sets the user role to CLIENT.
      *
-     * @param user The user to be registered.
+     * @param registrationDto The information of user to be registered.
      * @return The registered user.
      * @throws RegistrationException If a user with the same username or email already exists.
      */
     @Override
     @Timed
     @Transactional
-    public User register(User user) {
+    public UserDto register(@Valid RegistrationDto registrationDto) {
         try {
+            User user = userMapper.fromRegistrationDto(registrationDto);
             user.setRole(Role.CLIENT);
-            return userRepository.save(user);
+            user = userRepository.save(user);
+            session.setAttribute("authentication", new Authentication(user));
+            return userMapper.fromUser(user);
         } catch (DatabaseInterectionException e) {
             throw new RegistrationException("user with this username or email already exists");
         }
@@ -59,21 +73,21 @@ public class UserServiceImpl implements UserService {
      * Authorizes a user by checking the provided username and password.
      * If successful, sets the authorized user as the current user in the session.
      *
-     * @param username The username of the user to authorize.
-     * @param password The password of the user to authorize.
+     * @param authDto user information for authentication.
      * @return The authorized user.
      * @throws AuthenticationException If the username or password is incorrect.
      */
     @Override
     @Timed
-    public User authorize(String username, String password) {
-        User user = userRepository.findByUsername(username)
+    public UserDto authorize(@Valid AuthDto authDto) {
+        User user = userRepository.findByUsername(authDto.username())
             .orElseThrow(() -> new AuthenticationException(
                 "The username or password you entered is incorrect"));
-        if (!user.getPassword().equals(password)) {
+        if (!user.getPassword().equals(authDto.password())) {
             throw new AuthenticationException("The username or password you entered is incorrect");
         }
-        return user;
+        session.setAttribute("authentication", new Authentication(user));
+        return userMapper.fromUser(user);
     }
 
     /**
@@ -85,7 +99,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Timed
-    public List<User> getPage(Pageable pageable) {
-        return userRepository.getPage(pageable);
+    public List<UserDto> getPage(Pageable pageable) {
+        return userRepository.getPage(pageable).stream()
+            .map(userMapper::fromUser)
+            .toList();
     }
 }

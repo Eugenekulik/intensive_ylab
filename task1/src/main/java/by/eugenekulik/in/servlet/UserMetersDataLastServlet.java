@@ -1,17 +1,16 @@
 package by.eugenekulik.in.servlet;
 
+import by.eugenekulik.dto.AgreementDto;
+import by.eugenekulik.dto.MetersDataDto;
 import by.eugenekulik.exception.AccessDeniedException;
-import by.eugenekulik.model.Agreement;
-import by.eugenekulik.model.MetersData;
-import by.eugenekulik.model.MetersType;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.security.Authentication;
-import by.eugenekulik.service.annotation.AllowedRoles;
-import by.eugenekulik.service.annotation.Auditable;
 import by.eugenekulik.service.AgreementService;
+import by.eugenekulik.service.MetersDataMapper;
 import by.eugenekulik.service.MetersDataService;
 import by.eugenekulik.service.MetersTypeService;
-import by.eugenekulik.service.MetersDataMapper;
+import by.eugenekulik.service.annotation.AllowedRoles;
+import by.eugenekulik.service.annotation.Auditable;
 import by.eugenekulik.utils.Converter;
 import jakarta.inject.Inject;
 import jakarta.servlet.annotation.WebServlet;
@@ -49,18 +48,13 @@ import java.io.IOException;
 @WebServlet("/user/md/last")
 public class UserMetersDataLastServlet extends HttpServlet {
 
-    private MetersDataMapper mapper;
     private MetersDataService metersDataService;
-    private MetersTypeService metersTypeService;
     private AgreementService agreementService;
     private Converter converter;
 
     @Inject
-    public void inject(MetersDataMapper mapper, MetersDataService metersDataService, Converter converter,
-                       MetersTypeService metersTypeService, AgreementService agreementService) {
-        this.mapper = mapper;
+    public void inject(MetersDataService metersDataService, Converter converter, AgreementService agreementService) {
         this.metersDataService = metersDataService;
-        this.metersTypeService = metersTypeService;
         this.agreementService = agreementService;
         this.converter = converter;
     }
@@ -75,25 +69,19 @@ public class UserMetersDataLastServlet extends HttpServlet {
     @Override
     @Auditable
     @AllowedRoles({Role.CLIENT})
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         long agreementId = converter.getLong(req, "agreementId");
-        Agreement agreement = agreementService.findById(agreementId);
+        AgreementDto agreement = agreementService.findById(agreementId);
         Authentication authentication = (Authentication) req.getSession().getAttribute("authentication");
-        if (!agreement.getUserId().equals(authentication.getUser().getId())) {
+        if (!agreement.userId().equals(authentication.getUser().getId())) {
             throw new AccessDeniedException("not valid agreement id: " + agreementId);
         }
         String type = req.getParameter("type");
-        MetersType metersType = metersTypeService.findByName(type);
-        MetersData metersData = metersDataService
-            .findLastByAgreementAndType(agreementId, metersType.getId());
-        try {
-            resp.getWriter()
-                .append(converter
-                    .convertObjectToJson(mapper
-                        .fromMetersData(metersData)));
-            resp.setStatus(200);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        MetersDataDto metersData = metersDataService
+            .findLastByAgreementAndType(agreementId, type);
+        resp.getWriter()
+            .append(converter
+                .convertObjectToJson(metersData));
+        resp.setStatus(200);
     }
 }
