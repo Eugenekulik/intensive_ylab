@@ -20,14 +20,6 @@ public interface AddressRepository {
     Optional<Address> findById(Long id);
 
     /**
-     * Checks if an address is present in the repository.
-     *
-     * @param address The address to check.
-     * @return {@code true} if the address is present, {@code false} otherwise.
-     */
-    boolean isPresent(Address address);
-
-    /**
      * Saves an address in the repository.
      *
      * @param address The address to save.
@@ -38,9 +30,10 @@ public interface AddressRepository {
     /**
      * Retrieves a page of addresses from the repository.
      *
-     * @param page  The page number (0-indexed).
-     * @param count The number of addresses per page.
+     * @param pageable class with information about page number and count number
      * @return A list of addresses for the specified page.
      */
-    List<Address> getPage(int page, int count);
+    List<Address> getPage(Pageable pageable);
+
+    List<Address> findByUserId(Long userId, Pageable pageable);
 }

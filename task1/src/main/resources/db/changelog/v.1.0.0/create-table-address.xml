@@ -1,0 +1,33 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+    <changeSet id="create-table-address" author="Eugene Kulik">
+        <createTable tableName="address" schemaName="meters">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="region" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="district" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="city" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="street" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="house" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="apartment" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint schemaName="meters" tableName="address"
+                             columnNames="region, district, city, street, house, apartment"/>
+    </changeSet>
+</databaseChangeLog>

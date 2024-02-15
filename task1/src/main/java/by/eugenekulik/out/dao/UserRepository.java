@@ -46,9 +46,8 @@ public interface UserRepository {
     /**
      * Retrieves a page of users from the repository.
      *
-     * @param page  The page number (0-indexed).
-     * @param count The number of users per page.
+     * @param pageable class with information about page number and count number
      * @return A list of users for the specified page.
      */
-    List<User> getPage(int page, int count);
+    List<User> getPage(Pageable pageable);
 }

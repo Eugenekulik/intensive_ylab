@@ -10,7 +10,7 @@ public class DataSource {
     private final String user;
     private final String password;
 
-    public DataSource(String url, String user, String password, String driverName){
+    public DataSource(String url, String user, String password, String driverName) {
         this.url = url;
         this.user = user;
         this.password = password;
@@ -20,4 +20,5 @@ public class DataSource {
             throw new DatabaseInterectionException("Error to load driver class.", e);
         }
     }
+
 }

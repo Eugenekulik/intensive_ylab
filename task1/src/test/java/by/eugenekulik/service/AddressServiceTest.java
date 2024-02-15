@@ -1,81 +1,95 @@
 package by.eugenekulik.service;
 
+import by.eugenekulik.TestConfigurationEnvironment;
+import by.eugenekulik.dto.AddressDto;
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.AddressRepository;
-import by.eugenekulik.out.dao.jdbc.utils.TransactionManager;
+import by.eugenekulik.service.impl.AddressServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class AddressServiceTest {
+class AddressServiceTest extends TestConfigurationEnvironment {
 
 
     private AddressRepository addressRepository;
 
-    private TransactionManager transactionManager;
     private AddressService addressService;
+    private AddressMapper addressMapper;
+
     @BeforeEach
     void setUp() {
         addressRepository = mock(AddressRepository.class);
-        transactionManager = mock(TransactionManager.class);
-        addressService = new AddressServiceImpl(addressRepository, transactionManager);
+        addressMapper = mock(AddressMapper.class);
+        addressService = new AddressServiceImpl(addressRepository, addressMapper);
     }
 
     @Test
-    void testCreate_shouldSave_whenNotExists(){
+    void testCreate_shouldSave_whenNotExists() {
         Address address = mock(Address.class);
+        AddressDto addressDto = mock(AddressDto.class);
 
-        when(transactionManager.doInTransaction(any()))
+        when(addressMapper.fromAddressDto(addressDto)).thenReturn(address);
+        when(addressRepository.save(address))
             .thenReturn(address);
+        when(addressMapper.fromAddress(address)).thenReturn(addressDto);
 
-        assertEquals(address, addressService.create(address));
+        assertEquals(addressDto, addressService.create(addressDto));
 
-        verify(transactionManager).doInTransaction(any());
+        verify(addressRepository).save(address);
     }
 
 
     @Test
-    void testCreate_shouldThrowException_whenExists(){
+    void testCreate_shouldThrowException_whenExists() {
+        AddressDto addressDto = mock(AddressDto.class);
         Address address = mock(Address.class);
 
-        when(transactionManager.doInTransaction(any()))
+        when(addressMapper.fromAddressDto(addressDto)).thenReturn(address);
+        when(addressRepository.save(address))
             .thenThrow(DatabaseInterectionException.class);
 
-        assertThrows(DatabaseInterectionException.class, ()->addressService.create(address));
+        assertThrows(DatabaseInterectionException.class, () -> addressService.create(addressDto));
 
-        verify(transactionManager).doInTransaction(any());
+        verify(addressRepository).save(address);
     }
 
 
     @Test
     void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
-        int page = 1;
-        int count = 10;
-        List<Address> expectedAddresses = mock(List.class);
+        Pageable pageable = mock(Pageable.class);
+        Address address = mock(Address.class);
+        AddressDto addressDto = mock(AddressDto.class);
+        List<Address> addresses = List.of(address);
 
-        when(addressRepository.getPage(page, count)).thenReturn(expectedAddresses);
+        when(addressRepository.getPage(pageable)).thenReturn(addresses);
+        when(addressMapper.fromAddress(address))
+            .thenReturn(addressDto);
 
-        assertEquals(expectedAddresses, addressService.getPage(page, count));
+        assertThat(addressService.getPage(pageable))
+            .hasSize(1)
+            .first()
+            .isEqualTo(addressDto);
 
-        verify(addressRepository).getPage(page, count);
+        verify(addressRepository).getPage(pageable);
     }
 
     @Test
     void testGetPage_shouldReturnEmptyList_whenPageIsOutOfRange() {
-        int page = 4;
-        int count = 10;
-
-        when(addressRepository.getPage(page, count))
+        Pageable pageable = mock(Pageable.class);
+        when(addressRepository.getPage(pageable))
             .thenReturn(Collections.EMPTY_LIST);
 
-        assertThat(addressService.getPage(page, count))
+        assertThat(addressService.getPage(pageable))
             .isEmpty();
 
 
@@ -83,18 +97,26 @@ class AddressServiceTest {
 
     @Test
     void testGetPage_shouldThrowException_whenCountIsNegative() {
-        int page = 1;
-        int count = -5;
-
-        when(addressRepository.getPage(page, count))
+        Pageable pageable = mock(Pageable.class);
+        when(addressRepository.getPage(pageable))
             .thenThrow(DatabaseInterectionException.class);
 
-        assertThrows(DatabaseInterectionException.class, ()->addressService.getPage(page, count));
+        assertThrows(DatabaseInterectionException.class, () -> addressService.getPage(pageable));
     }
 
 
+    @Test
+    void testFindById_shouldReturnAddress_whenExists() {
+        Address address = mock(Address.class);
+        AddressDto addressDto = mock(AddressDto.class);
 
+        when(addressRepository.findById(1L))
+            .thenReturn(Optional.of(address));
+        when(addressMapper.fromAddress(address)).thenReturn(addressDto);
 
+        assertEquals(addressDto, addressService.findById(1L));
+
+    }
 
 
 }

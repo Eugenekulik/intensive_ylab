@@ -11,8 +11,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
 
 public class ConnectionPool {
     private static final Logger LOGGER = LogManager.getLogger(ConnectionPool.class);
@@ -22,18 +21,13 @@ public class ConnectionPool {
     private BlockingDeque<PooledConnection> freeConnections;
     private Set<PooledConnection> usedConnections;
 
+    public ConnectionPool(DataSource dataSource, int maxSize, int checkConnectionTimeout) {
 
-    private ConnectionPool() {
-    }
-
-    public static ConnectionPool createConnectionPool(DataSource dataSource, int maxSize, int checkConnectionTimeout) {
-        ConnectionPool connectionPool = new ConnectionPool();
-        connectionPool.freeConnections = new LinkedBlockingDeque<>();
-        connectionPool.usedConnections = new ConcurrentSkipListSet<>();
-        connectionPool.maxSize = maxSize;
-        connectionPool.checkConnectionTimeout = checkConnectionTimeout;
-        connectionPool.dataSource = dataSource;
-        return connectionPool;
+        this.freeConnections = new LinkedBlockingDeque<>();
+        this.usedConnections = new ConcurrentSkipListSet<>();
+        this.maxSize = maxSize;
+        this.checkConnectionTimeout = checkConnectionTimeout;
+        this.dataSource = dataSource;
     }
 
 
@@ -63,6 +57,11 @@ public class ConnectionPool {
         return connection;
     }
 
+    private PooledConnection createConnection() throws SQLException {
+        return new PooledConnection(DriverManager
+            .getConnection(dataSource.getUrl(), dataSource.getUser(), dataSource.getPassword()));
+    }
+
     private void freeConnection(PooledConnection connection) {
         try {
             if (connection.isValid(checkConnectionTimeout)) {
@@ -82,12 +81,6 @@ public class ConnectionPool {
         }
     }
 
-    private PooledConnection createConnection() throws SQLException {
-        return new PooledConnection(DriverManager
-            .getConnection(dataSource.getUrl(), dataSource.getUser(), dataSource.getPassword()));
-    }
-
-
     private class PooledConnection implements Connection, Comparable<PooledConnection> {
         private final Connection connection;
 
@@ -96,36 +89,51 @@ public class ConnectionPool {
         }
 
         @Override
-        public boolean isWrapperFor(Class<?> arg0) throws SQLException {
-            return connection.isWrapperFor(arg0);
-        }
-
-        @Override
         public <T> T unwrap(Class<T> arg0) throws SQLException {
             return connection.unwrap(arg0);
         }
 
         @Override
+        public boolean isWrapperFor(Class<?> arg0) throws SQLException {
+            return connection.isWrapperFor(arg0);
+        }
+
+        @Override
+        public Statement createStatement() throws SQLException {
+            return connection.createStatement();
+        }        @Override
         public void abort(Executor arg0) throws SQLException {
             connection.abort(arg0);
         }
 
         @Override
+        public PreparedStatement prepareStatement(String sql) throws SQLException {
+            return connection.prepareStatement(sql);
+        }        @Override
         public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
             connection.setNetworkTimeout(executor, milliseconds);
         }
 
         @Override
+        public CallableStatement prepareCall(String sql) throws SQLException {
+            return connection.prepareCall(sql);
+        }        @Override
         public void clearWarnings() throws SQLException {
             connection.clearWarnings();
         }
 
         @Override
+        public String nativeSQL(String sql) throws SQLException {
+            return connection.nativeSQL(sql);
+        }        @Override
         public boolean isValid(int timeout) throws SQLException {
             return connection.isValid(timeout);
         }
 
         @Override
+        public int compareTo(PooledConnection o) {
+            return 0;
+        }        @Override
         public void setClientInfo(String name, String value) throws SQLClientInfoException {
             connection.setClientInfo(name, value);
         }
@@ -175,25 +183,13 @@ public class ConnectionPool {
             return connection.createSQLXML();
         }
 
-        @Override
-        public Statement createStatement() throws SQLException {
-            return connection.createStatement();
-        }
 
-        @Override
-        public PreparedStatement prepareStatement(String sql) throws SQLException {
-            return connection.prepareStatement(sql);
-        }
 
-        @Override
-        public CallableStatement prepareCall(String sql) throws SQLException {
-            return connection.prepareCall(sql);
-        }
 
-        @Override
-        public String nativeSQL(String sql) throws SQLException {
-            return connection.nativeSQL(sql);
-        }
+
+
+
+
 
         @Override
         public void setAutoCommit(boolean autoCommit) throws SQLException {
@@ -365,10 +361,7 @@ public class ConnectionPool {
             return connection.getWarnings();
         }
 
-        @Override
-        public int compareTo(PooledConnection o) {
-            return 0;
-        }
+
     }
 
 

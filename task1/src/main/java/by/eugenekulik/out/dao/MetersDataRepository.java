@@ -43,11 +43,10 @@ public interface MetersDataRepository {
     /**
      * Retrieves a page of meters data from the repository.
      *
-     * @param page  The page number (0-indexed).
-     * @param count The number of meters data entries per page.
+     * @param pageable class with information about page number and count number
      * @return A list of meters data for the specified page.
      */
-    List<MetersData> getPage(int page, int count);
+    List<MetersData> getPage(Pageable pageable);
 
     /**
      * Retrieves a page of meters data by agreement ID from the repository.
@@ -67,4 +66,6 @@ public interface MetersDataRepository {
      * @return An {@code Optional} containing the last meters data entry, or empty if not found.
      */
     Optional<MetersData> findLastByAgreementAndType(Long agreementId, Long metersTypeId);
+
+    List<MetersData> findByAgreementAndType(long agreementId, Long meterTypeId, Pageable pageable);
 }

@@ -1,83 +1,104 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.AddressExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
+import by.eugenekulik.service.annotation.Loggable;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JdbcAddressRepository is a JDBC implementation of the AddressRepository interface
+ * for performing CRUD operations related to addresses in the database.
+ *
+ * The class is annotated with @ApplicationScoped, indicating that it may be managed
+ * by a CDI (Contexts and Dependency Injection) container.
+ *
+ * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ *
+ * @author Eugene Kulik
+ * @see AddressRepository
+ * @see JdbcTemplate
+ */
+@ApplicationScoped
+@NoArgsConstructor
 public class JdbcAddressRepository implements AddressRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final AddressExtractor extractor;
+    private JdbcTemplate jdbcTemplate;
+    private AddressExtractor extractor = new AddressExtractor();
 
+    @Inject
     public JdbcAddressRepository(JdbcTemplate jdbcTemplate) {
-        this.extractor = new AddressExtractor();
         this.jdbcTemplate = jdbcTemplate;
     }
 
 
     @Override
+    @Loggable
     public Optional<Address> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate
             .query("""
-                           SELECT id, region, district, city, street, house, apartment
-                           FROM address
-                           WHERE id = ?;
-                       """, extractor, id));
+                    SELECT id, region, district, city, street, house, apartment
+                    FROM meters.address
+                    WHERE id = ?;
+                """, extractor, id));
     }
 
     @Override
-    public boolean isPresent(Address address) {
-        return jdbcTemplate.query(
-            """
-                    SELECT count(*)
-                    FROM address
-                    WHERE address.region = ? and address.district = ? and address.city = ? and
-                    address.street = ? and address.house = ? and address.apartment = ?;
-                """,
-            rs -> {
-                rs.next();
-                int count = rs.getInt("count");
-                return count != 0;
-            },
-            address.getRegion(), address.getDistrict(), address.getCity(),
-            address.getStreet(), address.getHouse(), address.getApartment());
-    }
-
-    @Override
+    @Loggable
     public Address save(Address address) {
-        Long id = jdbcTemplate.query("SELECT nextval ('address_sequence');",
-            rs -> {
-                rs.next();
-                return rs.getLong(1);
-            });
-        address.setId(id);
         jdbcTemplate.update(
             """
-                    INSERT INTO address(id, region, district, city, street, house, apartment)
-                    VALUES(?, ?, ?, ?, ?, ?, ?);
+                    INSERT INTO meters.address(id,region, district, city, street, house, apartment)
+                    VALUES(nextval('meters.address_sequence'),?, ?, ?, ?, ?, ?);
                 """,
-            address.getId(), address.getRegion(), address.getDistrict(), address.getCity(),
+            address.getRegion(), address.getDistrict(), address.getCity(),
             address.getStreet(), address.getHouse(), address.getApartment()
-            );
+        );
+        address = jdbcTemplate.query("""
+                        SELECT id, region, district, city, street, house, apartment
+                        FROM meters.address
+                        where region = ? and district = ? and city = ?
+                        and street = ? and house = ? and apartment = ?;
+                """, extractor, address.getRegion(), address.getDistrict(), address.getCity(),
+            address.getStreet(), address.getHouse(), address.getApartment());
         return address;
     }
 
     @Override
-    public List<Address> getPage(int page, int count) {
+    @Loggable
+    public List<Address> getPage(Pageable pageable) {
         return jdbcTemplate.query(
             """
-                    SELECT address.id, address.region, address.district,
-                    address.city, address.street, address.house, address.apartment
-                    FROM address
-                    ORDER BY address.id
+                    SELECT id, region, district, city, street, house, apartment
+                    FROM meters.address
+                    ORDER BY id
                     LIMIT ?
                     OFFSET ?*?;
                 """,
-            new ListExtractor<>(extractor) ,count, page, count);
+            new ListExtractor<>(extractor), pageable.getCount(), pageable.getPage(), pageable.getCount());
+    }
+
+    @Override
+    @Loggable
+    public List<Address> findByUserId(Long userId, Pageable pageable) {
+        return jdbcTemplate.query(
+            """
+                    SELECT id, region, district, city, street, house, apartment
+                    FROM meters.address left join meters.agreement
+                    ON meters.address.id = meters.agreement.address_id
+                    WHERE user_id = ?
+                    ORDER BY id
+                    LIMIT ?
+                    OFFSET ?*?;
+                """,
+            new ListExtractor<>(extractor), userId, pageable.getCount(), pageable.getPage(), pageable.getCount());
     }
 }

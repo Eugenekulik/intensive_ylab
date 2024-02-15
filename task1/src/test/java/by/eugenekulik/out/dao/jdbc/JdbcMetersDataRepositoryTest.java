@@ -1,67 +1,37 @@
 package by.eugenekulik.out.dao.jdbc;
 
+import by.eugenekulik.PostgresTestContainer;
+import by.eugenekulik.TestConfigurationEnvironment;
 import by.eugenekulik.exception.DatabaseInterectionException;
 import by.eugenekulik.model.MetersData;
+import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.out.dao.jdbc.repository.JdbcMetersDataRepository;
 import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
-import by.eugenekulik.out.dao.jdbc.utils.DataSource;
 import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import org.junit.jupiter.api.*;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Testcontainers
-class JdbcMetersDataRepositoryTest {
 
-    private static PostgreSQLContainer<?> postgreSQLContainer =
-        new PostgreSQLContainer<>("postgres:15-alpine")
-            .withDatabaseName("test")
-            .withUsername("test")
-            .withPassword("test");
+class JdbcMetersDataRepositoryTest extends TestConfigurationEnvironment {
+
 
     private static JdbcMetersDataRepository metersDataRepository;
 
     @BeforeAll
     static void setUp(){
-        postgreSQLContainer.start();
-        DataSource dataSource = new DataSource("jdbc:postgresql://localhost:"+
-            postgreSQLContainer.getFirstMappedPort() + "/test","test",
-            "test", "org.postgresql.Driver");
-        ConnectionPool connectionPool = ConnectionPool
-            .createConnectionPool(dataSource, 1, 30);
+        postgreSQLContainer = PostgresTestContainer.getInstance();
+        ConnectionPool connectionPool =
+            new ConnectionPool(postgreSQLContainer.getDataSource(), 1, 30);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);
         metersDataRepository = new JdbcMetersDataRepository(jdbcTemplate);
-        try{
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:"+
-                    postgreSQLContainer.getFirstMappedPort() + "/test","test",
-                "test");
-            Database database = DatabaseFactory.getInstance()
-                .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-            Liquibase liquibase = new Liquibase("db/changelog/changelog.xml",
-                new ClassLoaderResourceAccessor(), database);
-            liquibase.update();
-        } catch (LiquibaseException | SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
     @Test
-    @Order(1)
     void testSave_shouldReturnSavedMetersData(){
         MetersData metersData = MetersData.builder()
             .agreementId(1L)
@@ -77,7 +47,6 @@ class JdbcMetersDataRepositoryTest {
 
 
     @Test
-    @Order(2)
     void testFindById_shouldReturnOptionalOfMetersData_whenIdIsValid(){
         long id = 1L;
 
@@ -90,7 +59,6 @@ class JdbcMetersDataRepositoryTest {
     }
 
     @Test
-    @Order(2)
     void testFindById_shouldReturnEmptyOptional_whenIdIsNotValid(){
         long id = 1000L;
 
@@ -99,7 +67,6 @@ class JdbcMetersDataRepositoryTest {
     }
 
     @Test
-    @Order(2)
     void testFindByAgreementAndTypeAndMonth_shouldReturnOptionalOfMetersData_whenMetersDataExists(){
         long agreementId = 1L;
         long typeId = 1L;
@@ -113,7 +80,6 @@ class JdbcMetersDataRepositoryTest {
     }
 
     @Test
-    @Order(2)
     void testFindByAgreementAndTypeAndMonth_shouldReturnEmptyOptional_whenMetersDataNotExists(){
         long agreementId = 1L;
         long typeId = 2L;
@@ -125,7 +91,6 @@ class JdbcMetersDataRepositoryTest {
     }
 
     @Test
-    @Order(2)
     void testFindLastByAgreementAndType_shouldReturnOptionalOfMeterData_whenMetersDataExists(){
         long agreementId = 1L;
         long typeId = 1L;
@@ -138,7 +103,6 @@ class JdbcMetersDataRepositoryTest {
 
 
     @Test
-    @Order(2)
     void testFindLastByAgreementAndType_shouldReturnEmptyOptional_whenMetersDataNotExists(){
         long agreementId = 1L;
         long typeId = 2L;
@@ -149,7 +113,6 @@ class JdbcMetersDataRepositoryTest {
 
 
     @Test
-    @Order(2)
     void testGetPageByAgreement_shouldReturnListOfMetersData_whenArgumentAreValid(){
         int page = 0;
         int count = 1;
@@ -163,7 +126,6 @@ class JdbcMetersDataRepositoryTest {
     }
 
     @Test
-    @Order(2)
     void testGetPageByAgreement_shouldReturnEmptyList_whenAgreementNotValid(){
         int page = 0;
         int count = 1;
@@ -174,7 +136,6 @@ class JdbcMetersDataRepositoryTest {
     }
 
     @Test
-    @Order(2)
     void testGetPageByAgreement_shouldReturnEmptyList_whenPageOutOfBound(){
         int page = 4;
         int count = 4;
@@ -186,42 +147,34 @@ class JdbcMetersDataRepositoryTest {
 
 
     @Test
-    @Order(2)
     void testGetPage_shouldReturnListOfMetersData_whenPageAndCountValid(){
-        int page = 0;
-        int count = 1;
+        Pageable pageable = new Pageable(0,1);
 
-        assertThat(metersDataRepository.getPage(page, count))
+        assertThat(metersDataRepository.getPage(pageable))
             .hasSize(1)
             .first()
             .hasFieldOrPropertyWithValue("value", 100.0);
     }
 
     @Test
-    @Order(2)
     void testGetPage_shouldReturnEmptyList_whenPageOutOfBound(){
-        int page = 4;
-        int count = 4;
+        Pageable pageable = new Pageable(4,4);
 
-        assertThat(metersDataRepository.getPage(page, count))
+        assertThat(metersDataRepository.getPage(pageable))
             .isEmpty();
     }
 
     @Test
-    @Order(2)
     void testGetPage_shouldThrowException_whenPageNegative(){
-        int page = -1;
-        int count = 1;
+        Pageable pageable = new Pageable(-1, 1);
 
-        assertThrows(DatabaseInterectionException.class, ()->metersDataRepository.getPage(page, count));
+        assertThrows(DatabaseInterectionException.class, ()->metersDataRepository.getPage(pageable));
     }
 
     @Test
-    @Order(2)
     void testGetPage_shouldReturnEmptyList_whenCountNegative(){
-        int page = 0;
-        int count = -1;
+        Pageable pageable = new Pageable(0,-1);
 
-        assertThrows(DatabaseInterectionException.class, ()->metersDataRepository.getPage(page, count));
+        assertThrows(DatabaseInterectionException.class, ()->metersDataRepository.getPage(pageable));
     }
 }

@@ -1,6 +1,8 @@
 package by.eugenekulik.model;
 
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 /**
@@ -18,10 +20,13 @@ public class MetersType {
     /**
      * The unique identifier for the meters type.
      */
+    @NotNull
     private Long id;
 
     /**
      * The name of the meters type.
      */
+    @NotNull
+    @Pattern(regexp = "[a-z][a-z_]")
     private String name;
 }

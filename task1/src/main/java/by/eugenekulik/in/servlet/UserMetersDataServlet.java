@@ -1,0 +1,97 @@
+package by.eugenekulik.in.servlet;
+
+import by.eugenekulik.dto.AgreementDto;
+import by.eugenekulik.dto.MetersDataDto;
+import by.eugenekulik.exception.AccessDeniedException;
+import by.eugenekulik.model.Role;
+import by.eugenekulik.out.dao.Pageable;
+import by.eugenekulik.security.Authentication;
+import by.eugenekulik.service.AgreementService;
+import by.eugenekulik.service.MetersDataMapper;
+import by.eugenekulik.service.MetersDataService;
+import by.eugenekulik.service.MetersTypeService;
+import by.eugenekulik.service.annotation.AllowedRoles;
+import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.utils.Converter;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * {@code UserMetersDataServlet} is a servlet class that handles HTTP GET requests
+ * related to retrieving meters data for a specific user, agreement, and meters type.
+ * It is annotated with {@code @WebServlet} to define the servlet mapping for the "/user/md" URL.
+ *
+ * <p>The servlet relies on various injected services and components, such as
+ * {@code MetersDataService}, {@code MetersDataMapper}, {@code Converter},
+ * {@code AgreementService}, and {@code MetersTypeService}. These dependencies are injected
+ * using the {@code @Inject} annotation on the {@code inject} method.
+ *
+ * <p>The servlet includes a main method: {@code doGet} for handling HTTP GET requests.
+ * This method retrieves meters data associated with the authenticated user, agreement, and meters type,
+ * responds with a JSON representation of the meters data, and sets the HTTP response status to 200.
+ *
+ * @author Eugene Kulik
+ * @see HttpServlet
+ * @see MetersDataService
+ * @see MetersDataMapper
+ * @see Converter
+ * @see AgreementService
+ * @see MetersTypeService
+ * @see Auditable
+ * @see AllowedRoles
+ */
+@WebServlet("/user/md")
+@ApplicationScoped
+public class UserMetersDataServlet extends HttpServlet {
+
+    private MetersDataService metersDataService;
+    private AgreementService agreementService;
+    private Converter converter;
+
+    @Inject
+    public void inject(MetersDataService metersDataService, Converter converter,
+                       AgreementService agreementService) {
+        this.metersDataService = metersDataService;
+        this.agreementService = agreementService;
+        this.converter = converter;
+    }
+
+    /**
+     * Handles HTTP GET requests for retrieving meters data associated with the authenticated user,
+     * agreement, and meters type.
+     *
+     * @param req  The {@code HttpServletRequest} object.
+     * @param resp The {@code HttpServletResponse} object.
+     */
+    @Override
+    @Auditable
+    @AllowedRoles({Role.CLIENT})
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        int page = converter.getInteger(req, "page");
+        int count = converter.getInteger(req, "count");
+        if(count == 0) count = 10;
+        long agreementId = converter.getLong(req, "agreementId");
+        AgreementDto agreementDto = agreementService.findById(agreementId);
+        Authentication authentication = (Authentication) req.getSession().getAttribute("authentication");
+        if (!agreementDto.userId().equals(authentication.getUser().getId())) {
+            throw new AccessDeniedException("not valid agreement id: " + agreementId);
+        }
+        String type = req.getParameter("type");
+        List<MetersDataDto> metersData = metersDataService
+            .findByAgreementAndType(agreementId, type, new Pageable(page, count));
+        try {
+            resp.getWriter()
+                .append(converter.convertObjectToJson(metersData));
+            resp.setStatus(200);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
