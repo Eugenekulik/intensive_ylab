@@ -41,11 +41,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
     }
 
     /**
-     * Creates a new meters type if a meters type with the same name doesn't already exist.
-     *
-     * @param metersTypeDto The information of meters type to be created.
-     * @return The created meters type.
-     * @throws IllegalArgumentException If a meters type with the same name already exists.
+     * {@inheritDoc}
      */
     @Override
     @Transactional
@@ -56,10 +52,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
     }
 
     /**
-     * Retrieves a meters type by its name.
-     *
-     * @param name The name of the meters type.
-     * @return The meters type with the specified name.
+     * {@inheritDoc}
      * @throws IllegalArgumentException If no meters type is found with the specified name.
      */
     @Override
@@ -71,9 +64,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
     }
 
     /**
-     * Retrieves a list of all meters types.
-     *
-     * @return A list of all meters types.
+     * {@inheritDoc}
      */
     @Override
     @Timed

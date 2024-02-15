@@ -42,11 +42,7 @@ public class AddressServiceImpl implements AddressService {
 
 
     /**
-     * Creates a new address if it doesn't already exist.
-     *
-     * @param addressDto The information of address to be created.
-     * @return The created address.
-     * @throws IllegalArgumentException If the address already exists.
+     * {@inheritDoc}
      */
     @Override
     @Timed
@@ -60,11 +56,7 @@ public class AddressServiceImpl implements AddressService {
 
 
     /**
-     * Retrieves a paginated list of addresses.
-     *
-     * @param pageable class with information about page number and count number
-     * @return A list of addresses for the specified page and count.
-     * @throws IllegalArgumentException If count is less than 1 or if page is negative.
+     * {@inheritDoc}
      */
     @Override
     @Timed
@@ -74,6 +66,9 @@ public class AddressServiceImpl implements AddressService {
             .toList();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Auditable
     @Override
     @Timed
@@ -83,6 +78,9 @@ public class AddressServiceImpl implements AddressService {
             .orElseThrow(() -> new IllegalArgumentException("address with this id is not exists"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Timed
     public List<AddressDto> findByUser(Long userId, Pageable pageable) {

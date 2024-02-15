@@ -46,12 +46,7 @@ public class MetersDataServiceImpl implements MetersDataService {
     }
 
     /**
-     * Creates meters data, sets the placement timestamp, and checks if readings
-     * for the same meter type and agreement have already been submitted for the
-     * current month.
-     *
-     * @param metersDataDto The information of meters data to be created.
-     * @return The created meters data.
+     * {@inheritDoc}
      * @throws IllegalArgumentException If readings for the same meter type and agreement
      *                                  have already been submitted for the current month.
      */
@@ -71,11 +66,7 @@ public class MetersDataServiceImpl implements MetersDataService {
 
 
     /**
-     * Retrieves the last meters data by agreement and type.
-     *
-     * @param agreementId  The ID of the agreement.
-     * @param typeName The name of the meter type.
-     * @return The last meters data for the specified agreement and type.
+     * {@inheritDoc}
      * @throws IllegalArgumentException If no meters data is found.
      */
     @Override
@@ -88,11 +79,8 @@ public class MetersDataServiceImpl implements MetersDataService {
     }
 
     /**
-     * Retrieves a paginated list of meters data.
-     *
-     * @param pageable class with information about page number and count number
-     * @return A list of meters data for the specified page and count.
-     * @throws IllegalArgumentException If count is less than 1 or if page is negative.
+     * {@inheritDoc}
+     * @throws IllegalArgumentException If not valid pageable.
      */
     @Override
     @Timed
@@ -102,6 +90,10 @@ public class MetersDataServiceImpl implements MetersDataService {
             .toList();
     }
 
+    /**
+     * {@inheritDoc}
+     * @throws IllegalArgumentException If pageable not valid.
+     */
     @Override
     @Timed
     public List<MetersDataDto> findByAgreementAndType(long agreementId, String typeName, Pageable pageable) {

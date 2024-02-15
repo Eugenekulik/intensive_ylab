@@ -39,13 +39,7 @@ public class AgreementServiceImpl implements AgreementService {
     }
 
     /**
-     * Creates a new agreement if the associated user and address exist,
-     * and if an agreement with the same user and address doesn't already exist.
-     *
-     * @param agreementDto The information of agreement to be created.
-     * @return The created agreement.
-     * @throws IllegalArgumentException If the associated user or address doesn't exist,
-     *                                  or if an agreement with the same user and address already exists.
+     * {@inheritDoc}
      */
     @Override
     @Timed
@@ -58,11 +52,7 @@ public class AgreementServiceImpl implements AgreementService {
     }
 
     /**
-     * Retrieves a paginated list of agreements.
-     *
-     * @param pageable class with information about page number and count number
-     * @return A list of agreements for the specified page and count.
-     * @throws IllegalArgumentException If page is negative or if count is less than 1.
+     * {@inheritDoc}
      */
     @Override
     @Timed
@@ -74,10 +64,7 @@ public class AgreementServiceImpl implements AgreementService {
     }
 
     /**
-     * Retrieves a list of agreements associated with the specified user ID.
-     *
-     * @param userId The ID of the user.
-     * @return A list of agreements associated with the specified user ID.
+     * {@inheritDoc}
      */
     @Override
     @Timed
@@ -89,10 +76,7 @@ public class AgreementServiceImpl implements AgreementService {
     }
 
     /**
-     * Retrieves an agreement by its ID.
-     *
-     * @param agreementId The ID of the agreement.
-     * @return The agreement with the specified ID.
+     * {@inheritDoc}
      * @throws IllegalArgumentException If no agreement is found with the specified ID.
      */
     @Override

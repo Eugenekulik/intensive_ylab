@@ -47,11 +47,7 @@ public class UserServiceImpl implements UserService {
 
 
     /**
-     * Registers a new user if a user with the same username or email doesn't already exist.
-     * Sets the user role to CLIENT.
-     *
-     * @param registrationDto The information of user to be registered.
-     * @return The registered user.
+     * {@inheritDoc}
      * @throws RegistrationException If a user with the same username or email already exists.
      */
     @Override
@@ -70,11 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Authorizes a user by checking the provided username and password.
-     * If successful, sets the authorized user as the current user in the session.
-     *
-     * @param authDto user information for authentication.
-     * @return The authorized user.
+     * {@inheritDoc}
      * @throws AuthenticationException If the username or password is incorrect.
      */
     @Override
@@ -91,11 +83,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Retrieves a paginated list of users.
-     *
-     * @param pageable class with information about page number and count number
-     * @return A list of users for the specified page and count.
-     * @throws IllegalArgumentException If page is negative or if count is less than 1.
+     * {@inheritDoc}
      */
     @Override
     @Timed
