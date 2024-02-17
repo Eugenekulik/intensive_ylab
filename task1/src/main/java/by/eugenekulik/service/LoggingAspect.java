@@ -5,15 +5,17 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
 @Aspect
 @Slf4j
+@Service
 public class LoggingAspect {
 
 
-    @Pointcut("@within(by.eugenekulik.service.annotation.Loggable) && execution(* *(..))")
+    @Pointcut("@annotation(by.eugenekulik.service.annotation.Loggable)")
     public void callLoggableMethod() {
     }
 
