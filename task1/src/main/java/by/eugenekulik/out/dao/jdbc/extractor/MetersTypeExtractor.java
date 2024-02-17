@@ -1,7 +1,8 @@
 package by.eugenekulik.out.dao.jdbc.extractor;
 
 import by.eugenekulik.model.MetersType;
-import by.eugenekulik.out.dao.jdbc.utils.ResultSetExtractor;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +14,7 @@ import java.sql.SQLException;
  *
  * @author  Eugene Kulik
  */
+@Component
 public class MetersTypeExtractor implements ResultSetExtractor<MetersType> {
 
     /**

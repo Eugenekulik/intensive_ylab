@@ -4,7 +4,7 @@ import by.eugenekulik.dto.AddressDto;
 import by.eugenekulik.model.Address;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AddressMapper {
     Address fromAddressDto(AddressDto addressDto);
 

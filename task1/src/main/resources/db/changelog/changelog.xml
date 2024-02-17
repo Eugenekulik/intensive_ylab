@@ -3,7 +3,7 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd"
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
         logicalFilePath="db/changelog">
         <include file="v.1.0.0/changelog.xml" relativeToChangelogFile="true"/>
         <include file="v.1.1.0/changelog.xml" relativeToChangelogFile="true"/>

@@ -1,15 +1,13 @@
 package by.eugenekulik.service.impl;
 
 import by.eugenekulik.dto.AgreementDto;
-import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.service.AgreementMapper;
-import by.eugenekulik.service.annotation.Timed;
-import by.eugenekulik.service.annotation.Transactional;
 import by.eugenekulik.service.AgreementService;
-import jakarta.enterprise.context.ApplicationScoped;
+import by.eugenekulik.service.annotation.Timed;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -19,8 +17,7 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Service
 public class AgreementServiceImpl implements AgreementService {
 
     private AgreementRepository agreementRepository;
@@ -43,7 +40,6 @@ public class AgreementServiceImpl implements AgreementService {
      */
     @Override
     @Timed
-    @Transactional
     public AgreementDto create(AgreementDto agreementDto) {
         return agreementMapper
             .fromAgreement(agreementRepository

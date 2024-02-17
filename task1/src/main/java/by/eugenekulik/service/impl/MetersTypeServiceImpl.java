@@ -6,11 +6,9 @@ import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.service.MetersTypeMapper;
 import by.eugenekulik.service.MetersTypeService;
 import by.eugenekulik.service.annotation.Timed;
-import by.eugenekulik.service.annotation.Transactional;
 import by.eugenekulik.service.annotation.Valid;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -20,8 +18,7 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Service
 public class MetersTypeServiceImpl implements MetersTypeService {
 
     private MetersTypeRepository metersTypeRepository;
@@ -44,7 +41,6 @@ public class MetersTypeServiceImpl implements MetersTypeService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
     @Timed
     public MetersTypeDto create(@Valid({"id"}) MetersTypeDto metersTypeDto) {
         MetersType metersType = mapper.fromMetersTypeDto(metersTypeDto);

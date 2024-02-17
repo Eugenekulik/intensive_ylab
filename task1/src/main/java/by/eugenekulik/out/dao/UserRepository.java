@@ -1,6 +1,7 @@
 package by.eugenekulik.out.dao;
 
 import by.eugenekulik.model.User;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,7 +10,7 @@ import java.util.Optional;
  * The {@code UserRepository} interface defines methods for interacting
  * with user-related data in a repository.
  */
-public interface UserRepository {
+public interface UserRepository{
 
     /**
      * Retrieves a user by its unique identifier.

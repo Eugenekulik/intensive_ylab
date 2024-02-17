@@ -1,13 +1,11 @@
 package by.eugenekulik.model;
 
 
-import lombok.Getter;
-import lombok.ToString;
-
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
-public record Rec(String id, String message, LocalDateTime time) {
+public record Rec(UUID id, String message, LocalDateTime time) {
     @Override
     public String toString() {
         return "Rec{" +

@@ -3,19 +3,19 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
     <changeSet id="insert-default-data" author="Eugene Kulik">
         <insert tableName="users" schemaName="meters">
             <column name="id" valueNumeric="1"/>
             <column name="username" value="admin"/>
-            <column name="password" value="password"/>
+            <column name="password" value="$2a$12$7PCjGS5ZbK.9qENSusEQ1uMM3bA3FTybhWaoD5Z8/zRRNZ5qGoZwG"/>
             <column name="email" value="admin@mail.ru"/>
             <column name="role" value="ADMIN"/>
         </insert>
         <insert tableName="users" schemaName="meters">
             <column name="id" valueNumeric="2"/>
             <column name="username" value="user"/>
-            <column name="password" value="password"/>
+            <column name="password" value="$2a$12$7PCjGS5ZbK.9qENSusEQ1uMM3bA3FTybhWaoD5Z8/zRRNZ5qGoZwG"/>
             <column name="email" value="user@mail.ru"/>
             <column name="role" value="CLIENT"/>
         </insert>

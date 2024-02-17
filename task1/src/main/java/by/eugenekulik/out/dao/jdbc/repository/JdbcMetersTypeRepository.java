@@ -4,11 +4,9 @@ import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersTypeExtractor;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
 import by.eugenekulik.service.annotation.Loggable;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,26 +14,22 @@ import java.util.Optional;
 /**
  * JdbcMetersTypeRepository is a JDBC implementation of the MetersTypeRepository interface
  * for performing CRUD operations related to addresses in the database.
- * <p>
- * The class is annotated with @ApplicationScoped, indicating that it may be managed
- * by a CDI (Contexts and Dependency Injection) container.
- * <p>
- * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ * The class is annotated with @Repository, indicating that it may be managed
+ * by a spring framework container,
  *
  * @author Eugene Kulik
  * @see MetersTypeRepository
  * @see JdbcTemplate
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Repository
 public class JdbcMetersTypeRepository implements MetersTypeRepository {
 
-    private JdbcTemplate jdbcTemplate;
-    private MetersTypeExtractor extractor = new MetersTypeExtractor();
+    private final JdbcTemplate jdbcTemplate;
+    private MetersTypeExtractor extractor;
 
-    @Inject
-    public JdbcMetersTypeRepository(JdbcTemplate jdbcTemplate) {
+    public JdbcMetersTypeRepository(JdbcTemplate jdbcTemplate, MetersTypeExtractor extractor) {
         this.jdbcTemplate = jdbcTemplate;
+        this.extractor = extractor;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package by.eugenekulik.service;
 
 import by.eugenekulik.dto.MetersDataDto;
-import by.eugenekulik.out.dao.Pageable;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 

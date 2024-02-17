@@ -1,17 +1,14 @@
 package by.eugenekulik.service.impl;
 
 import by.eugenekulik.dto.AddressDto;
-import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.service.AddressMapper;
 import by.eugenekulik.service.annotation.Auditable;
 import by.eugenekulik.service.annotation.Timed;
-import by.eugenekulik.service.annotation.Transactional;
 import by.eugenekulik.service.AddressService;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -21,12 +18,11 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Service
 public class AddressServiceImpl implements AddressService {
 
-    private AddressRepository addressRepository;
-    private AddressMapper addressMapper;
+    private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
 
     /**
      * Constructs an AddressService with the specified AddressRepository.
@@ -34,7 +30,6 @@ public class AddressServiceImpl implements AddressService {
      * @param addressRepository The repository responsible for managing addresses.
      * @param addressMapper The mapper for address model.
      */
-    @Inject
     public AddressServiceImpl(AddressRepository addressRepository, AddressMapper addressMapper) {
         this.addressRepository = addressRepository;
         this.addressMapper = addressMapper;
@@ -46,7 +41,6 @@ public class AddressServiceImpl implements AddressService {
      */
     @Override
     @Timed
-    @Transactional
     public AddressDto create(@Valid AddressDto addressDto) {
         return addressMapper
             .fromAddress(addressRepository

@@ -4,15 +4,12 @@ import by.eugenekulik.dto.MetersDataDto;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.MetersTypeRepository;
-import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.service.MetersDataMapper;
 import by.eugenekulik.service.MetersDataService;
 import by.eugenekulik.service.annotation.Timed;
-import by.eugenekulik.service.annotation.Transactional;
 import by.eugenekulik.service.annotation.Valid;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,13 +20,12 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Service
 public class MetersDataServiceImpl implements MetersDataService {
 
-    private MetersDataRepository metersDataRepository;
-    private MetersTypeRepository metersTypeRepository;
-    private MetersDataMapper mapper;
+    private final MetersDataRepository metersDataRepository;
+    private final MetersTypeRepository metersTypeRepository;
+    private final MetersDataMapper mapper;
 
     /**
      * Constructs a MetersDataService with the specified MetersDataRepository.
@@ -38,7 +34,6 @@ public class MetersDataServiceImpl implements MetersDataService {
      * @param metersTypeRepository The repository responsible for managing meters type.
      * @param mapper               The mapper for model MetersData.
      */
-    @Inject
     public MetersDataServiceImpl(MetersDataRepository metersDataRepository, MetersTypeRepository metersTypeRepository, MetersDataMapper mapper) {
         this.metersDataRepository = metersDataRepository;
         this.metersTypeRepository = metersTypeRepository;
@@ -52,7 +47,6 @@ public class MetersDataServiceImpl implements MetersDataService {
      */
     @Override
     @Timed
-    @Transactional
     public MetersDataDto create(@Valid({"id", "placedAt"}) MetersDataDto metersDataDto) {
         MetersData metersData = mapper.fromMetersDataDto(metersDataDto);
         metersData.setPlacedAt(LocalDateTime.now());

@@ -1,15 +1,14 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
-import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.UserExtractor;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
 import by.eugenekulik.service.annotation.Loggable;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,26 +16,23 @@ import java.util.Optional;
 /**
  * JdbcUserRepository is a JDBC implementation of the UserRepository interface
  * for performing CRUD operations related to users in the database.
- * <p>
  * The class is annotated with @ApplicationScoped, indicating that it may be managed
- * by a CDI (Contexts and Dependency Injection) container.
- * <p>
- * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ * by a spring framework container.
  *
  * @author Eugene Kulik
  * @see UserRepository
  * @see JdbcTemplate
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Repository
+@Slf4j
 public class JdbcUserRepository implements UserRepository {
 
-    private JdbcTemplate jdbcTemplate;
-    private UserExtractor extractor = new UserExtractor();
+    private final JdbcTemplate jdbcTemplate;
+    private final UserExtractor extractor;
 
-    @Inject
-    public JdbcUserRepository(JdbcTemplate jdbcTemplate) {
+    public JdbcUserRepository(JdbcTemplate jdbcTemplate, UserExtractor extractor) {
         this.jdbcTemplate = jdbcTemplate;
+        this.extractor = extractor;
     }
 
 
@@ -100,9 +96,10 @@ public class JdbcUserRepository implements UserRepository {
                     FROM meters.users
                     ORDER BY id
                     LIMIT ?
-                    OFFSET ?*?;
+                    OFFSET ?;
                 """,
-            new ListExtractor<>(extractor), pageable.getCount(), pageable.getPage(), pageable.getCount());
+            new ListExtractor<>(extractor), pageable.getPageSize(),
+            pageable.getPageNumber() * pageable.getPageSize());
 
     }
 }

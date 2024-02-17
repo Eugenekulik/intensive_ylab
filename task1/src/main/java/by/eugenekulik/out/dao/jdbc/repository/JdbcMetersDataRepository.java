@@ -1,15 +1,13 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
-import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersDataExtractor;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
 import by.eugenekulik.service.annotation.Loggable;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,25 +16,21 @@ import java.util.Optional;
 /**
  * JdbcMetersDataRepository is a JDBC implementation of the MetersDataRepository interface
  * for performing CRUD operations related to metersData in the database.
- * <p>
- * The class is annotated with @ApplicationScoped, indicating that it may be managed
- * by a CDI (Contexts and Dependency Injection) container.
- * <p>
- * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ * The class is annotated with @Repository, indicating that it may be managed
+ * by a spring framework container.
  *
  * @author Eugene Kulik
  * @see MetersDataRepository
  * @see JdbcTemplate
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Repository
 public class JdbcMetersDataRepository implements MetersDataRepository {
-    private JdbcTemplate jdbcTemplate;
-    private MetersDataExtractor extractor = new MetersDataExtractor();
+    private final JdbcTemplate jdbcTemplate;
+    private final MetersDataExtractor extractor;
 
-    @Inject
-    public JdbcMetersDataRepository(JdbcTemplate jdbcTemplate) {
+    public JdbcMetersDataRepository(JdbcTemplate jdbcTemplate, MetersDataExtractor extractor) {
         this.jdbcTemplate = jdbcTemplate;
+        this.extractor = extractor;
     }
 
 
@@ -95,7 +89,8 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
                     LIMIT ?
                     OFFSET ?*?;
                 """,
-            new ListExtractor<>(extractor), pageable.getCount(), pageable.getPage(), pageable.getCount());
+            new ListExtractor<>(extractor), pageable.getPageSize(),
+            pageable.getPageNumber() * pageable.getPageSize());
 
     }
 
@@ -136,9 +131,10 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
                         FROM meters.meters_data
                         WHERE agreement_id = ? and meters_type_id = ?
                         ORDER BY placed_at desc
-                        LIMIN ?
-                        OFFSET ? * ?;
+                        LIMIT ?
+                        OFFSET ?;
                 """, new ListExtractor<>(extractor),
-            agreementId, meterTypeId, pageable.getCount(), pageable.getPage(), pageable.getCount());
+            agreementId, meterTypeId, pageable.getPageSize(),
+            pageable.getPageNumber() * pageable.getPageSize());
     }
 }
