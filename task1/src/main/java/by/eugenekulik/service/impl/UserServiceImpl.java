@@ -6,7 +6,7 @@ import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.service.UserMapper;
 import by.eugenekulik.service.UserService;
 import by.eugenekulik.service.annotation.Timed;
-import jakarta.inject.Inject;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,19 +21,11 @@ import java.util.List;
  * @author Eugene Kulik
  */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
-    private UserMapper userMapper;
-
-    @Inject
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-    }
-
-
-
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto currentUser() {
@@ -41,8 +33,6 @@ public class UserServiceImpl implements UserService {
             .findByUsername(SecurityContextHolder.getContext().getAuthentication().getName())
             .orElse(User.guest));
     }
-
-
 
     /**
      * {@inheritDoc}

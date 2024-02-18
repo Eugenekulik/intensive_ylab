@@ -3,20 +3,18 @@ package by.eugenekulik.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public record AddressDto(
-    Long id,
-
+public record AddressRequestDto(
     @NotNull
-    @Pattern(regexp = "[a-z_]+")
+    @Pattern(regexp = "[A-Za-z][A-Za-z_\\- ]+")
     String region,
     @NotNull
-    @Pattern(regexp = "[a-z_]+")
+    @Pattern(regexp = "[A-Za-z][A-Za-z_\\- ]+")
     String district,
     @NotNull
-    @Pattern(regexp = "[a-z_]+")
+    @Pattern(regexp = "[A-Za-z][A-Za-z_\\- ]+")
     String city,
     @NotNull
-    @Pattern(regexp = "[a-z0-9_]+")
+    @Pattern(regexp = "[A-Za-z][A-Za-z_\\- ]+")
     String street,
     @NotNull
     @Pattern(regexp = "[a-z0-9]+")
@@ -27,9 +25,8 @@ public record AddressDto(
 
     @Override
     public String toString() {
-        return "AddressDto{" +
-            "id=" + id +
-            ", region='" + region + '\'' +
+        return "AddressRequestDto{" +
+            "region='" + region + '\'' +
             ", district='" + district + '\'' +
             ", city='" + city + '\'' +
             ", street='" + street + '\'' +

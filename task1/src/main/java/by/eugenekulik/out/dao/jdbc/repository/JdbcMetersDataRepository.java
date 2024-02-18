@@ -87,7 +87,7 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
                     FROM meters.meters_data
                     ORDER BY id
                     LIMIT ?
-                    OFFSET ?*?;
+                    OFFSET ?;
                 """,
             new ListExtractor<>(extractor), pageable.getPageSize(),
             pageable.getPageNumber() * pageable.getPageSize());

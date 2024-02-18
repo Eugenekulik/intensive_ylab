@@ -3,3 +3,6 @@ database:
   user: postgres
   password: postgres
   url: jdbc:postgresql://localhost:5432/ylab
+springdoc:
+  swagger-ui:
+    enabled: true

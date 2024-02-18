@@ -2,6 +2,7 @@ package by.eugenekulik.security;
 
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,12 +17,17 @@ import java.util.Optional;
 
 @Service
 @Primary
+@RequiredArgsConstructor
 public class JwtUserDetailsService implements UserDetailsService {
-
   private final UserRepository userRepository;
-  public JwtUserDetailsService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
+
+  /**
+   * Loads user details by username.
+   *
+   * @param username The username for which to load details.
+   * @return UserDetails containing user details.
+   * @throws UsernameNotFoundException if the user is not found.
+   */
   @Override
   public UserDetails loadUserByUsername(String username)
       throws UsernameNotFoundException {
@@ -33,7 +39,9 @@ public class JwtUserDetailsService implements UserDetailsService {
         "User '" + username + "' not found");
   }
 
-
+  /**
+   * UserDetails implementation for JwtUserDetailsService.
+   */
   private record JwtUserDetails(User user) implements UserDetails {
     @Override
       public Collection<? extends GrantedAuthority> getAuthorities() {

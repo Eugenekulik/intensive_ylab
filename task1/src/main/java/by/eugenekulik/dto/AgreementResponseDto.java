@@ -1,17 +1,13 @@
 package by.eugenekulik.dto;
 
-import jakarta.validation.constraints.NotNull;
-
-public record AgreementDto(
-    @NotNull
+public record AgreementResponseDto(
     Long id,
-    @NotNull
     Long userId,
-    @NotNull
-    Long addressId) {
+    Long addressId
+){
     @Override
     public String toString() {
-        return "AgreementDto{" +
+        return "AgreementResponseDto{" +
             "id=" + id +
             ", userId=" + userId +
             ", addressId=" + addressId +

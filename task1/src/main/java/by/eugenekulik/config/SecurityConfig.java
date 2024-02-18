@@ -5,11 +5,13 @@ import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.repository.JdbcUserRepository;
 import by.eugenekulik.security.JwtProvider;
 import by.eugenekulik.security.JwtUserDetailsService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,7 +23,8 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
-@RequiredArgsConstructor
+@EnableWebSecurity
+@EnableMethodSecurity
 @Import({JdbcUserRepository.class})
 public class SecurityConfig {
 
@@ -39,7 +42,12 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(c->c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(c->c
-                    .requestMatchers(builder.pattern("/sign-in"), builder.pattern("/sign-up")).permitAll()
+                .requestMatchers(builder.pattern("/v3/**"),
+                    builder.pattern("/swagger-ui/**")).permitAll()
+                .requestMatchers(
+                    builder.pattern("/sign-in"),
+                    builder.pattern("/sign-up")).anonymous()
+                .requestMatchers(builder.pattern(HttpMethod.POST,"/address")).permitAll()
                 .anyRequest().authenticated())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
             .build();

@@ -1,12 +1,13 @@
 package by.eugenekulik.service;
 
-import by.eugenekulik.dto.MetersDataDto;
+import by.eugenekulik.dto.MetersDataRequestDto;
+import by.eugenekulik.dto.MetersDataResponseDto;
 import by.eugenekulik.model.MetersData;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface MetersDataMapper {
-    MetersData fromMetersDataDto(MetersDataDto metersDataDto);
+    MetersData fromMetersDataDto(MetersDataRequestDto metersDataRequestDto);
 
-    MetersDataDto fromMetersData(MetersData metersData);
+    MetersDataResponseDto fromMetersData(MetersData metersData);
 }

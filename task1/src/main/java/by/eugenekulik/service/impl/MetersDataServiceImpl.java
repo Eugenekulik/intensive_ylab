@@ -1,15 +1,17 @@
 package by.eugenekulik.service.impl;
 
-import by.eugenekulik.dto.MetersDataDto;
+import by.eugenekulik.dto.MetersDataRequestDto;
+import by.eugenekulik.dto.MetersDataResponseDto;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.service.MetersDataMapper;
 import by.eugenekulik.service.MetersDataService;
 import by.eugenekulik.service.annotation.Timed;
-import by.eugenekulik.service.annotation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,24 +23,13 @@ import java.util.List;
  * @author Eugene Kulik
  */
 @Service
+@RequiredArgsConstructor
 public class MetersDataServiceImpl implements MetersDataService {
 
     private final MetersDataRepository metersDataRepository;
     private final MetersTypeRepository metersTypeRepository;
     private final MetersDataMapper mapper;
 
-    /**
-     * Constructs a MetersDataService with the specified MetersDataRepository.
-     *
-     * @param metersDataRepository The repository responsible for managing meters data.
-     * @param metersTypeRepository The repository responsible for managing meters type.
-     * @param mapper               The mapper for model MetersData.
-     */
-    public MetersDataServiceImpl(MetersDataRepository metersDataRepository, MetersTypeRepository metersTypeRepository, MetersDataMapper mapper) {
-        this.metersDataRepository = metersDataRepository;
-        this.metersTypeRepository = metersTypeRepository;
-        this.mapper = mapper;
-    }
 
     /**
      * {@inheritDoc}
@@ -46,9 +37,10 @@ public class MetersDataServiceImpl implements MetersDataService {
      *                                  have already been submitted for the current month.
      */
     @Override
+    @Transactional
     @Timed
-    public MetersDataDto create(@Valid({"id", "placedAt"}) MetersDataDto metersDataDto) {
-        MetersData metersData = mapper.fromMetersDataDto(metersDataDto);
+    public MetersDataResponseDto create(MetersDataRequestDto metersDataRequestDto) {
+        MetersData metersData = mapper.fromMetersDataDto(metersDataRequestDto);
         metersData.setPlacedAt(LocalDateTime.now());
         if (metersDataRepository.findByAgreementAndTypeAndMonth(metersData.getAgreementId(),
             metersData.getMetersTypeId(),
@@ -65,7 +57,7 @@ public class MetersDataServiceImpl implements MetersDataService {
      */
     @Override
     @Timed
-    public MetersDataDto findLastByAgreementAndType(Long agreementId, String typeName) {
+    public MetersDataResponseDto findLastByAgreementAndType(Long agreementId, String typeName) {
         return metersTypeRepository.findByName(typeName)
             .flatMap(metersType -> metersDataRepository.findLastByAgreementAndType(agreementId, metersType.getId()))
             .map(mapper::fromMetersData)
@@ -78,7 +70,7 @@ public class MetersDataServiceImpl implements MetersDataService {
      */
     @Override
     @Timed
-    public List<MetersDataDto> getPage(Pageable pageable) {
+    public List<MetersDataResponseDto> getPage(Pageable pageable) {
         return metersDataRepository.getPage(pageable).stream()
             .map(mapper::fromMetersData)
             .toList();
@@ -90,7 +82,7 @@ public class MetersDataServiceImpl implements MetersDataService {
      */
     @Override
     @Timed
-    public List<MetersDataDto> findByAgreementAndType(long agreementId, String typeName, Pageable pageable) {
+    public List<MetersDataResponseDto> findByAgreementAndType(long agreementId, String typeName, Pageable pageable) {
         return metersTypeRepository.findByName(typeName)
             .map(metersType -> metersDataRepository
                 .findByAgreementAndType(agreementId, metersType.getId(), pageable)

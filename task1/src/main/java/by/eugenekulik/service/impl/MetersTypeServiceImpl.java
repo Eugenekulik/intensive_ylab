@@ -1,13 +1,13 @@
 package by.eugenekulik.service.impl;
 
-import by.eugenekulik.dto.MetersTypeDto;
+import by.eugenekulik.dto.MetersTypeRequestDto;
+import by.eugenekulik.dto.MetersTypeResponseDto;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.service.MetersTypeMapper;
 import by.eugenekulik.service.MetersTypeService;
 import by.eugenekulik.service.annotation.Timed;
-import by.eugenekulik.service.annotation.Valid;
-import jakarta.inject.Inject;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,31 +19,21 @@ import java.util.List;
  * @author Eugene Kulik
  */
 @Service
+@RequiredArgsConstructor
 public class MetersTypeServiceImpl implements MetersTypeService {
 
-    private MetersTypeRepository metersTypeRepository;
-    private MetersTypeMapper mapper;
+    private final MetersTypeRepository metersTypeRepository;
+    private final MetersTypeMapper mapper;
 
 
-    /**
-     * Constructs a MetersTypeService with the specified MetersTypeRepository.
-     *
-     * @param metersTypeRepository The repository responsible for managing meters types.
-     * @param mapper The mapper for MetersType model.
-     */
-    @Inject
-    public MetersTypeServiceImpl(MetersTypeRepository metersTypeRepository, MetersTypeMapper mapper) {
-        this.metersTypeRepository = metersTypeRepository;
-        this.mapper = mapper;
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     @Timed
-    public MetersTypeDto create(@Valid({"id"}) MetersTypeDto metersTypeDto) {
-        MetersType metersType = mapper.fromMetersTypeDto(metersTypeDto);
+    public MetersTypeResponseDto create(MetersTypeRequestDto metersTypeRequestDto) {
+        MetersType metersType = mapper.fromMetersTypeDto(metersTypeRequestDto);
         return mapper.fromMetersType(metersTypeRepository.save(metersType));
     }
 
@@ -53,7 +43,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
      */
     @Override
     @Timed
-    public MetersTypeDto findByName(String name) {
+    public MetersTypeResponseDto findByName(String name) {
         return metersTypeRepository.findByName(name)
             .map(mapper::fromMetersType)
             .orElseThrow(() -> new IllegalArgumentException("not found metersType with name: " + name));
@@ -64,7 +54,7 @@ public class MetersTypeServiceImpl implements MetersTypeService {
      */
     @Override
     @Timed
-    public List<MetersTypeDto> findAll() {
+    public List<MetersTypeResponseDto> findAll() {
         return metersTypeRepository.findAll().stream()
             .map(mapper::fromMetersType)
             .toList();
