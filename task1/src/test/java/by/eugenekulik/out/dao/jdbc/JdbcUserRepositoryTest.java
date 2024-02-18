@@ -1,41 +1,31 @@
 package by.eugenekulik.out.dao.jdbc;
 
-import by.eugenekulik.PostgresTestContainer;
-import by.eugenekulik.TestConfigurationEnvironment;
-import by.eugenekulik.exception.DatabaseInterectionException;
+import by.eugenekulik.TestConfig;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
-import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.out.dao.jdbc.repository.JdbcUserRepository;
-import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import by.eugenekulik.out.dao.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
+@WebAppConfiguration
+class JdbcUserRepositoryTest {
 
-class JdbcUserRepositoryTest extends TestConfigurationEnvironment {
 
+    @Autowired
+    private UserRepository userRepository;
 
-    private static JdbcUserRepository userRepository;
-
-    @BeforeAll
-    static void setUp(){
-        postgreSQLContainer = PostgresTestContainer.getInstance();
-        ConnectionPool connectionPool =
-            new ConnectionPool(postgreSQLContainer.getDataSource(), 1, 30);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);
-        userRepository = new JdbcUserRepository(jdbcTemplate);
-    }
-
-    @AfterAll
-    static void destroy(){
-        postgreSQLContainer.stop();
-    }
 
 
     @Test
@@ -110,7 +100,7 @@ class JdbcUserRepositoryTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnListOfUser_whenPageAndCountValid(){
-        Pageable pageable = new Pageable(0,2);
+        Pageable pageable = PageRequest.of(0,2);
 
         assertThat(userRepository.getPage(pageable))
             .hasSize(2);
@@ -118,25 +108,12 @@ class JdbcUserRepositoryTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnEmptyList_whenPageOutOfBound(){
-        Pageable pageable = new Pageable(4,2);
+        Pageable pageable = PageRequest.of(4,4);
 
         assertThat(userRepository.getPage(pageable))
             .isEmpty();
     }
 
-    @Test
-    void testGetPage_shouldThrowException_whenPageNegative(){
-        Pageable pageable = new Pageable(-1,1);
-
-        assertThrows(DatabaseInterectionException.class, ()->userRepository.getPage(pageable));
-    }
-
-    @Test
-    void testGetPage_shouldThrowException_whenCountNegative(){
-        Pageable pageable = new Pageable(0,-1);
-
-        assertThrows(DatabaseInterectionException.class, ()->userRepository.getPage(pageable));
-    }
 
 
 }

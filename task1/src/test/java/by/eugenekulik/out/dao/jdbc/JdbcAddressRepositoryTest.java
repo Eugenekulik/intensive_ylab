@@ -1,14 +1,16 @@
 package by.eugenekulik.out.dao.jdbc;
 
-import by.eugenekulik.PostgresTestContainer;
-import by.eugenekulik.TestConfigurationEnvironment;
-import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.exception.DatabaseInterectionException;
+import by.eugenekulik.TestConfig;
 import by.eugenekulik.model.Address;
-import by.eugenekulik.out.dao.jdbc.repository.JdbcAddressRepository;
-import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
+import by.eugenekulik.out.dao.AddressRepository;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.List;
 
@@ -16,19 +18,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class JdbcAddressRepositoryTest extends TestConfigurationEnvironment {
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
+@WebAppConfiguration
+class JdbcAddressRepositoryTest {
+
+    @Autowired
+    private AddressRepository addressRepository;
 
 
-    private static JdbcAddressRepository addressRepository;
-
-    @BeforeAll
-    static void setUp() {
-        postgreSQLContainer = PostgresTestContainer.getInstance();
-        ConnectionPool connectionPool =
-            new ConnectionPool(postgreSQLContainer.getDataSource(), 2, 30);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);
-        addressRepository = new JdbcAddressRepository(jdbcTemplate);
-    }
 
     @Test
     void testSave_shouldSaveAndReturnAddress(){
@@ -62,7 +60,7 @@ class JdbcAddressRepositoryTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnListOfAddresses_whenPageAndCountValid(){
-        Pageable pageable = new Pageable(0,2);
+        Pageable pageable = PageRequest.of(0,2);
         List<Address> result = addressRepository.getPage(pageable);
 
         assertThat(result)
@@ -71,25 +69,15 @@ class JdbcAddressRepositoryTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnEmptyList_whenPageOutOfBound(){
-        Pageable pageable = new Pageable(4,4);
+        Pageable pageable = PageRequest.of(4,4);
 
         List<Address> result = addressRepository.getPage(pageable);
 
         assertThat(result).isEmpty();
     }
 
-    @Test
-    void testGetPage_shouldThrowException_whenPageNegative(){
-        Pageable pageable = new Pageable(-1,1);
 
-        assertThrows(DatabaseInterectionException.class, ()->addressRepository.getPage(pageable));
-    }
 
-    @Test
-    void testGetPage_shouldThrowException_whenCountNegative(){
-        Pageable pageable = new Pageable(0, -1);
 
-        assertThrows(DatabaseInterectionException.class, ()->addressRepository.getPage(pageable));
-    }
 
 }

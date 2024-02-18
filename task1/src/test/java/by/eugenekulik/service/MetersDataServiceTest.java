@@ -1,21 +1,26 @@
 package by.eugenekulik.service;
 
-import by.eugenekulik.TestConfigurationEnvironment;
-import by.eugenekulik.dto.MetersDataDto;
-import by.eugenekulik.exception.DatabaseInterectionException;
+import by.eugenekulik.TestConfig;
+import by.eugenekulik.dto.MetersDataRequestDto;
+import by.eugenekulik.dto.MetersDataResponseDto;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
-import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.service.impl.MetersDataServiceImpl;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,36 +30,40 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-class MetersDataServiceTest extends TestConfigurationEnvironment {
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
+@WebAppConfiguration
+class MetersDataServiceTest {
 
-
-    private MetersDataService metersDataService;
+    @InjectMocks
+    private MetersDataServiceImpl metersDataService;
+    @Mock
     private MetersDataRepository metersDataRepository;
+    @Mock
     private MetersTypeRepository metersTypeRepository;
+    @Mock
     private MetersDataMapper mapper;
 
     @BeforeEach
-    void setUp() {
-        metersDataRepository = mock(MetersDataRepository.class);
-        metersTypeRepository = mock(MetersTypeRepository.class);
-        mapper = mock(MetersDataMapper.class);
-        metersDataService = new MetersDataServiceImpl(metersDataRepository, metersTypeRepository, mapper);
+    void setUp(){
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void testCreate_shouldSaveMetersData_whenConditionsAreMet() {
         MetersData metersData = mock(MetersData.class);
-        MetersDataDto metersDataDto = mock(MetersDataDto.class);
+        MetersDataRequestDto metersDataRequestDto = mock(MetersDataRequestDto.class);
+        MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
 
         when(metersData.getPlacedAt()).thenReturn(LocalDateTime.now());
         when(metersDataRepository.findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any()))
             .thenReturn(Optional.empty());
         when(metersDataRepository.save(metersData))
             .thenReturn(metersData);
-        when(mapper.fromMetersDataDto(metersDataDto)).thenReturn(metersData);
-        when(mapper.fromMetersData(metersData)).thenReturn(metersDataDto);
+        when(mapper.fromMetersDataDto(metersDataRequestDto)).thenReturn(metersData);
+        when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
 
-        assertEquals(metersDataDto, metersDataService.create(metersDataDto));
+        assertEquals(metersDataResponseDto, metersDataService.create(metersDataRequestDto));
 
         verify(metersDataRepository).findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any());
         verify(metersDataRepository).save(metersData);
@@ -63,14 +72,14 @@ class MetersDataServiceTest extends TestConfigurationEnvironment {
     @Test
     void testCreate_shouldThrowException_whenReadingsAlreadySubmittedThisMonth() {
         MetersData metersData = mock(MetersData.class);
-        MetersDataDto metersDataDto = mock(MetersDataDto.class);
+        MetersDataRequestDto metersDataRequestDto = mock(MetersDataRequestDto.class);
 
-        when(mapper.fromMetersDataDto(metersDataDto)).thenReturn(metersData);
+        when(mapper.fromMetersDataDto(metersDataRequestDto)).thenReturn(metersData);
         when(metersData.getPlacedAt()).thenReturn(LocalDateTime.now());
         when(metersDataRepository.findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any()))
             .thenReturn(Optional.of(new MetersData()));
 
-        assertThrows(IllegalArgumentException.class, () -> metersDataService.create(metersDataDto));
+        assertThrows(IllegalArgumentException.class, () -> metersDataService.create(metersDataRequestDto));
 
         verify(metersDataRepository).findByAgreementAndTypeAndMonth(
             metersData.getAgreementId(),
@@ -90,15 +99,15 @@ class MetersDataServiceTest extends TestConfigurationEnvironment {
         Long agreementId = 1L;
         String type = "type";
         MetersType metersType = MetersType.builder().id(1L).build();
-        MetersDataDto metersDataDto = mock(MetersDataDto.class);
+        MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
         MetersData metersData = mock(MetersData.class);
 
-        when(mapper.fromMetersData(metersData)).thenReturn(metersDataDto);
+        when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
         when(metersTypeRepository.findByName(type)).thenReturn(Optional.of(metersType));
         when(metersDataRepository.findLastByAgreementAndType(agreementId, 1L))
             .thenReturn(Optional.of(metersData));
 
-        assertEquals(metersDataDto, metersDataService
+        assertEquals(metersDataResponseDto, metersDataService
             .findLastByAgreementAndType(agreementId,type));
 
         verify(metersDataRepository).findLastByAgreementAndType(agreementId, 1L);
@@ -123,32 +132,20 @@ class MetersDataServiceTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
-        Pageable pageable = mock(Pageable.class);
+        Pageable pageable = PageRequest.ofSize(1);
         MetersData metersData = mock(MetersData.class);
-        MetersDataDto metersDataDto = mock(MetersDataDto.class);
+        MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
         List<MetersData> metersDataList = List.of(metersData);
 
-        when(mapper.fromMetersData(metersData)).thenReturn(metersDataDto);
+        when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
         when(metersDataRepository.getPage(pageable)).thenReturn(metersDataList);
 
         assertThat(metersDataService.getPage(pageable))
             .hasSize(1)
             .first()
-            .isEqualTo(metersDataDto);
+            .isEqualTo(metersDataResponseDto);
 
         verify(metersDataRepository).getPage(pageable);
     }
 
-    @Test
-    void testGetPage_shouldThrowException_whenNotValidPageable() {
-        Pageable pageable = mock(Pageable.class);
-
-        when(metersDataRepository.getPage(pageable))
-            .thenThrow(DatabaseInterectionException.class);
-
-        assertThrows(DatabaseInterectionException.class, () -> metersDataService
-            .getPage(pageable));
-
-        verify(metersDataRepository).getPage(pageable);
-    }
 }

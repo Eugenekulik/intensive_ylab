@@ -1,15 +1,23 @@
 package by.eugenekulik.service;
 
-import by.eugenekulik.TestConfigurationEnvironment;
-import by.eugenekulik.dto.AgreementDto;
-import by.eugenekulik.exception.DatabaseInterectionException;
-import by.eugenekulik.out.dao.Pageable;
+import by.eugenekulik.TestConfig;
+import by.eugenekulik.dto.AgreementRequestDto;
+import by.eugenekulik.dto.AgreementResponseDto;
 import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.service.impl.AgreementServiceImpl;
-import jakarta.mail.Address;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,30 +26,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class AgreementServiceTest extends TestConfigurationEnvironment {
-
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
+@WebAppConfiguration
+class AgreementServiceTest {
+    @InjectMocks
+    private AgreementServiceImpl agreementService;
+    @Mock
     private AgreementRepository agreementRepository;
-    private AgreementService agreementService;
+    @Mock
     private AgreementMapper agreementMapper;
 
     @BeforeEach
-    void setup(){
-        agreementMapper = mock(AgreementMapper.class);
-        agreementRepository = mock(AgreementRepository.class);
-        agreementService = new AgreementServiceImpl(agreementRepository, agreementMapper);
+    void setUp(){
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void testCreate_shouldReturnAgreement_whenAddressAndUserValid(){
-        AgreementDto agreementDto = mock(AgreementDto.class);
+        AgreementRequestDto agreementRequestDto = mock(AgreementRequestDto.class);
         Agreement agreement = mock(Agreement.class);
+        AgreementResponseDto agreementResponseDto = mock(AgreementResponseDto.class);
 
 
         when(agreementRepository.save(agreement)).thenReturn(agreement);
-        when(agreementMapper.fromAgreement(agreement)).thenReturn(agreementDto);
-        when(agreementMapper.fromAgreementDto(agreementDto)).thenReturn(agreement);
+        when(agreementMapper.fromAgreement(agreement)).thenReturn(agreementResponseDto);
+        when(agreementMapper.fromAgreementDto(agreementRequestDto)).thenReturn(agreement);
 
-        assertEquals(agreementDto, agreementService.create(agreementDto));
+        assertEquals(agreementResponseDto, agreementService.create(agreementRequestDto));
 
         verify(agreementRepository).save(agreement);
     }
@@ -49,13 +61,13 @@ class AgreementServiceTest extends TestConfigurationEnvironment {
     @Test
     void testCreate_shouldThrowException_whenNotValidConstraintsInRepository() {
         Agreement agreement = mock(Agreement.class);
-        AgreementDto agreementDto = mock(AgreementDto.class);
+        AgreementRequestDto agreementRequestDto = mock(AgreementRequestDto.class);
 
         when(agreementRepository.save(agreement))
-            .thenThrow(DatabaseInterectionException.class);
-        when(agreementMapper.fromAgreementDto(agreementDto)).thenReturn(agreement);
+            .thenThrow(RuntimeException.class);
+        when(agreementMapper.fromAgreementDto(agreementRequestDto)).thenReturn(agreement);
 
-        assertThrows(DatabaseInterectionException.class, () -> agreementService.create(agreementDto));
+        assertThrows(RuntimeException.class, () -> agreementService.create(agreementRequestDto));
 
         verify(agreementRepository).save(agreement);
     }
@@ -64,50 +76,39 @@ class AgreementServiceTest extends TestConfigurationEnvironment {
 
 
     @Test
-    void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
+    void testGetPage_shouldReturnCorrectPage_whenValidPageable() {
         Pageable pageable = mock(Pageable.class);
-        AgreementDto agreementDto = mock(AgreementDto.class);
+        AgreementResponseDto agreementResponseDto = mock(AgreementResponseDto.class);
         Agreement agreement = mock(Agreement.class);
         List<Agreement> agreements = List.of(agreement);
 
         when(agreementRepository.getPage(pageable)).thenReturn(agreements);
-        when(agreementMapper.fromAgreement(agreement)).thenReturn(agreementDto);
+        when(agreementMapper.fromAgreement(agreement)).thenReturn(agreementResponseDto);
 
         assertThat(agreementService.getPage(pageable))
             .hasSize(1)
                 .first()
-                    .isEqualTo(agreementDto);
+                    .isEqualTo(agreementResponseDto);
 
         verify(agreementRepository).getPage(pageable);
     }
 
-    @Test
-    void testGetPage_shouldThrowException_whenNotValidPageable() {
-        Pageable pageable = mock(Pageable.class);
-
-        when(agreementRepository.getPage(pageable))
-            .thenThrow(DatabaseInterectionException.class);
-
-        assertThrows(DatabaseInterectionException.class, ()->agreementService.getPage(pageable));
-
-        verify(agreementRepository).getPage(pageable);
-    }
 
 
     @Test
     void testFindByUser_whenExists(){
         Agreement agreement = mock(Agreement.class);
-        AgreementDto agreementDto = mock(AgreementDto.class);
+        AgreementResponseDto agreementResponseDto = mock(AgreementResponseDto.class);
         List<Agreement> agreements = List.of(agreement);
-        Pageable pageable = mock(Pageable.class);
+        Pageable pageable = PageRequest.ofSize(1);
 
         when(agreementRepository.findByUserId(1L, pageable)).thenReturn(agreements);
-        when(agreementMapper.fromAgreement(agreement)).thenReturn(agreementDto);
+        when(agreementMapper.fromAgreement(agreement)).thenReturn(agreementResponseDto);
 
         assertThat(agreementService.findByUser(1L, pageable))
             .hasSize(1)
             .first()
-            .isEqualTo(agreementDto);
+            .isEqualTo(agreementResponseDto);
 
         verify(agreementRepository).findByUserId(1L, pageable);
     }
@@ -119,12 +120,12 @@ class AgreementServiceTest extends TestConfigurationEnvironment {
     void testFindById_shouldReturnAgreement_whenIdExists() {
         Long id = 1L;
         Agreement agreement = mock(Agreement.class);
-        AgreementDto agreementDto = mock(AgreementDto.class);
+        AgreementResponseDto agreementResponseDto = mock(AgreementResponseDto.class);
 
-        when(agreementMapper.fromAgreement(agreement)).thenReturn(agreementDto);
+        when(agreementMapper.fromAgreement(agreement)).thenReturn(agreementResponseDto);
         when(agreementRepository.findById(id)).thenReturn(Optional.of(agreement));
 
-        assertEquals(agreementDto, agreementService.findById(id));
+        assertEquals(agreementResponseDto, agreementService.findById(id));
 
         verify(agreementRepository).findById(id);
     }
