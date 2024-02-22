@@ -1,9 +1,8 @@
 package by.eugenekulik.in.rest;
 
-import by.eugenekulik.dto.*;
-import by.eugenekulik.service.AgreementService;
+import by.eugenekulik.dto.MetersDataRequestDto;
+import by.eugenekulik.dto.MetersDataResponseDto;
 import by.eugenekulik.service.MetersDataService;
-import by.eugenekulik.service.UserService;
 import by.eugenekulik.service.annotation.Auditable;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
@@ -11,8 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -20,11 +18,9 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(produces = "application/json")
+@RequestMapping(value = "/meters-data", produces = "application/json")
 public class MetersDataController {
     private final MetersDataService metersDataService;
-    private final AgreementService agreementService;
-    private final UserService userService;
 
     /**
      * Retrieves a page of meters data for administrators.
@@ -32,12 +28,12 @@ public class MetersDataController {
      * @param pageable The pagination information.
      * @return ResponseEntity containing a page of meters data.
      */
-    @GetMapping("/meters-data")
+    @GetMapping
     @Auditable
     @RolesAllowed("ADMIN")
-    public ResponseEntity<Iterable<MetersDataResponseDto>> getPage(@PageableDefault Pageable pageable){
-        return ResponseEntity
-            .ok(metersDataService.getPage(pageable));
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<MetersDataResponseDto> getPage(@PageableDefault Pageable pageable){
+        return metersDataService.getPage(pageable);
     }
 
     /**
@@ -45,18 +41,16 @@ public class MetersDataController {
      *
      * @param type        The type of meters data.
      * @param agreementId The ID of the agreement.
-     * @return ResponseEntity containing the last meters data for the specified agreement.
+     * @return MetersDataDto containing the information of last meters
+     * data for the specified agreement and type.
      */
-    @GetMapping("/user/meters-data/last")
+    @GetMapping("/user/last")
     @Auditable
-    public ResponseEntity<MetersDataResponseDto> getLast(@RequestParam String type,
-                                                        @RequestParam Long agreementId) {
-        AgreementResponseDto agreementResponseDto = agreementService.findById(agreementId);
-        if (!userService.currentUser().id().equals(agreementResponseDto.userId())) {
-            throw new AccessDeniedException("not allowed for this user");
-        }
-        return ResponseEntity
-            .ok(metersDataService.findLastByAgreementAndType(agreementId, type));
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@agreementService.isUserAgreement(#agreementId, @userService.currentUser().id())")
+    public MetersDataResponseDto getLast(@RequestParam String type,
+                                         @RequestParam("agreementId") Long agreementId) {
+        return metersDataService.findLastByAgreementAndType(agreementId, type);
     }
 
     /**
@@ -65,36 +59,30 @@ public class MetersDataController {
      * @param pageable    The pagination information.
      * @param type        The type of meters data.
      * @param agreementId The ID of the agreement.
-     * @return ResponseEntity containing a page of meters data for the specified user and agreement.
+     * @return Iterable of meters data for the specified agreement and type.
      */
-    @GetMapping("/user/meters-data")
+    @GetMapping("/user")
     @Auditable
-    public ResponseEntity<Iterable<MetersDataResponseDto>> getUserMeters(@PageableDefault Pageable pageable,
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@agreementService.isUserAgreement(#agreementId, @userService.currentUser().id())")
+    public Iterable<MetersDataResponseDto> getUserMeters(@PageableDefault Pageable pageable,
                                                                          @RequestParam String type,
                                                                          @RequestParam Long agreementId) {
-        AgreementResponseDto agreementResponseDto = agreementService.findById(agreementId);
-        if (!userService.currentUser().id().equals(agreementResponseDto.userId())) {
-            throw new AccessDeniedException("not allowed for this user");
-        }
-        return ResponseEntity
-            .ok(metersDataService.findByAgreementAndType(agreementId, type, pageable));
+        return metersDataService.findByAgreementAndType(agreementId, type, pageable);
     }
 
     /**
      * Creates new meters data.
      *
      * @param metersDataRequestDto The DTO containing information for creating meters data.
-     * @return ResponseEntity containing the created meters data.
+     * @return MetersDataResponseDto containing the info of created meters data.
      */
-    @PostMapping("/meters-data")
+    @PostMapping()
     @Auditable
-    public ResponseEntity<MetersDataResponseDto> create(@Valid @RequestBody MetersDataRequestDto metersDataRequestDto){
-        AgreementResponseDto agreement = agreementService.findById(metersDataRequestDto.agreementId());
-        if(!agreement.userId().equals(userService.currentUser().id())) {
-            throw new AccessDeniedException("not allowed for this user");
-        }
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(metersDataService.create(metersDataRequestDto));
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@agreementService.isUserAgreement(#metersDataRequestDto.agreementId(), " +
+        "@userService.currentUser().id())")
+    public MetersDataResponseDto create(@Valid @RequestBody MetersDataRequestDto metersDataRequestDto){
+        return metersDataService.create(metersDataRequestDto);
     }
 }

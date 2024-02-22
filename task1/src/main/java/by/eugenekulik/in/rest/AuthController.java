@@ -8,9 +8,9 @@ import by.eugenekulik.service.annotation.Auditable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -25,26 +25,25 @@ public class AuthController {
      * Registers a new user.
      *
      * @param registrationDto The DTO containing user registration information.
-     * @return ResponseEntity containing the JWT response for successful registration.
+     * @return  JwtResponseDto containing jwt token.
      */
     @PostMapping(value = "/sign-up" , produces = "application/json")
     @Auditable
-    public ResponseEntity<JwtResponseDto> singUp(@Valid @RequestBody RegistrationDto registrationDto){
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(authenticationService.signUp(registrationDto));
+    @ResponseStatus(HttpStatus.CREATED)
+    public JwtResponseDto singUp(@Valid @RequestBody RegistrationDto registrationDto){
+        return authenticationService.signUp(registrationDto);
     }
 
     /**
      * Authenticates a user.
      *
      * @param authDto The DTO containing user authentication information.
-     * @return ResponseEntity containing the JWT response for successful authentication.
+     * @return JwtResponseDto containing jwt token.
      */
     @PostMapping(value = "/sign-in", produces = "application/json")
     @Auditable
-    public ResponseEntity<JwtResponseDto> singIn(@Valid @RequestBody AuthDto authDto){
-        return ResponseEntity
-            .ok(authenticationService.signIn(authDto));
+    @ResponseStatus(HttpStatus.OK)
+    public JwtResponseDto singIn(@Valid @RequestBody AuthDto authDto){
+        return authenticationService.signIn(authDto);
     }
 }

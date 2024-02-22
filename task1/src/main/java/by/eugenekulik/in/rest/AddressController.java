@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,28 +25,27 @@ public class AddressController {
      * Retrieves a paginated list of addresses.
      *
      * @param pageable The pageable configuration for pagination.
-     * @return ResponseEntity containing the paginated list of addresses.
+     * @return Iterable of addresses.
      */
     @GetMapping
     @Auditable
     @RolesAllowed("ADMIN")
-    public ResponseEntity<Iterable<AddressResponseDto>> getPage(@PageableDefault(sort = "id,asc") Pageable pageable){
-        return ResponseEntity
-            .ok(addressService.getPage(pageable));
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<AddressResponseDto> getPage(@PageableDefault(sort = "id,asc") Pageable pageable){
+        return addressService.getPage(pageable);
     }
 
     /**
      * Creates a new address.
      *
      * @param addressRequestDto The DTO containing information for creating the address.
-     * @return ResponseEntity containing the created address.
+     * @return AddressResponseDto containing information about created address.
      */
     @PostMapping
     @RolesAllowed("ADMIN")
     @Auditable
-    public ResponseEntity<AddressResponseDto> create(@Valid @RequestBody AddressRequestDto addressRequestDto) {
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(addressService.create(addressRequestDto));
+    @ResponseStatus(HttpStatus.CREATED)
+    public AddressResponseDto create(@Valid @RequestBody AddressRequestDto addressRequestDto) {
+        return addressService.create(addressRequestDto);
     }
 }

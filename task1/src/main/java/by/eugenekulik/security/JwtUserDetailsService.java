@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 
 @Service
 @Primary
@@ -29,14 +28,10 @@ public class JwtUserDetailsService implements UserDetailsService {
    * @throws UsernameNotFoundException if the user is not found.
    */
   @Override
-  public UserDetails loadUserByUsername(String username)
-      throws UsernameNotFoundException {
-    Optional<User> user = userRepository.findByUsername(username);
-    if (user.isPresent()) {
-      return new JwtUserDetails(user.get());
-    }
-    throw new UsernameNotFoundException(
-        "User '" + username + "' not found");
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return userRepository.findByUsername(username)
+        .map(JwtUserDetails::new)
+        .orElseThrow(()-> new UsernameNotFoundException("user %s not found".formatted(username)));
   }
 
   /**

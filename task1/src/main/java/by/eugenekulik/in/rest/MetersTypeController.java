@@ -8,7 +8,6 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -23,26 +22,26 @@ public class MetersTypeController {
     /**
      * Retrieves all meters types.
      *
-     * @return ResponseEntity containing a list of all meters types.
+     * @return iterable of all meters types.
      */
     @GetMapping
     @Auditable
-    public ResponseEntity<Iterable<MetersTypeResponseDto>> getAll() {
-        return ResponseEntity.ok(metersTypeService.findAll());
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<MetersTypeResponseDto> getAll() {
+        return metersTypeService.findAll();
     }
 
     /**
      * Creates a new meters type.
      *
      * @param metersTypeRequestDto The DTO containing information for creating a meters type.
-     * @return ResponseEntity containing the created meters type.
+     * @return MetersTypeResponseDto containing the info of created meters type.
      */
     @PostMapping
     @Auditable
     @RolesAllowed("ADMIN")
-    public ResponseEntity<MetersTypeResponseDto> create(@Valid @RequestBody MetersTypeRequestDto metersTypeRequestDto) {
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(metersTypeService.create(metersTypeRequestDto));
+    @ResponseStatus(HttpStatus.CREATED)
+    public MetersTypeResponseDto create(@Valid @RequestBody MetersTypeRequestDto metersTypeRequestDto) {
+        return metersTypeService.create(metersTypeRequestDto);
     }
 }

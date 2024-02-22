@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,28 +25,27 @@ public class AgreementController {
      * Retrieves a paginated list of agreements.
      *
      * @param pageable The pageable configuration for pagination.
-     * @return ResponseEntity containing the paginated list of agreements.
+     * @return iterable of agreements.
      */
     @GetMapping
     @Auditable
     @RolesAllowed("ADMIN")
-    public ResponseEntity<Iterable<AgreementResponseDto>> getPage(@PageableDefault Pageable pageable) {
-        return ResponseEntity
-            .ok(agreementService.getPage(pageable));
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<AgreementResponseDto> getPage(@PageableDefault Pageable pageable) {
+        return agreementService.getPage(pageable);
     }
 
     /**
      * Creates a new agreement.
      *
      * @param agreementRequestDto The DTO containing information for creating the agreement.
-     * @return ResponseEntity containing the created agreement.
+     * @return AgreementResponseDto containing information about the created agreement.
      */
     @PostMapping
     @Auditable
     @RolesAllowed("ADMIN")
-    public ResponseEntity<AgreementResponseDto> create(@Valid @RequestBody AgreementRequestDto agreementRequestDto){
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(agreementService.create(agreementRequestDto));
+    @ResponseStatus(HttpStatus.CREATED)
+    public AgreementResponseDto create(@Valid @RequestBody AgreementRequestDto agreementRequestDto){
+        return agreementService.create(agreementRequestDto);
     }
 }

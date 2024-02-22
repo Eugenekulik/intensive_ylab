@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
-@Service
+@Service("agreementService")
 @RequiredArgsConstructor
 public class AgreementServiceImpl implements AgreementService {
 
@@ -75,4 +75,10 @@ public class AgreementServiceImpl implements AgreementService {
             .orElseThrow(() -> new IllegalArgumentException("Not found agreement with id: " + agreementId));
     }
 
+    @Override
+    public boolean isUserAgreement(Long agreementId, Long userId){
+        return agreementRepository.findById(agreementId)
+            .filter(agreement -> agreement.getUserId().equals(userId))
+            .isPresent();
+    }
 }

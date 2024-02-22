@@ -44,5 +44,7 @@ public interface AgreementService {
      * @return The AgreementResponseDto object for the specified agreement ID.
      */
     AgreementResponseDto findById(Long agreementId);
+
+    boolean isUserAgreement(Long agreementId, Long userId);
 }
 

@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
-@Service
+@Service("userService")
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
