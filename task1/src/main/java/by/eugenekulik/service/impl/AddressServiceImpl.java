@@ -1,17 +1,15 @@
 package by.eugenekulik.service.impl;
 
-import by.eugenekulik.dto.AddressDto;
-import by.eugenekulik.out.dao.Pageable;
+import by.eugenekulik.dto.AddressRequestDto;
+import by.eugenekulik.dto.AddressResponseDto;
 import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.service.AddressMapper;
 import by.eugenekulik.service.annotation.Auditable;
 import by.eugenekulik.service.annotation.Timed;
-import by.eugenekulik.service.annotation.Transactional;
 import by.eugenekulik.service.AddressService;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.validation.Valid;
-import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,12 +19,11 @@ import java.util.List;
  *
  * @author Eugene Kulik
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Service
 public class AddressServiceImpl implements AddressService {
 
-    private AddressRepository addressRepository;
-    private AddressMapper addressMapper;
+    private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
 
     /**
      * Constructs an AddressService with the specified AddressRepository.
@@ -34,7 +31,6 @@ public class AddressServiceImpl implements AddressService {
      * @param addressRepository The repository responsible for managing addresses.
      * @param addressMapper The mapper for address model.
      */
-    @Inject
     public AddressServiceImpl(AddressRepository addressRepository, AddressMapper addressMapper) {
         this.addressRepository = addressRepository;
         this.addressMapper = addressMapper;
@@ -45,13 +41,13 @@ public class AddressServiceImpl implements AddressService {
      * {@inheritDoc}
      */
     @Override
-    @Timed
     @Transactional
-    public AddressDto create(@Valid AddressDto addressDto) {
+    @Timed
+    public AddressResponseDto create(AddressRequestDto addressRequestDto) {
         return addressMapper
             .fromAddress(addressRepository
                 .save(addressMapper
-                    .fromAddressDto(addressDto)));
+                    .fromAddressDto(addressRequestDto)));
     }
 
 
@@ -60,7 +56,7 @@ public class AddressServiceImpl implements AddressService {
      */
     @Override
     @Timed
-    public List<AddressDto> getPage(Pageable pageable) {
+    public List<AddressResponseDto> getPage(Pageable pageable) {
         return addressRepository.getPage(pageable).stream()
             .map(addressMapper::fromAddress)
             .toList();
@@ -72,7 +68,7 @@ public class AddressServiceImpl implements AddressService {
     @Auditable
     @Override
     @Timed
-    public AddressDto findById(long id) {
+    public AddressResponseDto findById(long id) {
         return addressRepository.findById(id)
             .map(addressMapper::fromAddress)
             .orElseThrow(() -> new IllegalArgumentException("address with this id is not exists"));
@@ -83,7 +79,7 @@ public class AddressServiceImpl implements AddressService {
      */
     @Override
     @Timed
-    public List<AddressDto> findByUser(Long userId, Pageable pageable) {
+    public List<AddressResponseDto> findByUser(Long userId, Pageable pageable) {
         return addressRepository.findByUserId(userId, pageable)
             .stream()
             .map(addressMapper::fromAddress)

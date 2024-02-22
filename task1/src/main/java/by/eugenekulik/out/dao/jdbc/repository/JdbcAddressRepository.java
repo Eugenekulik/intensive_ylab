@@ -1,15 +1,13 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
-import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.AddressExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
 import by.eugenekulik.service.annotation.Loggable;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,26 +15,22 @@ import java.util.Optional;
 /**
  * JdbcAddressRepository is a JDBC implementation of the AddressRepository interface
  * for performing CRUD operations related to addresses in the database.
- *
- * The class is annotated with @ApplicationScoped, indicating that it may be managed
- * by a CDI (Contexts and Dependency Injection) container.
- *
- * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ * The class is annotated with @Repository, indicating that it may be managed
+ * by spring framework container.
  *
  * @author Eugene Kulik
  * @see AddressRepository
  * @see JdbcTemplate
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Repository
 public class JdbcAddressRepository implements AddressRepository {
 
-    private JdbcTemplate jdbcTemplate;
-    private AddressExtractor extractor = new AddressExtractor();
+    private final JdbcTemplate jdbcTemplate;
+    private final AddressExtractor extractor;
 
-    @Inject
-    public JdbcAddressRepository(JdbcTemplate jdbcTemplate) {
+    public JdbcAddressRepository(JdbcTemplate jdbcTemplate, AddressExtractor extractor) {
         this.jdbcTemplate = jdbcTemplate;
+        this.extractor = extractor;
     }
 
 
@@ -81,9 +75,10 @@ public class JdbcAddressRepository implements AddressRepository {
                     FROM meters.address
                     ORDER BY id
                     LIMIT ?
-                    OFFSET ?*?;
+                    OFFSET ?;
                 """,
-            new ListExtractor<>(extractor), pageable.getCount(), pageable.getPage(), pageable.getCount());
+            new ListExtractor<>(extractor), pageable.getPageSize(),
+            pageable.getPageNumber() * pageable.getPageSize());
     }
 
     @Override
@@ -97,8 +92,9 @@ public class JdbcAddressRepository implements AddressRepository {
                     WHERE user_id = ?
                     ORDER BY id
                     LIMIT ?
-                    OFFSET ?*?;
+                    OFFSET ?;
                 """,
-            new ListExtractor<>(extractor), userId, pageable.getCount(), pageable.getPage(), pageable.getCount());
+            new ListExtractor<>(extractor), userId, pageable.getPageSize(),
+            pageable.getPageNumber() * pageable.getPageSize());
     }
 }

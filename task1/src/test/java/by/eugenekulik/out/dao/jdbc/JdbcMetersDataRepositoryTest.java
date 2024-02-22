@@ -1,15 +1,16 @@
 package by.eugenekulik.out.dao.jdbc;
 
-import by.eugenekulik.PostgresTestContainer;
-import by.eugenekulik.TestConfigurationEnvironment;
-import by.eugenekulik.exception.DatabaseInterectionException;
+import by.eugenekulik.TestConfig;
 import by.eugenekulik.model.MetersData;
-import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.out.dao.jdbc.repository.JdbcMetersDataRepository;
-import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
-import org.junit.jupiter.api.BeforeAll;
+import by.eugenekulik.out.dao.MetersDataRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,19 +19,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-class JdbcMetersDataRepositoryTest extends TestConfigurationEnvironment {
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
+@WebAppConfiguration
+class JdbcMetersDataRepositoryTest{
 
 
-    private static JdbcMetersDataRepository metersDataRepository;
+    @Autowired
+    private MetersDataRepository metersDataRepository;
 
-    @BeforeAll
-    static void setUp(){
-        postgreSQLContainer = PostgresTestContainer.getInstance();
-        ConnectionPool connectionPool =
-            new ConnectionPool(postgreSQLContainer.getDataSource(), 1, 30);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);
-        metersDataRepository = new JdbcMetersDataRepository(jdbcTemplate);
-    }
+
+
+
     @Test
     void testSave_shouldReturnSavedMetersData(){
         MetersData metersData = MetersData.builder()
@@ -148,7 +148,7 @@ class JdbcMetersDataRepositoryTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnListOfMetersData_whenPageAndCountValid(){
-        Pageable pageable = new Pageable(0,1);
+        Pageable pageable = PageRequest.of(0,1);
 
         assertThat(metersDataRepository.getPage(pageable))
             .hasSize(1)
@@ -158,23 +158,10 @@ class JdbcMetersDataRepositoryTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnEmptyList_whenPageOutOfBound(){
-        Pageable pageable = new Pageable(4,4);
+        Pageable pageable = PageRequest.of(4,4);
 
         assertThat(metersDataRepository.getPage(pageable))
             .isEmpty();
     }
 
-    @Test
-    void testGetPage_shouldThrowException_whenPageNegative(){
-        Pageable pageable = new Pageable(-1, 1);
-
-        assertThrows(DatabaseInterectionException.class, ()->metersDataRepository.getPage(pageable));
-    }
-
-    @Test
-    void testGetPage_shouldReturnEmptyList_whenCountNegative(){
-        Pageable pageable = new Pageable(0,-1);
-
-        assertThrows(DatabaseInterectionException.class, ()->metersDataRepository.getPage(pageable));
-    }
 }

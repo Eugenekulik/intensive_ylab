@@ -1,35 +1,29 @@
 package by.eugenekulik.out.dao.jdbc;
 
-import by.eugenekulik.PostgresTestContainer;
-import by.eugenekulik.TestConfigurationEnvironment;
-import by.eugenekulik.exception.DatabaseInterectionException;
+import by.eugenekulik.TestConfig;
 import by.eugenekulik.model.Agreement;
-import by.eugenekulik.out.dao.Pageable;
-import by.eugenekulik.out.dao.jdbc.repository.JdbcAgreementRepository;
-import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
-import org.junit.jupiter.api.BeforeAll;
+import by.eugenekulik.out.dao.AgreementRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-class JdbcAgreementRepositoryTest extends TestConfigurationEnvironment {
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
+@WebAppConfiguration
+class JdbcAgreementRepositoryTest {
 
 
-
-    private static JdbcAgreementRepository agreementRepository;
-
-    @BeforeAll
-    static void setUp(){
-        postgreSQLContainer = PostgresTestContainer.getInstance();
-        ConnectionPool connectionPool =
-            new ConnectionPool(postgreSQLContainer.getDataSource(), 1, 30);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);
-        agreementRepository = new JdbcAgreementRepository(jdbcTemplate);
-    }
-
+    @Autowired
+    private AgreementRepository agreementRepository;
 
 
     @Test
@@ -87,7 +81,7 @@ class JdbcAgreementRepositoryTest extends TestConfigurationEnvironment {
     @Test
     void testFindByUserId_shouldReturnListOfAgreement_whenExistsAtLeastOneAgreement(){
         long userId = 2L;
-        Pageable pageable = new Pageable(0,1);
+        Pageable pageable = PageRequest.of(0,1);
 
         assertThat(agreementRepository.findByUserId(userId, pageable))
             .hasSize(1)
@@ -98,7 +92,7 @@ class JdbcAgreementRepositoryTest extends TestConfigurationEnvironment {
     @Test
     void testFindByUserId_shouldReturnEmptyList_whenNotExistsAtLeastOneAgreement(){
         long userId = 3L;
-        Pageable pageable = new Pageable(0,1);
+        Pageable pageable = PageRequest.of(0,1);
 
         assertThat(agreementRepository.findByUserId(userId, pageable))
             .isEmpty();
@@ -107,7 +101,7 @@ class JdbcAgreementRepositoryTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnListOfAgreement_whenPageAndCountValid(){
-        Pageable pageable = new Pageable(0,1);
+        Pageable pageable = PageRequest.of(0,1);
 
         assertThat(agreementRepository.getPage(pageable))
             .hasSize(1)
@@ -118,23 +112,10 @@ class JdbcAgreementRepositoryTest extends TestConfigurationEnvironment {
 
     @Test
     void testGetPage_shouldReturnEmptyList_whenPageOutOfBound(){
-        Pageable pageable = new Pageable(4,4);
+        Pageable pageable = PageRequest.of(4,4);
         assertThat(agreementRepository.getPage(pageable))
             .isEmpty();
     }
 
-    @Test
-    void testGetPage_shouldThrowException_whenPageNegative(){
-        Pageable pageable = new Pageable(-1, 1);
-
-        assertThrows(DatabaseInterectionException.class, ()->agreementRepository.getPage(pageable));
-    }
-
-    @Test
-    void testGetPage_shouldThrowException_whenCountNegative(){
-        Pageable pageable = new Pageable(0,-1);
-
-        assertThrows(DatabaseInterectionException.class, ()->agreementRepository.getPage(pageable));
-    }
 
 }

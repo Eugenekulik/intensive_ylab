@@ -6,13 +6,14 @@ import by.eugenekulik.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "id", ignore = true)
     User fromUserDto(UserDto userDto);
 
-    @Mapping(target = "id", ignore = true)
+
     UserDto fromUser(User user);
 
     @Mapping(target = "id", ignore = true)

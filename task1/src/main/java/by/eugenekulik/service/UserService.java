@@ -1,9 +1,7 @@
 package by.eugenekulik.service;
 
-import by.eugenekulik.dto.AuthDto;
-import by.eugenekulik.dto.RegistrationDto;
 import by.eugenekulik.dto.UserDto;
-import by.eugenekulik.out.dao.Pageable;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -14,22 +12,8 @@ import java.util.List;
  */
 public interface UserService {
 
-    /**
-     * Registers a new user based on the provided RegistrationDto.
-     *
-     * @param registrationDto The RegistrationDto containing information for user registration.
-     * @return The created UserDto.
-     */
-    UserDto register(RegistrationDto registrationDto);
 
-    /**
-     * Authorizes a user based on the provided AuthDto.
-     *
-     * @param authDto The AuthDto containing authentication information.
-     * @return The authorized UserDto.
-     */
-    UserDto authorize(AuthDto authDto);
-
+    UserDto currentUser();
     /**
      * Retrieves a paginated list of UserDto objects.
      *
@@ -37,5 +21,6 @@ public interface UserService {
      * @return A List of UserDto objects for the specified page.
      */
     List<UserDto> getPage(Pageable pageable);
+
 }
 

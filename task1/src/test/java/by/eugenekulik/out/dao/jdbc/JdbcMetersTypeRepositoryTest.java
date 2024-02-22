@@ -1,32 +1,33 @@
 package by.eugenekulik.out.dao.jdbc;
 
-import by.eugenekulik.PostgresTestContainer;
-import by.eugenekulik.TestConfigurationEnvironment;
+import by.eugenekulik.TestConfig;
 import by.eugenekulik.model.MetersType;
+import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.repository.JdbcMetersTypeRepository;
-import by.eugenekulik.out.dao.jdbc.utils.ConnectionPool;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {TestConfig.class})
+@WebAppConfiguration
+class JdbcMetersTypeRepositoryTest {
 
-class JdbcMetersTypeRepositoryTest extends TestConfigurationEnvironment {
+
+    @Autowired
+    private MetersTypeRepository metersTypeRepository;
 
 
 
-    private static JdbcMetersTypeRepository metersTypeRepository;
-
-    @BeforeAll
-    static void setUp(){
-        postgreSQLContainer = PostgresTestContainer.getInstance();
-        ConnectionPool connectionPool =
-            new ConnectionPool(postgreSQLContainer.getDataSource(), 1, 30);
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionPool);
-        metersTypeRepository = new JdbcMetersTypeRepository(jdbcTemplate);
-    }
     @Test
     void testSave_shouldReturnSavedMetersType(){
         MetersType metersType = MetersType.builder()

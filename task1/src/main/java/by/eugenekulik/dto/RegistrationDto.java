@@ -1,7 +1,8 @@
 package by.eugenekulik.dto;
 
-import by.eugenekulik.model.Role;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
 
 public record RegistrationDto(
@@ -16,4 +17,12 @@ public record RegistrationDto(
     @NotNull
     String email
 ) {
+    @Override
+    public String toString() {
+        return "RegistrationDto{" +
+            "username='" + username + '\'' +
+            ", password='" + password + '\'' +
+            ", email='" + email + '\'' +
+            '}';
+    }
 }

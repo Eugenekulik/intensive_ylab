@@ -1,34 +1,23 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
 import by.eugenekulik.model.Rec;
-import by.eugenekulik.out.dao.AddressRepository;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 /**
  * RecRepository allowed
  * for saving related to rec in the database using jdbcTemplate.
- *
- * The class is annotated with @ApplicationScoped, indicating that it may be managed
- * by a CDI (Contexts and Dependency Injection) container.
- *
+ * The class is annotated with @Repository, indicating that it may be managed
+ * by spring framework container.
  *
  * @author Eugene Kulik
  * @see JdbcTemplate
  */
-@ApplicationScoped
-@NoArgsConstructor
-@Slf4j
+@Repository
 public class RecRepository {
 
+    private final JdbcTemplate jdbcTemplate;
 
-    @Inject
-    private JdbcTemplate jdbcTemplate;
-
-    @Inject
     public RecRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

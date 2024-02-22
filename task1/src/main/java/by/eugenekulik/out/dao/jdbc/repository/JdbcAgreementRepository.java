@@ -1,15 +1,14 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
-import by.eugenekulik.out.dao.Pageable;
 import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.AgreementExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
-import by.eugenekulik.out.dao.jdbc.utils.JdbcTemplate;
 import by.eugenekulik.service.annotation.Loggable;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,25 +16,22 @@ import java.util.Optional;
 /**
  * JdbcAgreementRepository is a JDBC implementation of the AgreementRepository interface
  * for performing CRUD operations related to agreements in the database.
- * <p>
- * The class is annotated with @ApplicationScoped, indicating that it may be managed
- * by a CDI (Contexts and Dependency Injection) container.
- * <p>
- * It also uses the @Loggable annotation to enable logging for the methods in the class.
+ * The class is annotated with @Repository, indicating that it may be managed
+ * by a spring framework container.
  *
  * @author Eugene Kulik
  * @see AgreementRepository
  * @see JdbcTemplate
  */
-@ApplicationScoped
-@NoArgsConstructor
+@Repository
+@Slf4j
 public class JdbcAgreementRepository implements AgreementRepository {
-    private JdbcTemplate jdbcTemplate;
-    private AgreementExtractor extractor = new AgreementExtractor();
+    private final JdbcTemplate jdbcTemplate;
+    private final AgreementExtractor extractor;
 
-    @Inject
-    public JdbcAgreementRepository(JdbcTemplate jdbcTemplate) {
+    public JdbcAgreementRepository(JdbcTemplate jdbcTemplate, AgreementExtractor extractor) {
         this.jdbcTemplate = jdbcTemplate;
+        this.extractor = extractor;
     }
 
     @Override
@@ -85,9 +81,10 @@ public class JdbcAgreementRepository implements AgreementRepository {
                     FROM meters.agreement
                     ORDER BY id
                     LIMIT ?
-                    OFFSET ?*?;
+                    OFFSET ?;
                 """,
-            new ListExtractor<>(extractor), pageable.getCount(), pageable.getPage(), pageable.getCount());
+            new ListExtractor<>(extractor), pageable.getPageSize(),
+            pageable.getPageNumber() * pageable.getPageSize());
     }
 
     @Override
@@ -99,9 +96,10 @@ public class JdbcAgreementRepository implements AgreementRepository {
                     FROM meters.agreement
                     WHERE user_id = ?
                     LIMIT ?
-                    OFFSET ? * ?;
+                    OFFSET ?;
                 """, new ListExtractor<>(extractor),
-            userId, pageable.getCount(), pageable.getPage(), pageable.getCount());
+            userId, pageable.getPageSize(),
+            pageable.getPageNumber() * pageable.getPageSize());
 
     }
 }

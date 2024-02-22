@@ -1,6 +1,6 @@
 package by.eugenekulik.out.dao.jdbc.extractor;
 
-import by.eugenekulik.out.dao.jdbc.utils.ResultSetExtractor;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

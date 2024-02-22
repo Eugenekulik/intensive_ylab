@@ -1,13 +1,16 @@
 package by.eugenekulik.service;
 
-import by.eugenekulik.dto.AgreementDto;
+import by.eugenekulik.dto.AgreementRequestDto;
+import by.eugenekulik.dto.AgreementResponseDto;
 import by.eugenekulik.model.Agreement;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AgreementMapper {
-    Agreement fromAgreementDto(AgreementDto agreementDto);
+    @Mapping(target = "id", ignore = true)
+    Agreement fromAgreementDto(AgreementRequestDto agreementRequestDto);
 
-    AgreementDto fromAgreement(Agreement agreement);
+    AgreementResponseDto fromAgreement(Agreement agreement);
 
 }

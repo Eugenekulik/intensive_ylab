@@ -1,13 +1,16 @@
 package by.eugenekulik.service;
 
-import by.eugenekulik.dto.MetersTypeDto;
+import by.eugenekulik.dto.MetersTypeRequestDto;
+import by.eugenekulik.dto.MetersTypeResponseDto;
 import by.eugenekulik.model.MetersType;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface MetersTypeMapper {
 
-    MetersType fromMetersTypeDto(MetersTypeDto metersTypeDto);
+    @Mapping(target = "id", ignore = true)
+    MetersType fromMetersTypeDto(MetersTypeRequestDto metersTypeRequestDto);
 
-    MetersTypeDto fromMetersType(MetersType metersType);
+    MetersTypeResponseDto fromMetersType(MetersType metersType);
 }

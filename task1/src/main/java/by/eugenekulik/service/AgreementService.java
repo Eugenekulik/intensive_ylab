@@ -1,7 +1,8 @@
 package by.eugenekulik.service;
 
-import by.eugenekulik.dto.AgreementDto;
-import by.eugenekulik.out.dao.Pageable;
+import by.eugenekulik.dto.AgreementRequestDto;
+import by.eugenekulik.dto.AgreementResponseDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,36 +13,38 @@ import java.util.List;
 public interface AgreementService {
 
     /**
-     * Creates a new agreement based on the provided AgreementDto.
+     * Creates a new agreement based on the provided AgreementRequestDto.
      *
-     * @param agreementDto The AgreementDto containing information for creating the agreement.
-     * @return The created AgreementDto.
+     * @param agreementRequestDto The AgreementRequestDto containing information for creating the agreement.
+     * @return The created AgreementResponseDto.
      */
-    AgreementDto create(AgreementDto agreementDto);
+    AgreementResponseDto create(AgreementRequestDto agreementRequestDto);
 
     /**
-     * Retrieves a paginated list of AgreementDto objects.
+     * Retrieves a paginated list of AgreementRequestDto objects.
      *
      * @param pageable The Pageable object specifying the number of results and offset.
-     * @return A List of AgreementDto objects for the specified page.
+     * @return A List of AgreementResponseDto objects for the specified page.
      */
-    List<AgreementDto> getPage(Pageable pageable);
+    List<AgreementResponseDto> getPage(Pageable pageable);
 
     /**
-     * Retrieves a paginated list of AgreementDto objects associated with a specific user.
+     * Retrieves a paginated list of AgreementRequestDto objects associated with a specific user.
      *
      * @param userId   The unique identifier of the user.
      * @param pageable The Pageable object specifying the number of results and offset.
-     * @return A List of AgreementDto objects for the specified user and page.
+     * @return A List of AgreementResponseDto objects for the specified user and page.
      */
-    List<AgreementDto> findByUser(Long userId, Pageable pageable);
+    List<AgreementResponseDto> findByUser(Long userId, Pageable pageable);
 
     /**
      * Retrieves the details of an agreement by its unique identifier.
      *
      * @param agreementId The unique identifier of the agreement.
-     * @return The AgreementDto object for the specified agreement ID.
+     * @return The AgreementResponseDto object for the specified agreement ID.
      */
-    AgreementDto findById(Long agreementId);
+    AgreementResponseDto findById(Long agreementId);
+
+    boolean isUserAgreement(Long agreementId, Long userId);
 }
 
