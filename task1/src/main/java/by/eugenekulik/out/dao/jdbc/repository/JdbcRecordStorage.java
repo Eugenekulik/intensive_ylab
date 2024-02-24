@@ -1,12 +1,14 @@
 package by.eugenekulik.out.dao.jdbc.repository;
 
-import by.eugenekulik.model.Rec;
+import by.eugenekulik.starter.audit.model.AuditRecord;
+import by.eugenekulik.starter.audit.service.RecordStorage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
- * RecRepository allowed
- * for saving related to rec in the database using jdbcTemplate.
+ * JdbcRecordStorage allowed
+ * for saving related to auditRecord in the database using jdbcTemplate.
  * The class is annotated with @Repository, indicating that it may be managed
  * by spring framework container.
  *
@@ -14,20 +16,15 @@ import org.springframework.stereotype.Repository;
  * @see JdbcTemplate
  */
 @Repository
-public class RecRepository {
-
+@RequiredArgsConstructor
+public class JdbcRecordStorage implements RecordStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public RecRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public void audit(Rec rec) {
+    @Override
+    public void save(AuditRecord auditRecord) {
         jdbcTemplate.update("""
                     INSERT INTO func.rec(id, message, time)
                     VALUES(?, ?, ?);
-            """, rec.id(), rec.message(), rec.time());
+            """, auditRecord.getId(), auditRecord.getMessage(), auditRecord.getTime());
     }
-
-
 }
