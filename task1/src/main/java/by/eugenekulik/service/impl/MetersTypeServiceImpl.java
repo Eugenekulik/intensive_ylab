@@ -6,7 +6,7 @@ import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.service.MetersTypeMapper;
 import by.eugenekulik.service.MetersTypeService;
-import by.eugenekulik.service.annotation.Timed;
+import by.eugenekulik.starter.logging.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

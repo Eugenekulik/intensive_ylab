@@ -1,10 +1,10 @@
-package by.eugenekulik.in.rest;
+package by.eugenekulik.in.rest.controller;
 
 import by.eugenekulik.dto.AuthDto;
 import by.eugenekulik.dto.JwtResponseDto;
 import by.eugenekulik.dto.RegistrationDto;
 import by.eugenekulik.service.AuthenticationService;
-import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.starter.audit.annotation.Auditable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

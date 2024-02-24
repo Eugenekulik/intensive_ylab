@@ -3,12 +3,13 @@ package by.eugenekulik.service;
 import by.eugenekulik.dto.AuthDto;
 import by.eugenekulik.dto.JwtResponseDto;
 import by.eugenekulik.dto.RegistrationDto;
-import by.eugenekulik.exception.AuthenticationException;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.security.JwtProvider;
+import by.eugenekulik.starter.logging.annotation.Timed;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class AuthenticationService {
      * @param registrationDto The registration data for the new user.
      * @return JwtResponseDto containing the generated JWT token.
      */
+    @Timed
     public JwtResponseDto signUp(RegistrationDto registrationDto) {
         User user = User.builder()
             .username(registrationDto.username())
@@ -47,6 +49,7 @@ public class AuthenticationService {
      * @return JwtResponseDto containing the generated JWT token.
      * @throws AuthenticationException if the username or password is not valid.
      */
+    @Timed
     public JwtResponseDto signIn(AuthDto authDto) {
         return userRepository
             .findByUsername(authDto.username())

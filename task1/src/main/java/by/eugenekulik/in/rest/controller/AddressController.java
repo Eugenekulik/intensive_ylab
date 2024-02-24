@@ -1,9 +1,9 @@
-package by.eugenekulik.in.rest;
+package by.eugenekulik.in.rest.controller;
 
 import by.eugenekulik.dto.AddressRequestDto;
 import by.eugenekulik.dto.AddressResponseDto;
 import by.eugenekulik.service.AddressService;
-import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.starter.audit.annotation.Auditable;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

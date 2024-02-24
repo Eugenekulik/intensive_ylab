@@ -1,9 +1,9 @@
-package by.eugenekulik.in.rest;
+package by.eugenekulik.in.rest.controller;
 
 import by.eugenekulik.dto.MetersDataRequestDto;
 import by.eugenekulik.dto.MetersDataResponseDto;
 import by.eugenekulik.service.MetersDataService;
-import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.starter.audit.annotation.Auditable;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +49,7 @@ public class MetersDataController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("@agreementService.isUserAgreement(#agreementId, @userService.currentUser().id())")
     public MetersDataResponseDto getLast(@RequestParam String type,
-                                         @RequestParam("agreementId") Long agreementId) {
+                                         @RequestParam Long agreementId) {
         return metersDataService.findLastByAgreementAndType(agreementId, type);
     }
 

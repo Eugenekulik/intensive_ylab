@@ -4,7 +4,7 @@ import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.AgreementExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
-import by.eugenekulik.service.annotation.Loggable;
+import by.eugenekulik.starter.logging.annotation.Loggable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;

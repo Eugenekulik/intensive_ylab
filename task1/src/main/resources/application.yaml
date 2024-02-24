@@ -1,8 +1,10 @@
-database:
-  driver: org.postgresql.Driver
-  user: postgres
-  password: postgres
-  url: jdbc:postgresql://localhost:5432/ylab
+spring:
+  datasource:
+    driver-class-name: ${DATABASE_DRIVER:org.postgresql.Driver}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ylab}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+
 springdoc:
-  swagger-ui:
+  api-docs:
     enabled: true

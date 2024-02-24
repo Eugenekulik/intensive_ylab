@@ -4,7 +4,8 @@ import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersTypeExtractor;
-import by.eugenekulik.service.annotation.Loggable;
+import by.eugenekulik.starter.logging.annotation.Loggable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -22,15 +23,12 @@ import java.util.Optional;
  * @see JdbcTemplate
  */
 @Repository
+@RequiredArgsConstructor
 public class JdbcMetersTypeRepository implements MetersTypeRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private MetersTypeExtractor extractor;
+    private final MetersTypeExtractor extractor;
 
-    public JdbcMetersTypeRepository(JdbcTemplate jdbcTemplate, MetersTypeExtractor extractor) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.extractor = extractor;
-    }
 
     @Override
     @Loggable

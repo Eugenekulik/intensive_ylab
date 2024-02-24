@@ -5,7 +5,7 @@ import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.service.UserMapper;
 import by.eugenekulik.service.UserService;
-import by.eugenekulik.service.annotation.Timed;
+import by.eugenekulik.starter.logging.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;

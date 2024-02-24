@@ -4,8 +4,7 @@ import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.UserExtractor;
-import by.eugenekulik.service.annotation.Loggable;
-import lombok.extern.slf4j.Slf4j;
+import by.eugenekulik.starter.logging.annotation.Loggable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -24,7 +23,6 @@ import java.util.Optional;
  * @see JdbcTemplate
  */
 @Repository
-@Slf4j
 public class JdbcUserRepository implements UserRepository {
 
     private final JdbcTemplate jdbcTemplate;

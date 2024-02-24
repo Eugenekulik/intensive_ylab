@@ -4,7 +4,7 @@ import by.eugenekulik.model.MetersData;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersDataExtractor;
-import by.eugenekulik.service.annotation.Loggable;
+import by.eugenekulik.starter.logging.annotation.Loggable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

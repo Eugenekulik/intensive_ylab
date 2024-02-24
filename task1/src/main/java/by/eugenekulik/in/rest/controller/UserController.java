@@ -1,8 +1,8 @@
-package by.eugenekulik.in.rest;
+package by.eugenekulik.in.rest.controller;
 
 import by.eugenekulik.dto.UserDto;
 import by.eugenekulik.service.UserService;
-import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.starter.audit.annotation.Auditable;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

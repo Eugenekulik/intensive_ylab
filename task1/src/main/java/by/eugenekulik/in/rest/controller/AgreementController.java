@@ -1,9 +1,9 @@
-package by.eugenekulik.in.rest;
+package by.eugenekulik.in.rest.controller;
 
 import by.eugenekulik.dto.AgreementRequestDto;
 import by.eugenekulik.dto.AgreementResponseDto;
 import by.eugenekulik.service.AgreementService;
-import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.starter.audit.annotation.Auditable;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

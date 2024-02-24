@@ -1,9 +1,9 @@
-package by.eugenekulik.in.rest;
+package by.eugenekulik.in.rest.controller;
 
 import by.eugenekulik.dto.MetersTypeRequestDto;
 import by.eugenekulik.dto.MetersTypeResponseDto;
 import by.eugenekulik.service.MetersTypeService;
-import by.eugenekulik.service.annotation.Auditable;
+import by.eugenekulik.starter.audit.annotation.Auditable;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
