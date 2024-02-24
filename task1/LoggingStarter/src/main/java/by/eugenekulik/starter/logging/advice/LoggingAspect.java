@@ -1,25 +1,17 @@
-package by.eugenekulik.service;
+package by.eugenekulik.starter.logging.advice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
 @Aspect
 @Slf4j
-@Service
 public class LoggingAspect {
 
-
-    @Pointcut("@annotation(by.eugenekulik.service.annotation.Loggable)")
-    public void callLoggableMethod() {
-    }
-
-    @Around("callLoggableMethod()")
+    @Around("by.eugenekulik.starter.logging.pointcut.Pointcuts.callLoggableMethod()")
     public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
         StringBuilder builder = new StringBuilder();
         builder.append("class: ").append(joinPoint.getSignature().getDeclaringType().getName());
@@ -31,4 +23,5 @@ public class LoggingAspect {
         log.info("after: {}", builder);
         return retVal;
     }
+
 }

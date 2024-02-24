@@ -1,5 +1,4 @@
-package by.eugenekulik.service.annotation;
-
+package by.eugenekulik.starter.logging.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface Loggable {
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface Timed {
 }
