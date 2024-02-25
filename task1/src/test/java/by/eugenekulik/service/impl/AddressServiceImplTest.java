@@ -1,20 +1,15 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.impl;
 
-import by.eugenekulik.TestConfig;
 import by.eugenekulik.dto.AddressRequestDto;
 import by.eugenekulik.dto.AddressResponseDto;
 import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.AddressRepository;
-import by.eugenekulik.service.impl.AddressServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
+import by.eugenekulik.service.AddressMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -27,9 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
 @WebAppConfiguration
-class AddressServiceTest {
+class AddressServiceImplTest {
 
     @InjectMocks
     private AddressServiceImpl addressService;
@@ -38,10 +32,6 @@ class AddressServiceTest {
     @Mock
     private AddressMapper addressMapper;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
 
     @Test

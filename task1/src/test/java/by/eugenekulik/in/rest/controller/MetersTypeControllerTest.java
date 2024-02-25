@@ -1,53 +1,38 @@
-package by.eugenekulik.in.rest;
+package by.eugenekulik.in.rest.controller;
 
-import by.eugenekulik.TestConfig;
 import by.eugenekulik.dto.MetersTypeRequestDto;
 import by.eugenekulik.dto.MetersTypeResponseDto;
 import by.eugenekulik.service.MetersTypeService;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
-@WebAppConfiguration
+@WebMvcTest(value = MetersTypeController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 class MetersTypeControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @InjectMocks
+    @Autowired
     private MetersTypeController metersTypeController;
 
-    @Mock
+    @MockBean
     private MetersTypeService metersTypeService;
-
-    @BeforeEach
-    void setUp(){
-        MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders
-            .standaloneSetup(metersTypeController)
-            .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver()).
-            build();
-    }
 
 
     @Test
@@ -62,19 +47,34 @@ class MetersTypeControllerTest {
     }
 
     @Test
-    void testCreate() throws Exception {
+    void testCreate_shouldReturnStatusCreatedAndBodyCreatedMetersType_whenMetersTypeValid() throws Exception {
         MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("name");
         MetersTypeResponseDto metersTypeResponseDto = new MetersTypeResponseDto(1L, "name");
 
         when(metersTypeService.create(metersTypeRequestDto)).thenReturn(metersTypeResponseDto);
 
         mockMvc.perform(post("/meters-type")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"name\":\"name\"}"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"name\"}"))
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.name").value("name"));
+
+        verify(metersTypeService).create(metersTypeRequestDto);
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/csv/metersTypeNotValid.csv", delimiterString = ";", numLinesToSkip = 1)
+    void testCreate_shouldReturnBadRequest_whenNameNotValid(String name) throws Exception {
+        MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto(name);
+
+        mockMvc.perform(post("/meters-type")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(metersTypeRequestDto)))
+            .andExpect(status().isBadRequest());
+
+        verify(metersTypeService, never()).create(metersTypeRequestDto);
     }
 
 }

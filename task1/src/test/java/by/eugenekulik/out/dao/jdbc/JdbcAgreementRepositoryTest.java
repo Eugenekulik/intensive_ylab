@@ -1,24 +1,21 @@
 package by.eugenekulik.out.dao.jdbc;
 
-import by.eugenekulik.TestConfig;
 import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
-@WebAppConfiguration
+@DataJdbcTest
+@ContextConfiguration(classes = TestRepositories.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class JdbcAgreementRepositoryTest {
 
 
@@ -30,14 +27,14 @@ class JdbcAgreementRepositoryTest {
     void testSave_shouldReturnSavedAgreement(){
         Agreement agreement = Agreement
             .builder()
-            .addressId(1L)
-            .userId(1L)
+            .addressId(2L)
+            .userId(3L)
             .build();
 
         assertThat(agreementRepository.save(agreement))
             .isNotNull()
-            .hasFieldOrPropertyWithValue("addressId", 1L)
-            .hasFieldOrPropertyWithValue("userId", 1L);
+            .hasFieldOrPropertyWithValue("addressId", 2L)
+            .hasFieldOrPropertyWithValue("userId", 3L);
     }
 
     @Test

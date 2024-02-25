@@ -1,30 +1,27 @@
 package by.eugenekulik.out.dao.jdbc;
 
-import by.eugenekulik.TestConfig;
 import by.eugenekulik.model.Role;
 import by.eugenekulik.model.User;
 import by.eugenekulik.out.dao.UserRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
-@WebAppConfiguration
+@DataJdbcTest
+@ContextConfiguration(classes = TestRepositories.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class JdbcUserRepositoryTest {
-
 
     @Autowired
     private UserRepository userRepository;
+
 
 
 
@@ -63,12 +60,12 @@ class JdbcUserRepositoryTest {
 
     @Test
     void testFindByUsername_shouldReturnOptionalOfUser_whenUserExists(){
-        String username = "user";
+        String username = "user1";
 
         assertThat(userRepository.findByUsername(username))
             .isPresent()
             .get()
-            .hasFieldOrPropertyWithValue("username", "user");
+            .hasFieldOrPropertyWithValue("username", "user1");
     }
 
     @Test
@@ -86,7 +83,7 @@ class JdbcUserRepositoryTest {
         assertThat(userRepository.findByEmail(email))
             .isPresent()
             .get()
-            .hasFieldOrPropertyWithValue("username", "user")
+            .hasFieldOrPropertyWithValue("username", "user1")
             .hasFieldOrPropertyWithValue("email", "user@mail.ru");
     }
 

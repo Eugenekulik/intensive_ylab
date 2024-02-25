@@ -1,0 +1,11 @@
+username;password;email
+;password;user@mail.ru
+username;;user@mail.ru
+username;password;
+min;password;user@mail.ru
+maxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;password;user@mail.ru
+username;minpswd;user@mail.ru
+username;maxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;user@mail.ru
+username;password;email
+10username;password;user@mail.ru
+user*name;password;user@mail.ru

@@ -1,19 +1,14 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.impl;
 
-import by.eugenekulik.TestConfig;
 import by.eugenekulik.dto.MetersTypeRequestDto;
 import by.eugenekulik.dto.MetersTypeResponseDto;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
-import by.eugenekulik.service.impl.MetersTypeServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
+import by.eugenekulik.service.MetersTypeMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.dao.DataAccessException;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -21,13 +16,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
 @WebAppConfiguration
-class MetersTypeServiceTest {
+class MetersTypeServiceImplTest {
 
     @InjectMocks
     private MetersTypeServiceImpl metersTypeService;
@@ -36,10 +31,6 @@ class MetersTypeServiceTest {
     @Mock
     private MetersTypeMapper mapper;
 
-    @BeforeEach
-    void setUp(){
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testCreate_shouldSaveMetersType_whenNotExists() {

@@ -1,22 +1,18 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.impl;
 
-import by.eugenekulik.TestConfig;
 import by.eugenekulik.dto.MetersDataRequestDto;
 import by.eugenekulik.dto.MetersDataResponseDto;
-import by.eugenekulik.model.MetersType;
-import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.model.MetersData;
+import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersDataRepository;
-import by.eugenekulik.service.impl.MetersDataServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
+import by.eugenekulik.out.dao.MetersTypeRepository;
+import by.eugenekulik.service.MetersDataMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -25,15 +21,15 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
 @WebAppConfiguration
-class MetersDataServiceTest {
+class MetersDataServiceImplTest {
 
     @InjectMocks
     private MetersDataServiceImpl metersDataService;
@@ -44,10 +40,6 @@ class MetersDataServiceTest {
     @Mock
     private MetersDataMapper mapper;
 
-    @BeforeEach
-    void setUp(){
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testCreate_shouldSaveMetersData_whenConditionsAreMet() {

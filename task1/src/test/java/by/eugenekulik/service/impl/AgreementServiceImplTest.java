@@ -1,21 +1,16 @@
-package by.eugenekulik.service;
+package by.eugenekulik.service.impl;
 
-import by.eugenekulik.TestConfig;
 import by.eugenekulik.dto.AgreementRequestDto;
 import by.eugenekulik.dto.AgreementResponseDto;
 import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
-import by.eugenekulik.service.impl.AgreementServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
+import by.eugenekulik.service.AgreementMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -23,13 +18,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class})
 @WebAppConfiguration
-class AgreementServiceTest {
+class AgreementServiceImplTest {
     @InjectMocks
     private AgreementServiceImpl agreementService;
     @Mock
@@ -37,10 +32,6 @@ class AgreementServiceTest {
     @Mock
     private AgreementMapper agreementMapper;
 
-    @BeforeEach
-    void setUp(){
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testCreate_shouldReturnAgreement_whenAddressAndUserValid(){
