@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="add-active-column-in-agreement" author="Eugene Kulik">
+        <addColumn tableName="agreement" schemaName="meters">
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <sql>
+            CREATE UNIQUE INDEX unique_active_agreement_per_address
+            ON meters.agreement (address_id)
+            WHERE active = true;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

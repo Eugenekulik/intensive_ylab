@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      file: /v.1.0.0/changelog.xml
+      relativeToChangelogFile: true
+  - include:
+      file: /v.1.1.0/changelog.xml
+      relativeToChangelogFile: true
+  - include:
+      file: /v.1.1.1/changelog.xml
+      relativeToChangelogFile: true

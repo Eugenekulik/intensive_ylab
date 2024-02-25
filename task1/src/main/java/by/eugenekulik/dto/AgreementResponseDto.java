@@ -3,7 +3,8 @@ package by.eugenekulik.dto;
 public record AgreementResponseDto(
     Long id,
     Long userId,
-    Long addressId
+    Long addressId,
+    Boolean active
 ){
     @Override
     public String toString() {
@@ -11,6 +12,7 @@ public record AgreementResponseDto(
             "id=" + id +
             ", userId=" + userId +
             ", addressId=" + addressId +
+            ", active=" + active +
             '}';
     }
 }

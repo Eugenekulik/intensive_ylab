@@ -7,9 +7,16 @@ import by.eugenekulik.out.dao.jdbc.extractor.MetersDataExtractor;
 import by.eugenekulik.starter.logging.annotation.Loggable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,18 +55,23 @@ public class JdbcMetersDataRepository implements MetersDataRepository {
     @Override
     @Loggable
     public MetersData save(MetersData metersData) {
-        jdbcTemplate.update(
-            """
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        Long metersTypeId = metersData.getMetersTypeId();
+        Long agreementId = metersData.getAgreementId();
+        Double value = metersData.getValue();
+        LocalDateTime placedAt = metersData.getPlacedAt();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement("""
                     INSERT INTO meters.meters_data(id,meters_type_id, agreement_id, value, placed_at)
                     VALUES(nextval('meters.meters_data_sequence'), ?, ?, ?, ?);
-                """,
-            metersData.getMetersTypeId(), metersData.getAgreementId(),
-            metersData.getValue(), metersData.getPlacedAt());
-        metersData = jdbcTemplate.query("""
-                    SELECT id, meters_type_id, agreement_id, value, placed_at
-                    FROM meters.meters_data
-                    WHERE placed_at = ?;
-            """, extractor, metersData.getPlacedAt());
+                """, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, metersTypeId);
+            ps.setLong(2, agreementId);
+            ps.setDouble(3, value);
+            ps.setTimestamp(4, Timestamp.from(placedAt.toInstant(ZoneOffset.UTC)));
+            return ps;
+        }, keyHolder);
+        metersData.setId((Long) keyHolder.getKeys().get("id"));
         return metersData;
     }
 

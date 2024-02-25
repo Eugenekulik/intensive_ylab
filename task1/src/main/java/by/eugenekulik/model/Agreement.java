@@ -34,4 +34,10 @@ public class Agreement {
      */
     @NotNull
     private Long userId;
+
+    /**
+     * The boolean flag that show agreement is active or not;
+     */
+    @NotNull
+    private Boolean active;
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="add-tag-1.1.1" author="Eugene Kulik">
+        <tagDatabase tag="1.1.1"/>
+    </changeSet>
+    <include file="add-active-column-in-agreement.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

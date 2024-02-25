@@ -7,8 +7,12 @@ import by.eugenekulik.out.dao.jdbc.extractor.UserExtractor;
 import by.eugenekulik.starter.logging.annotation.Loggable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,18 +74,25 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     @Loggable
     public User save(User user) {
-        jdbcTemplate.update(
-            """
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        String username = user.getUsername();
+        String password = user.getPassword();
+        String email = user.getEmail();
+        String role = user.getRole().toString();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                """
                     INSERT INTO meters.users(id, username, password, email, role)
                     VALUES(nextval('meters.user_sequence'), ?, ?, ?, ?);
-                """,
-            user.getUsername(), user.getPassword(), user.getEmail(), user.getRole().name()
-        );
-        user = jdbcTemplate.query("""
-                    SELECT id, username, password, email, role
-                    FROM meters.users
-                    where username = ?;
-            """, extractor, user.getUsername());
+                """, Statement.RETURN_GENERATED_KEYS
+            );
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, email);
+            ps.setString(4, role);
+            return ps;
+        }, keyHolder);
+        user.setId((Long) keyHolder.getKeys().get("id"));
         return user;
     }
 
