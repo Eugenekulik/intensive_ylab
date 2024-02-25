@@ -4,12 +4,12 @@ import by.eugenekulik.dto.MetersDataRequestDto;
 import by.eugenekulik.dto.MetersDataResponseDto;
 import by.eugenekulik.service.MetersDataService;
 import by.eugenekulik.starter.audit.annotation.Auditable;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +30,7 @@ public class MetersDataController {
      */
     @GetMapping
     @Auditable
-    @RolesAllowed("ADMIN")
+    @Secured("ADMIN")
     @ResponseStatus(HttpStatus.OK)
     public Iterable<MetersDataResponseDto> getPage(@PageableDefault Pageable pageable){
         return metersDataService.getPage(pageable);

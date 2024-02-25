@@ -4,10 +4,10 @@ import by.eugenekulik.dto.MetersTypeRequestDto;
 import by.eugenekulik.dto.MetersTypeResponseDto;
 import by.eugenekulik.service.MetersTypeService;
 import by.eugenekulik.starter.audit.annotation.Auditable;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -39,7 +39,7 @@ public class MetersTypeController {
      */
     @PostMapping
     @Auditable
-    @RolesAllowed("ADMIN")
+    @Secured("ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     public MetersTypeResponseDto create(@Valid @RequestBody MetersTypeRequestDto metersTypeRequestDto) {
         return metersTypeService.create(metersTypeRequestDto);

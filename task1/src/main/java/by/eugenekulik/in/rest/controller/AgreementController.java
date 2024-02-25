@@ -4,12 +4,12 @@ import by.eugenekulik.dto.AgreementRequestDto;
 import by.eugenekulik.dto.AgreementResponseDto;
 import by.eugenekulik.service.AgreementService;
 import by.eugenekulik.starter.audit.annotation.Auditable;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,7 +29,7 @@ public class AgreementController {
      */
     @GetMapping
     @Auditable
-    @RolesAllowed("ADMIN")
+    @Secured("ADMIN")
     @ResponseStatus(HttpStatus.OK)
     public Iterable<AgreementResponseDto> getPage(@PageableDefault Pageable pageable) {
         return agreementService.getPage(pageable);
@@ -43,7 +43,7 @@ public class AgreementController {
      */
     @PostMapping
     @Auditable
-    @RolesAllowed("ADMIN")
+    @Secured("ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     public AgreementResponseDto create(@Valid @RequestBody AgreementRequestDto agreementRequestDto){
         return agreementService.create(agreementRequestDto);
