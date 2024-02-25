@@ -25,7 +25,7 @@ public class AgreementController {
      * Retrieves a paginated list of agreements.
      *
      * @param pageable The pageable configuration for pagination.
-     * @return iterable of agreements.
+     * @return Iterable of agreements.
      */
     @GetMapping
     @Auditable
