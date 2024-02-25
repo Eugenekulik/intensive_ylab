@@ -3,6 +3,8 @@ package by.eugenekulik.integration;
 
 import by.eugenekulik.dto.MetersTypeRequestDto;
 import by.eugenekulik.dto.MetersTypeResponseDto;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,81 +31,104 @@ class MetersTypeTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Nested
+    @DisplayName("Positive testing")
+    class Positive {
+        @Test
+        void testGetAll_shouldReturnStatusOkAllMetersData() {
+            RequestEntity<Void> request =
+                RequestEntity.get("",Map.of("page", 0, "size", 3))
+                    .headers(headerUtils.withClientToken())
+                    .build();
 
-    @Test
-    void testGetAll_shouldReturnStatusOkAllMetersData() {
-        RequestEntity<Void> request =
-            RequestEntity.get("",Map.of("page", 0, "size", 3))
-            .headers(headerUtils.withClientToken())
-            .build();
+            ResponseEntity<MetersTypeResponseDto[]> response = restTemplate
+                .exchange("/meters-type",HttpMethod.GET, request,  MetersTypeResponseDto[].class);
 
-        ResponseEntity<MetersTypeResponseDto[]> response = restTemplate
-            .exchange("/meters-type",HttpMethod.GET, request,  MetersTypeResponseDto[].class);
+            assertNotNull(response.getBody());
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertThat(response.getBody())
+                .hasSize(3)
+                .anyMatch(metersTypeResponseDto -> metersTypeResponseDto.name().equals("warm_water"))
+                .anyMatch(metersTypeResponseDto -> metersTypeResponseDto.name().equals("cold_water"))
+                .anyMatch(metersTypeResponseDto -> metersTypeResponseDto.name().equals("heating"));
+        }
 
-        assertNotNull(response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertThat(response.getBody())
-            .hasSize(3)
-            .anyMatch(metersTypeResponseDto -> metersTypeResponseDto.name().equals("warm_water"))
-            .anyMatch(metersTypeResponseDto -> metersTypeResponseDto.name().equals("cold_water"))
-            .anyMatch(metersTypeResponseDto -> metersTypeResponseDto.name().equals("heating"));
+        @Test
+        void testCreationMetersType_shouldReturnStatusCreatedAndBodyWithCreatedMetersType_whenMetersTypeValid() {
+            MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
+            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
+                .headers(headerUtils.withAdminToken())
+                .body(metersTypeRequestDto);
+
+            ResponseEntity<MetersTypeResponseDto> response = restTemplate
+                .exchange("/meters-type", HttpMethod.POST, request, MetersTypeResponseDto.class);
+
+            assertNotNull(response.getBody());
+            assertEquals(HttpStatus.CREATED, response.getStatusCode());
+            assertThat(response.getBody())
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("name", "electric");
+        }
     }
 
-    @Test
-    void testCreationMetersType_shouldReturnStatusCreatedAndBodyWithCreatedMetersType_whenMetersTypeValid() {
-        MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
-        RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
-            .headers(headerUtils.withAdminToken())
-            .body(metersTypeRequestDto);
+    @Nested
+    @DisplayName("Bad request")
+    class BadRequest {
+        @Test
+        void testCreationMetersType_shouldReturnStatusBadRequest_whenMetersTypeNotValid() {
+            MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric*43");
+            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
+                .headers(headerUtils.withAdminToken())
+                .body(metersTypeRequestDto);
 
-        ResponseEntity<MetersTypeResponseDto> response = restTemplate
-            .exchange("/meters-type", HttpMethod.POST, request, MetersTypeResponseDto.class);
+            ResponseEntity<String> response = restTemplate
+                .exchange("/meters-type", HttpMethod.POST, request, String.class);
 
-        assertNotNull(response.getBody());
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertThat(response.getBody())
-            .hasNoNullFieldsOrProperties()
-            .hasFieldOrPropertyWithValue("name", "electric");
+            assertNotNull(response.getBody());
+            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        }
     }
 
-    @Test
-    void testCreationMetersType_shouldReturnStatusBadRequest_whenMetersTypeNotValid() {
-        MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric*43");
-        RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
-            .headers(headerUtils.withAdminToken())
-            .body(metersTypeRequestDto);
+    @Nested
+    @DisplayName("Security")
+    class Security{
+        @Test
+        void testGetPage_shouldReturnStatusForbidden_whenAnonymousUser(){
 
-        ResponseEntity<String> response = restTemplate
-            .exchange("/meters-type", HttpMethod.POST, request, String.class);
+            ResponseEntity<String> response = restTemplate
+                .getForEntity("/meters-type", String.class);
 
-        assertNotNull(response.getBody());
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            assertNotNull(response);
+            assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        }
+
+        @Test
+        void testCreationMetersType_shouldReturnStatusForbidden_whenUserWithRoleClient() {
+            MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
+            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
+                .headers(headerUtils.withClientToken())
+                .body(metersTypeRequestDto);
+
+            ResponseEntity<String> response = restTemplate
+                .exchange("/meters-type", HttpMethod.POST, request, String.class);
+
+            assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        }
+
+        @Test
+        void testCreationMetersType_shouldReturnStatusForbidden_whenAnonymousUser() {
+            MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
+            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
+                .body(metersTypeRequestDto);
+
+            ResponseEntity<String> response = restTemplate
+                .exchange("/meters-type", HttpMethod.POST, request, String.class);
+
+            assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        }
     }
 
-    @Test
-    void testCreationMetersType_shouldReturnStatusForbidden_whenUserWithRoleClient() {
-        MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
-        RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
-            .headers(headerUtils.withClientToken())
-            .body(metersTypeRequestDto);
 
-        ResponseEntity<String> response = restTemplate
-            .exchange("/meters-type", HttpMethod.POST, request, String.class);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    }
-
-    @Test
-    void testCreationMetersType_shouldReturnStatusForbidden_whenAnonymousUser() {
-        MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
-        RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
-            .body(metersTypeRequestDto);
-
-        ResponseEntity<String> response = restTemplate
-            .exchange("/meters-type", HttpMethod.POST, request, String.class);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-    }
 
 
 }

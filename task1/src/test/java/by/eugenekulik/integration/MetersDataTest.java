@@ -1,6 +1,8 @@
 package by.eugenekulik.integration;
 
 import by.eugenekulik.dto.MetersDataResponseDto;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,21 +29,23 @@ class MetersDataTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Test
-    void testGetPage_shouldReturnStatusOkAndBodyWithPageOfMetersData_whenUserWithRoleAdmin(){
-        RequestEntity<Void> request = RequestEntity.get("", Map.of("page", 0, "size", 10))
-            .headers(headerUtils.withAdminToken())
-            .build();
+    @Nested
+    @DisplayName("Positive testing")
+    class Positive {
+        @Test
+        void testGetPage_shouldReturnStatusOkAndBodyWithPageOfMetersData_whenUserWithRoleAdmin(){
+            RequestEntity<Void> request = RequestEntity.get("", Map.of("page", 0, "size", 10))
+                .headers(headerUtils.withAdminToken())
+                .build();
 
-        ResponseEntity<MetersDataResponseDto[]> response = restTemplate
-            .exchange("/meters-data", HttpMethod.GET, request, MetersDataResponseDto[].class);
+            ResponseEntity<MetersDataResponseDto[]> response = restTemplate
+                .exchange("/meters-data", HttpMethod.GET, request, MetersDataResponseDto[].class);
 
-        assertNotNull(response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertThat(response.getBody())
-            .hasSize(1)
-            .anyMatch(md -> md.id().equals(1L) && md.metersTypeId().equals(1L));
+            assertNotNull(response.getBody());
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertThat(response.getBody())
+                .hasSize(1)
+                .anyMatch(md -> md.id().equals(1L) && md.metersTypeId().equals(1L));
+        }
     }
-
-
 }
