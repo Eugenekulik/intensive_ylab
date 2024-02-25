@@ -26,7 +26,7 @@ public class MetersDataController {
      * Retrieves a page of meters data for administrators.
      *
      * @param pageable The pagination information.
-     * @return ResponseEntity containing a page of meters data.
+     * @return Iterable containing a page of meters data.
      */
     @GetMapping
     @Auditable
