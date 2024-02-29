@@ -7,6 +7,9 @@ import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.service.MetersDataMapper;
+import by.eugenekulik.tag.UnitTest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
+@UnitTest
 @WebAppConfiguration
 class MetersDataServiceImplTest {
 
@@ -40,104 +44,104 @@ class MetersDataServiceImplTest {
     @Mock
     private MetersDataMapper mapper;
 
+    @Nested
+    @DisplayName("Positive testing")
+    class Positive {
+        @Test
+        void testCreate_shouldSaveMetersData_whenConditionsAreMet() {
+            MetersData metersData = mock(MetersData.class);
+            MetersDataRequestDto metersDataRequestDto = mock(MetersDataRequestDto.class);
+            MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
 
-    @Test
-    void testCreate_shouldSaveMetersData_whenConditionsAreMet() {
-        MetersData metersData = mock(MetersData.class);
-        MetersDataRequestDto metersDataRequestDto = mock(MetersDataRequestDto.class);
-        MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
+            when(metersData.getPlacedAt()).thenReturn(LocalDateTime.now());
+            when(metersDataRepository.findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any()))
+                .thenReturn(Optional.empty());
+            when(metersDataRepository.save(metersData))
+                .thenReturn(metersData);
+            when(mapper.fromMetersDataDto(metersDataRequestDto)).thenReturn(metersData);
+            when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
 
-        when(metersData.getPlacedAt()).thenReturn(LocalDateTime.now());
-        when(metersDataRepository.findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any()))
-            .thenReturn(Optional.empty());
-        when(metersDataRepository.save(metersData))
-            .thenReturn(metersData);
-        when(mapper.fromMetersDataDto(metersDataRequestDto)).thenReturn(metersData);
-        when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
+            assertEquals(metersDataResponseDto, metersDataService.create(metersDataRequestDto));
 
-        assertEquals(metersDataResponseDto, metersDataService.create(metersDataRequestDto));
+            verify(metersDataRepository).findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any());
+            verify(metersDataRepository).save(metersData);
+        }
 
-        verify(metersDataRepository).findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any());
-        verify(metersDataRepository).save(metersData);
+        @Test
+        void testFindLastByAgreementAndType_shouldReturnMetersData_whenExists() {
+            Long agreementId = 1L;
+            String type = "type";
+            MetersType metersType = MetersType.builder().id(1L).build();
+            MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
+            MetersData metersData = mock(MetersData.class);
+
+            when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
+            when(metersTypeRepository.findByName(type)).thenReturn(Optional.of(metersType));
+            when(metersDataRepository.findLastByAgreementAndType(agreementId, 1L))
+                .thenReturn(Optional.of(metersData));
+
+            assertEquals(metersDataResponseDto, metersDataService
+                .findLastByAgreementAndType(agreementId,type));
+
+            verify(metersDataRepository).findLastByAgreementAndType(agreementId, 1L);
+            verify(metersTypeRepository).findByName(type);
+        }
+
+        @Test
+        void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
+            Pageable pageable = PageRequest.ofSize(1);
+            MetersData metersData = mock(MetersData.class);
+            MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
+            List<MetersData> metersDataList = List.of(metersData);
+
+            when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
+            when(metersDataRepository.getPage(pageable)).thenReturn(metersDataList);
+
+            assertThat(metersDataService.getPage(pageable))
+                .hasSize(1)
+                .first()
+                .isEqualTo(metersDataResponseDto);
+
+            verify(metersDataRepository).getPage(pageable);
+        }
     }
 
-    @Test
-    void testCreate_shouldThrowException_whenReadingsAlreadySubmittedThisMonth() {
-        MetersData metersData = mock(MetersData.class);
-        MetersDataRequestDto metersDataRequestDto = mock(MetersDataRequestDto.class);
+    @Nested
+    @DisplayName("Negative testing")
+    class Negative {
+        @Test
+        void testCreate_shouldThrowException_whenReadingsAlreadySubmittedThisMonth() {
+            MetersData metersData = mock(MetersData.class);
+            MetersDataRequestDto metersDataRequestDto = mock(MetersDataRequestDto.class);
 
-        when(mapper.fromMetersDataDto(metersDataRequestDto)).thenReturn(metersData);
-        when(metersData.getPlacedAt()).thenReturn(LocalDateTime.now());
-        when(metersDataRepository.findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any()))
-            .thenReturn(Optional.of(new MetersData()));
+            when(mapper.fromMetersDataDto(metersDataRequestDto)).thenReturn(metersData);
+            when(metersData.getPlacedAt()).thenReturn(LocalDateTime.now());
+            when(metersDataRepository.findByAgreementAndTypeAndMonth(anyLong(), anyLong(), any()))
+                .thenReturn(Optional.of(new MetersData()));
 
-        assertThrows(IllegalArgumentException.class, () -> metersDataService.create(metersDataRequestDto));
+            assertThrows(IllegalArgumentException.class, () -> metersDataService.create(metersDataRequestDto));
 
-        verify(metersDataRepository).findByAgreementAndTypeAndMonth(
-            metersData.getAgreementId(),
-            metersData.getMetersTypeId(),
-            metersData.getPlacedAt().toLocalDate()
-        );
-        verify(metersDataRepository, never()).save(any());
+            verify(metersDataRepository).findByAgreementAndTypeAndMonth(
+                metersData.getAgreementId(),
+                metersData.getMetersTypeId(),
+                metersData.getPlacedAt().toLocalDate()
+            );
+            verify(metersDataRepository, never()).save(any());
+        }
+
+        @Test
+        void testFindLastByAgreementAndType_shouldThrowException_whenNotExists() {
+            Long agreementId = 1L;
+            MetersType metersType = MetersType.builder().id(1L).name("type").build();
+
+            when(metersDataRepository.findLastByAgreementAndType(agreementId, metersType.getId()))
+                .thenReturn(Optional.empty());
+            when(metersTypeRepository.findByName(metersType.getName())).thenReturn(Optional.of(metersType));
+            assertThrows(IllegalArgumentException.class,()-> metersDataService
+                    .findLastByAgreementAndType(agreementId, metersType.getName()),
+                "not found metersData");
+
+            verify(metersDataRepository).findLastByAgreementAndType(agreementId, metersType.getId());
+        }
     }
-
-
-
-
-
-
-    @Test
-    void testFindLastByAgreementAndType_shouldReturnMetersData_whenExists() {
-        Long agreementId = 1L;
-        String type = "type";
-        MetersType metersType = MetersType.builder().id(1L).build();
-        MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
-        MetersData metersData = mock(MetersData.class);
-
-        when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
-        when(metersTypeRepository.findByName(type)).thenReturn(Optional.of(metersType));
-        when(metersDataRepository.findLastByAgreementAndType(agreementId, 1L))
-            .thenReturn(Optional.of(metersData));
-
-        assertEquals(metersDataResponseDto, metersDataService
-            .findLastByAgreementAndType(agreementId,type));
-
-        verify(metersDataRepository).findLastByAgreementAndType(agreementId, 1L);
-        verify(metersTypeRepository).findByName(type);
-    }
-
-    @Test
-    void testFindLastByAgreementAndType_shouldThrowException_whenNotExists() {
-        Long agreementId = 1L;
-        MetersType metersType = MetersType.builder().id(1L).name("type").build();
-
-        when(metersDataRepository.findLastByAgreementAndType(agreementId, metersType.getId()))
-            .thenReturn(Optional.empty());
-        when(metersTypeRepository.findByName(metersType.getName())).thenReturn(Optional.of(metersType));
-        assertThrows(IllegalArgumentException.class,()-> metersDataService
-                .findLastByAgreementAndType(agreementId, metersType.getName()),
-            "not found metersData");
-
-        verify(metersDataRepository).findLastByAgreementAndType(agreementId, metersType.getId());
-    }
-
-
-    @Test
-    void testGetPage_shouldReturnCorrectPage_whenPageAndCountAreValid() {
-        Pageable pageable = PageRequest.ofSize(1);
-        MetersData metersData = mock(MetersData.class);
-        MetersDataResponseDto metersDataResponseDto = mock(MetersDataResponseDto.class);
-        List<MetersData> metersDataList = List.of(metersData);
-
-        when(mapper.fromMetersData(metersData)).thenReturn(metersDataResponseDto);
-        when(metersDataRepository.getPage(pageable)).thenReturn(metersDataList);
-
-        assertThat(metersDataService.getPage(pageable))
-            .hasSize(1)
-            .first()
-            .isEqualTo(metersDataResponseDto);
-
-        verify(metersDataRepository).getPage(pageable);
-    }
-
 }

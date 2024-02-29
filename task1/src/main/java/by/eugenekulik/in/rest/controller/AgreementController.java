@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/agreement", produces = "application/json")
+@RequestMapping(value = "/agreements", produces = "application/json")
 public class AgreementController {
     private final AgreementService agreementService;
 

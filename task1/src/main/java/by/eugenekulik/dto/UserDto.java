@@ -17,14 +17,4 @@ public record UserDto(
     @NotNull
     String email,
     @NotNull
-    String role) {
-    @Override
-    public String toString() {
-        return "UserDto{" +
-            "id=" + id +
-            ", username='" + username + '\'' +
-            ", email='" + email + '\'' +
-            ", role='" + role + '\'' +
-            '}';
-    }
-}
+    String role) {}

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/meters-type", produces = "application/json")
+@RequestMapping(value = "/meters-types", produces = "application/json")
 public class MetersTypeController {
     private final MetersTypeService metersTypeService;
 

@@ -9,12 +9,4 @@ public record AgreementRequestDto(
     Long userId,
     @NotNull
     @Positive
-    Long addressId) {
-    @Override
-    public String toString() {
-        return "AgreementRequestDto{" +
-            "userId=" + userId +
-            ", addressId=" + addressId +
-            '}';
-    }
-}
+    Long addressId) {}

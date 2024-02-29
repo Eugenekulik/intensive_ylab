@@ -5,6 +5,9 @@ import by.eugenekulik.dto.MetersTypeResponseDto;
 import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.service.MetersTypeMapper;
+import by.eugenekulik.tag.UnitTest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
+@UnitTest
 @WebAppConfiguration
 class MetersTypeServiceImplTest {
 
@@ -31,78 +35,84 @@ class MetersTypeServiceImplTest {
     @Mock
     private MetersTypeMapper mapper;
 
+    @Nested
+    @DisplayName("Positive testing")
+    class Positive {
+        @Test
+        void testCreate_shouldSaveMetersType_whenNotExists() {
+            MetersType metersType = mock(MetersType.class);
+            MetersTypeRequestDto metersTypeRequestDto = mock(MetersTypeRequestDto.class);
+            MetersTypeResponseDto metersTypeResponseDto = mock(MetersTypeResponseDto.class);
 
-    @Test
-    void testCreate_shouldSaveMetersType_whenNotExists() {
-        MetersType metersType = mock(MetersType.class);
-        MetersTypeRequestDto metersTypeRequestDto = mock(MetersTypeRequestDto.class);
-        MetersTypeResponseDto metersTypeResponseDto = mock(MetersTypeResponseDto.class);
+            when(metersTypeRepository.save(metersType)).thenReturn(metersType);
+            when(mapper.fromMetersTypeDto(metersTypeRequestDto)).thenReturn(metersType);
+            when(mapper.fromMetersType(metersType)).thenReturn(metersTypeResponseDto);
 
-        when(metersTypeRepository.save(metersType)).thenReturn(metersType);
-        when(mapper.fromMetersTypeDto(metersTypeRequestDto)).thenReturn(metersType);
-        when(mapper.fromMetersType(metersType)).thenReturn(metersTypeResponseDto);
+            assertEquals(metersTypeResponseDto, metersTypeService.create(metersTypeRequestDto));
 
-        assertEquals(metersTypeResponseDto, metersTypeService.create(metersTypeRequestDto));
+            verify(metersTypeRepository).save(metersType);
+        }
 
-        verify(metersTypeRepository).save(metersType);
-    }
+        @Test
+        void testFindByName_shouldReturnMetersType_whenExists() {
+            String metersTypeName = "warm_water";
+            MetersType metersType = mock(MetersType.class);
+            MetersTypeResponseDto metersTypeResponseDto = mock(MetersTypeResponseDto.class);
 
-    @Test
-    void testCreate_shouldThrowException_whenExists() {
-        MetersType metersType = mock(MetersType.class);
-        MetersTypeRequestDto metersTypeRequestDto = mock(MetersTypeRequestDto.class);
+            when(mapper.fromMetersType(metersType)).thenReturn(metersTypeResponseDto);
+            when(metersTypeRepository.findByName(metersTypeName)).thenReturn(Optional.of(metersType));
 
-        when(mapper.fromMetersTypeDto(metersTypeRequestDto)).thenReturn(metersType);
-        when(metersTypeRepository.save(metersType))
-            .thenThrow(RuntimeException.class);
+            assertEquals(metersTypeResponseDto, metersTypeService.findByName(metersTypeName));
 
-        assertThrows(RuntimeException.class, () -> metersTypeService.create(metersTypeRequestDto));
+            verify(metersTypeRepository).findByName(metersTypeName);
+        }
 
-        verify(metersTypeRepository).save(metersType);
-    }
+        @Test
+        void testFindAll_shouldReturnAllMetersTypes() {
+            MetersType metersType = mock(MetersType.class);
+            MetersTypeResponseDto metersDataResponseDto = mock(MetersTypeResponseDto.class);
+            List<MetersType> metersTypes = List.of(metersType);
 
-    @Test
-    void testFindByName_shouldReturnMetersType_whenExists() {
-        String metersTypeName = "warm_water";
-        MetersType metersType = mock(MetersType.class);
-        MetersTypeResponseDto metersTypeResponseDto = mock(MetersTypeResponseDto.class);
+            when(mapper.fromMetersType(metersType)).thenReturn(metersDataResponseDto);
+            when(metersTypeRepository.findAll()).thenReturn(metersTypes);
 
-        when(mapper.fromMetersType(metersType)).thenReturn(metersTypeResponseDto);
-        when(metersTypeRepository.findByName(metersTypeName)).thenReturn(Optional.of(metersType));
-
-        assertEquals(metersTypeResponseDto, metersTypeService.findByName(metersTypeName));
-
-        verify(metersTypeRepository).findByName(metersTypeName);
-    }
-
-    @Test
-    void testFindByName_shouldThrowException_whenNotExists() {
-        String name = "electric";
-
-        when(metersTypeRepository.findByName(name)).thenReturn(Optional.empty());
-
-        assertThrows(IllegalArgumentException.class,
-            () -> metersTypeService.findByName(name),
-            "not found metersType with name: " + name);
-
-        verify(metersTypeRepository).findByName(name);
-    }
-
-    @Test
-    void testFindAll_shouldReturnAllMetersTypes() {
-        MetersType metersType = mock(MetersType.class);
-        MetersTypeResponseDto metersDataResponseDto = mock(MetersTypeResponseDto.class);
-        List<MetersType> metersTypes = List.of(metersType);
-
-        when(mapper.fromMetersType(metersType)).thenReturn(metersDataResponseDto);
-        when(metersTypeRepository.findAll()).thenReturn(metersTypes);
-
-        assertThat(metersTypeService.findAll())
-            .hasSize(1)
+            assertThat(metersTypeService.findAll())
+                .hasSize(1)
                 .first()
-                    .isEqualTo(metersDataResponseDto);
+                .isEqualTo(metersDataResponseDto);
 
-        verify(metersTypeRepository).findAll();
+            verify(metersTypeRepository).findAll();
+        }
     }
 
+    @Nested
+    @DisplayName("Negative testing")
+    class Negative {
+        @Test
+        void testCreate_shouldThrowException_whenExists() {
+            MetersType metersType = mock(MetersType.class);
+            MetersTypeRequestDto metersTypeRequestDto = mock(MetersTypeRequestDto.class);
+
+            when(mapper.fromMetersTypeDto(metersTypeRequestDto)).thenReturn(metersType);
+            when(metersTypeRepository.save(metersType))
+                .thenThrow(RuntimeException.class);
+
+            assertThrows(RuntimeException.class, () -> metersTypeService.create(metersTypeRequestDto));
+
+            verify(metersTypeRepository).save(metersType);
+        }
+
+        @Test
+        void testFindByName_shouldThrowException_whenNotExists() {
+            String name = "electric";
+
+            when(metersTypeRepository.findByName(name)).thenReturn(Optional.empty());
+
+            assertThrows(IllegalArgumentException.class,
+                () -> metersTypeService.findByName(name),
+                "not found metersType with name: " + name);
+
+            verify(metersTypeRepository).findByName(name);
+        }
+    }
 }

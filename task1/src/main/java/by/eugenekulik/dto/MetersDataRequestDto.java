@@ -13,13 +13,4 @@ public record MetersDataRequestDto(
     Long metersTypeId,
     @NotNull
     @PositiveOrZero
-    Double value) {
-    @Override
-    public String toString() {
-        return "MetersDataRequestDto{" +
-            "agreementId=" + agreementId +
-            ", metersTypeId=" + metersTypeId +
-            ", value=" + value +
-            '}';
-    }
-}
+    Double value) {}

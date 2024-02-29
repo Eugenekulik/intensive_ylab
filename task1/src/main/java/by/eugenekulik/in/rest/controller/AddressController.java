@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * AddressController handles HTTP requests related to addresses.
  */
 @RestController
-@RequestMapping(value = "/address", produces = "application/json")
+@RequestMapping(value = "/addresses", produces = "application/json")
 @RequiredArgsConstructor
 public class AddressController {
     private final AddressService addressService;

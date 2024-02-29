@@ -1,26 +1,25 @@
-package by.eugenekulik.integration;
+package by.eugenekulik.e2e;
 
 import by.eugenekulik.dto.MetersDataResponseDto;
+import by.eugenekulik.tag.E2ETest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(classes = IntegrationTestConfig.class)
+@ContextConfiguration(classes = E2ETestConfig.class)
+@E2ETest
 class MetersDataTest {
 
     @Autowired
@@ -34,12 +33,12 @@ class MetersDataTest {
     class Positive {
         @Test
         void testGetPage_shouldReturnStatusOkAndBodyWithPageOfMetersData_whenUserWithRoleAdmin(){
-            RequestEntity<Void> request = RequestEntity.get("", Map.of("page", 0, "size", 10))
+            RequestEntity<Void> request = RequestEntity.get("/meters-data")
                 .headers(headerUtils.withAdminToken())
                 .build();
 
             ResponseEntity<MetersDataResponseDto[]> response = restTemplate
-                .exchange("/meters-data", HttpMethod.GET, request, MetersDataResponseDto[].class);
+                .exchange(request, MetersDataResponseDto[].class);
 
             assertNotNull(response.getBody());
             assertEquals(HttpStatus.OK, response.getStatusCode());

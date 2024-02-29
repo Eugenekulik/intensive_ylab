@@ -1,4 +1,4 @@
-package by.eugenekulik.integration;
+package by.eugenekulik.e2e;
 
 import by.eugenekulik.security.JwtProvider;
 import lombok.RequiredArgsConstructor;

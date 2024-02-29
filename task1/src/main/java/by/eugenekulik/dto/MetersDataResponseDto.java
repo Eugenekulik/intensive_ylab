@@ -8,15 +8,4 @@ public record MetersDataResponseDto (
     Long agreementId,
     Double value,
     LocalDateTime placedAt
-) {
-    @Override
-    public String toString() {
-        return "MetersDataResponseDto{" +
-            "id=" + id +
-            ", metersTypeId=" + metersTypeId +
-            ", agreementId=" + agreementId +
-            ", value=" + value +
-            ", placedAt=" + placedAt +
-            '}';
-    }
-}
+) {}

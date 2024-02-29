@@ -1,4 +1,4 @@
-package by.eugenekulik.integration;
+package by.eugenekulik.e2e;
 
 import by.eugenekulik.security.JwtProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +8,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
-public class IntegrationTestConfig {
+public class E2ETestConfig {
 
     @Value("${server.port}")
     private String port;

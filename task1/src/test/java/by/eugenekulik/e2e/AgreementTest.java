@@ -1,15 +1,15 @@
-package by.eugenekulik.integration;
+package by.eugenekulik.e2e;
 
 
 import by.eugenekulik.dto.AgreementRequestDto;
 import by.eugenekulik.dto.AgreementResponseDto;
+import by.eugenekulik.tag.E2ETest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(classes = IntegrationTestConfig.class)
+@ContextConfiguration(classes = E2ETestConfig.class)
+@E2ETest
 class AgreementTest {
 
     @Autowired
@@ -38,12 +39,12 @@ class AgreementTest {
                 new AgreementRequestDto(3L, 2L);
 
             RequestEntity<AgreementRequestDto> request = RequestEntity
-                .post("")
+                .post("/agreement")
                 .headers(headerUtils.withAdminToken())
                 .body(requestDto);
 
             ResponseEntity<AgreementResponseDto> response =
-                restTemplate.exchange("/agreement", HttpMethod.POST, request, AgreementResponseDto.class);
+                restTemplate.exchange(request, AgreementResponseDto.class);
 
             assertNotNull(response);
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -57,12 +58,12 @@ class AgreementTest {
 
         @Test
         void testGetPage_shouldReturnStatusOkAndBodyPageOfAgreement_whenUserWithRoleAdmin() {
-            RequestEntity<Void> request = RequestEntity.get("")
+            RequestEntity<Void> request = RequestEntity.get("/agreement")
                 .headers(headerUtils.withAdminToken())
                 .build();
 
             ResponseEntity<AgreementResponseDto[]> response =
-                restTemplate.exchange("/agreement", HttpMethod.GET, request, AgreementResponseDto[].class);
+                restTemplate.exchange(request, AgreementResponseDto[].class);
 
             assertNotNull(response.getBody());
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -83,12 +84,12 @@ class AgreementTest {
                 new AgreementRequestDto(5L, 1L);
 
             RequestEntity<AgreementRequestDto> request = RequestEntity
-                .post("")
+                .post("/agreement")
                 .headers(headerUtils.withAdminToken())
                 .body(requestDto);
 
             ResponseEntity<String> response =
-                restTemplate.exchange("/agreement", HttpMethod.POST, request, String.class);
+                restTemplate.exchange(request, String.class);
 
             assertNotNull(response);
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -100,12 +101,12 @@ class AgreementTest {
                 new AgreementRequestDto(2L,    5L);
 
             RequestEntity<AgreementRequestDto> request = RequestEntity
-                .post("")
+                .post("/agreement")
                 .headers(headerUtils.withAdminToken())
                 .body(requestDto);
 
             ResponseEntity<String> response =
-                restTemplate.exchange("/agreement", HttpMethod.POST, request, String.class);
+                restTemplate.exchange(request, String.class);
 
             assertNotNull(response);
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -121,12 +122,12 @@ class AgreementTest {
                 new AgreementRequestDto(3L,    2L);
 
             RequestEntity<AgreementRequestDto> request = RequestEntity
-                .post("")
+                .post("/agreement")
                 .headers(headerUtils.withClientToken())
                 .body(requestDto);
 
             ResponseEntity<String> response =
-                restTemplate.exchange("/agreement", HttpMethod.POST, request, String.class);
+                restTemplate.exchange(request, String.class);
 
             assertNotNull(response);
             assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -138,11 +139,11 @@ class AgreementTest {
                 new AgreementRequestDto(3L,    2L);
 
             RequestEntity<AgreementRequestDto> request = RequestEntity
-                .post("")
+                .post("/agreement")
                 .body(requestDto);
 
             ResponseEntity<String> response =
-                restTemplate.exchange("/agreement", HttpMethod.POST, request, String.class);
+                restTemplate.exchange(request, String.class);
 
             assertNotNull(response);
             assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -150,12 +151,12 @@ class AgreementTest {
 
         @Test
         void testGetPage_shouldReturnStatusForbidden_whenUserWithRoleClient() {
-            RequestEntity<Void> request = RequestEntity.get("")
+            RequestEntity<Void> request = RequestEntity.get("/agreement")
                 .headers(headerUtils.withClientToken())
                 .build();
 
             ResponseEntity<String> response =
-                restTemplate.exchange("/agreement", HttpMethod.GET, request, String.class);
+                restTemplate.exchange(request, String.class);
 
             assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         }

@@ -1,6 +1,5 @@
-package by.eugenekulik.service;
+package by.eugenekulik.exception;
 
-import by.eugenekulik.exception.AuthenticationException;
 import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +23,11 @@ public class CustomExceptionHandler {
     @ExceptionHandler(PSQLException.class)
     public ResponseEntity<String> handlePSQLException(PSQLException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException ex){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
 }

@@ -21,17 +21,4 @@ public record AddressRequestDto(
     String house,
     @NotNull
     @Pattern(regexp = "[a-z0-9]+")
-    String apartment) {
-
-    @Override
-    public String toString() {
-        return "AddressRequestDto{" +
-            "region='" + region + '\'' +
-            ", district='" + district + '\'' +
-            ", city='" + city + '\'' +
-            ", street='" + street + '\'' +
-            ", house='" + house + '\'' +
-            ", apartment='" + apartment + '\'' +
-            '}';
-    }
-}
+    String apartment) {}

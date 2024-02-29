@@ -1,28 +1,27 @@
-package by.eugenekulik.integration;
+package by.eugenekulik.e2e;
 
 
 import by.eugenekulik.dto.MetersTypeRequestDto;
 import by.eugenekulik.dto.MetersTypeResponseDto;
+import by.eugenekulik.tag.E2ETest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(classes = IntegrationTestConfig.class)
+@ContextConfiguration(classes = E2ETestConfig.class)
+@E2ETest
 class MetersTypeTest {
 
     @Autowired
@@ -37,12 +36,12 @@ class MetersTypeTest {
         @Test
         void testGetAll_shouldReturnStatusOkAllMetersData() {
             RequestEntity<Void> request =
-                RequestEntity.get("",Map.of("page", 0, "size", 3))
+                RequestEntity.get("/meters-type")
                     .headers(headerUtils.withClientToken())
                     .build();
 
             ResponseEntity<MetersTypeResponseDto[]> response = restTemplate
-                .exchange("/meters-type",HttpMethod.GET, request,  MetersTypeResponseDto[].class);
+                .exchange(request, MetersTypeResponseDto[].class);
 
             assertNotNull(response.getBody());
             assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -56,12 +55,12 @@ class MetersTypeTest {
         @Test
         void testCreationMetersType_shouldReturnStatusCreatedAndBodyWithCreatedMetersType_whenMetersTypeValid() {
             MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
-            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
+            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("/meters-type")
                 .headers(headerUtils.withAdminToken())
                 .body(metersTypeRequestDto);
 
             ResponseEntity<MetersTypeResponseDto> response = restTemplate
-                .exchange("/meters-type", HttpMethod.POST, request, MetersTypeResponseDto.class);
+                .exchange(request, MetersTypeResponseDto.class);
 
             assertNotNull(response.getBody());
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -77,12 +76,12 @@ class MetersTypeTest {
         @Test
         void testCreationMetersType_shouldReturnStatusBadRequest_whenMetersTypeNotValid() {
             MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric*43");
-            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
+            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("/meters-type")
                 .headers(headerUtils.withAdminToken())
                 .body(metersTypeRequestDto);
 
             ResponseEntity<String> response = restTemplate
-                .exchange("/meters-type", HttpMethod.POST, request, String.class);
+                .exchange(request, String.class);
 
             assertNotNull(response.getBody());
             assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -105,12 +104,12 @@ class MetersTypeTest {
         @Test
         void testCreationMetersType_shouldReturnStatusForbidden_whenUserWithRoleClient() {
             MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
-            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
+            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("/meters-type")
                 .headers(headerUtils.withClientToken())
                 .body(metersTypeRequestDto);
 
             ResponseEntity<String> response = restTemplate
-                .exchange("/meters-type", HttpMethod.POST, request, String.class);
+                .exchange(request, String.class);
 
             assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         }
@@ -118,11 +117,11 @@ class MetersTypeTest {
         @Test
         void testCreationMetersType_shouldReturnStatusForbidden_whenAnonymousUser() {
             MetersTypeRequestDto metersTypeRequestDto = new MetersTypeRequestDto("electric");
-            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("")
+            RequestEntity<MetersTypeRequestDto> request = RequestEntity.post("/meters-type")
                 .body(metersTypeRequestDto);
 
             ResponseEntity<String> response = restTemplate
-                .exchange("/meters-type", HttpMethod.POST, request, String.class);
+                .exchange(request, String.class);
 
             assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         }
