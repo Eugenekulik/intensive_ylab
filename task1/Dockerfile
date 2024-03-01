@@ -1,5 +1,7 @@
-FROM tomcat:jre17-temurin-jammy
+FROM openjdk:17-jre-slim
 
-COPY ylab.war /usr/local/tomcat/webapps/
+VOLUME /tmp
 
-CMD ["catalina.sh", "run"]
+COPY target/.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]

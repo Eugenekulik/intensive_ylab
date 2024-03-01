@@ -7,7 +7,7 @@ import by.eugenekulik.out.dao.MetersDataRepository;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.service.MetersDataMapper;
 import by.eugenekulik.service.MetersDataService;
-import by.eugenekulik.service.annotation.Timed;
+import by.eugenekulik.starter.logging.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

@@ -34,6 +34,7 @@ public class AgreementExtractor implements ResultSetExtractor<Agreement> {
             agreement.setId(resultSet.getLong("id"));
             agreement.setUserId(resultSet.getLong("user_id"));
             agreement.setAddressId(resultSet.getLong("address_id"));
+            agreement.setActive(resultSet.getBoolean("active"));
         }
         return agreement;
     }

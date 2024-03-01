@@ -16,13 +16,4 @@ public record RegistrationDto(
     @Email
     @NotNull
     String email
-) {
-    @Override
-    public String toString() {
-        return "RegistrationDto{" +
-            "username='" + username + '\'' +
-            ", password='" + password + '\'' +
-            ", email='" + email + '\'' +
-            '}';
-    }
-}
+) {}

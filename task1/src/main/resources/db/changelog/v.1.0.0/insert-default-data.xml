@@ -14,9 +14,16 @@
         </insert>
         <insert tableName="users" schemaName="meters">
             <column name="id" valueNumeric="2"/>
-            <column name="username" value="user"/>
+            <column name="username" value="user1"/>
             <column name="password" value="$2a$12$7PCjGS5ZbK.9qENSusEQ1uMM3bA3FTybhWaoD5Z8/zRRNZ5qGoZwG"/>
             <column name="email" value="user@mail.ru"/>
+            <column name="role" value="CLIENT"/>
+        </insert>
+        <insert tableName="users" schemaName="meters">
+            <column name="id" valueNumeric="3"/>
+            <column name="username" value="user2"/>
+            <column name="password" value="$2a$12$7PCjGS5ZbK.9qENSusEQ1uMM3bA3FTybhWaoD5Z8/zRRNZ5qGoZwG"/>
+            <column name="email" value="user2@mail.ru"/>
             <column name="role" value="CLIENT"/>
         </insert>
         <insert tableName="meters_type" schemaName="meters">
@@ -39,6 +46,15 @@
             <column name="street" value="Baikalskay"/>
             <column name="house" value="61"/>
             <column name="apartment" value="42"/>
+        </insert>
+        <insert tableName="address" schemaName="meters">
+            <column name="id" valueNumeric="2"/>
+            <column name="region" value="Minsk region"/>
+            <column name="district" value="Minsk district"/>
+            <column name="city" value="Minsk"/>
+            <column name="street" value="Nezavisimosti"/>
+            <column name="house" value="100"/>
+            <column name="apartment" value="10"/>
         </insert>
         <insert tableName="agreement" schemaName="meters">
             <column name="id" valueNumeric="1"/>

@@ -4,11 +4,15 @@ import by.eugenekulik.model.Address;
 import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.AddressExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
-import by.eugenekulik.service.annotation.Loggable;
+import by.eugenekulik.starter.logging.annotation.Loggable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,21 +52,29 @@ public class JdbcAddressRepository implements AddressRepository {
     @Override
     @Loggable
     public Address save(Address address) {
-        jdbcTemplate.update(
-            """
-                    INSERT INTO meters.address(id,region, district, city, street, house, apartment)
-                    VALUES(nextval('meters.address_sequence'),?, ?, ?, ?, ?, ?);
-                """,
-            address.getRegion(), address.getDistrict(), address.getCity(),
-            address.getStreet(), address.getHouse(), address.getApartment()
-        );
-        address = jdbcTemplate.query("""
-                        SELECT id, region, district, city, street, house, apartment
-                        FROM meters.address
-                        where region = ? and district = ? and city = ?
-                        and street = ? and house = ? and apartment = ?;
-                """, extractor, address.getRegion(), address.getDistrict(), address.getCity(),
-            address.getStreet(), address.getHouse(), address.getApartment());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        String region = address.getRegion();
+        String district = address.getDistrict();
+        String city = address.getCity();
+        String street = address.getStreet();
+        String house = address.getHouse();
+        String apartment = address.getApartment();
+        jdbcTemplate.update(con -> {
+                PreparedStatement ps = con.prepareStatement(
+                    """
+                            INSERT INTO meters.address(id,region, district, city, street, house, apartment)
+                            VALUES(nextval('meters.address_sequence'),?, ?, ?, ?, ?, ?);
+                        """, Statement.RETURN_GENERATED_KEYS
+                );
+                ps.setString(1, region);
+                ps.setString(2, district);
+                ps.setString(3, city);
+                ps.setString(4, street);
+                ps.setString(5, house);
+                ps.setString(6, apartment);
+                return ps;
+            }, keyHolder);
+        address.setId((Long) keyHolder.getKeys().get("id"));
         return address;
     }
 

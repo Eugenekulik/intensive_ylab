@@ -1,0 +1,13 @@
+region;district;city;street;house;apartment
+;district;city;street;10b;42a
+region;;city;street;10b;42a
+region;district;;street;10b;42a
+region;district;city;;10b;42a
+region;district;city;street;;42a
+region;district;city;street;10b;
+regio10n;district;city;street;10b;42a
+region;distri1ct;city;street;10b;42a
+region;district;cit34y;street;10b;42a
+region;district;city;stre34et;10b;42a
+region;district;city;street;10_b;42a
+region;district;city;street;10b;42_a

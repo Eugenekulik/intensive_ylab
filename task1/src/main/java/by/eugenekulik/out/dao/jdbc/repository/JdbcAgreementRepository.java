@@ -4,12 +4,16 @@ import by.eugenekulik.model.Agreement;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.AgreementExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
-import by.eugenekulik.service.annotation.Loggable;
+import by.eugenekulik.starter.logging.annotation.Loggable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +43,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     public Optional<Agreement> findById(Long id) {
         return Optional.ofNullable(jdbcTemplate.query(
             """
-                    SELECT id, user_id, address_id
+                    SELECT id, user_id, address_id, active
                     FROM meters.agreement
                     WHERE id = ?;
                 """, extractor, id));
@@ -48,16 +52,23 @@ public class JdbcAgreementRepository implements AgreementRepository {
     @Override
     @Loggable
     public Agreement save(Agreement agreement) {
-        jdbcTemplate.update(
-            """
+        Long userId = agreement.getUserId();
+        Long addressId = agreement.getAddressId();
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                """
                     INSERT INTO meters.agreement(id,user_id, address_id)
                     VALUES(nextval('meters.agreement_sequence'), ?, ?);
-                """, agreement.getUserId(), agreement.getAddressId());
-        agreement = jdbcTemplate.query("""
-                    SELECT id, user_id, address_id
-                    FROM meters.agreement
-                    WHERE user_id = ? and address_id = ?;
-            """, extractor, agreement.getUserId(), agreement.getAddressId());
+                """,
+                Statement.RETURN_GENERATED_KEYS
+            );
+            ps.setLong(1, userId);
+            ps.setLong(2, addressId);
+            return ps;
+        }, keyHolder);
+        agreement.setActive((Boolean) keyHolder.getKeys().get("active"));
+        agreement.setId((Long) keyHolder.getKeys().get("id"));
         return agreement;
     }
 
@@ -66,7 +77,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     public List<Agreement> findByUserIdAndAddressId(Long userId, Long addressId) {
         return jdbcTemplate.query(
             """
-                    SELECT id, user_id, address_id
+                    SELECT id, user_id, address_id, active
                     FROM meters.agreement
                     WHERE user_id = ? and address_id = ?;
                 """, new ListExtractor<>(extractor), userId, addressId);
@@ -77,7 +88,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     public List<Agreement> getPage(Pageable pageable) {
         return jdbcTemplate.query(
             """
-                    SELECT id, user_id, address_id
+                    SELECT id, user_id, address_id, active
                     FROM meters.agreement
                     ORDER BY id
                     LIMIT ?
@@ -92,7 +103,7 @@ public class JdbcAgreementRepository implements AgreementRepository {
     public List<Agreement> findByUserId(Long userId, Pageable pageable) {
         return jdbcTemplate.query(
             """
-                    SELECT id, user_id, address_id
+                    SELECT id, user_id, address_id, active
                     FROM meters.agreement
                     WHERE user_id = ?
                     LIMIT ?

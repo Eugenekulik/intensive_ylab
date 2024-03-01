@@ -4,9 +4,8 @@ import by.eugenekulik.dto.AddressRequestDto;
 import by.eugenekulik.dto.AddressResponseDto;
 import by.eugenekulik.out.dao.AddressRepository;
 import by.eugenekulik.service.AddressMapper;
-import by.eugenekulik.service.annotation.Auditable;
-import by.eugenekulik.service.annotation.Timed;
 import by.eugenekulik.service.AddressService;
+import by.eugenekulik.starter.logging.annotation.Timed;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +64,6 @@ public class AddressServiceImpl implements AddressService {
     /**
      * {@inheritDoc}
      */
-    @Auditable
     @Override
     @Timed
     public AddressResponseDto findById(long id) {

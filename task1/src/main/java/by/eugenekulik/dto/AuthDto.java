@@ -12,12 +12,4 @@ public record AuthDto(
     @NotNull
     @Length(min = 8, max = 128)
     String password
-) {
-    @Override
-    public String toString() {
-        return "AuthDto{" +
-            "username='" + username + '\'' +
-            ", password='" + password + '\'' +
-            '}';
-    }
-}
+) {}

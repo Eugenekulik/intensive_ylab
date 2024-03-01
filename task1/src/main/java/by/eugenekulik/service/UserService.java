@@ -13,6 +13,11 @@ import java.util.List;
 public interface UserService {
 
 
+    /**
+     * Retrieves a userDto of current user.
+     *
+     * @return UserDto with info of current user.
+     */
     UserDto currentUser();
     /**
      * Retrieves a paginated list of UserDto objects.

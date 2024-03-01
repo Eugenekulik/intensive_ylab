@@ -5,7 +5,7 @@ import by.eugenekulik.dto.AgreementResponseDto;
 import by.eugenekulik.out.dao.AgreementRepository;
 import by.eugenekulik.service.AgreementMapper;
 import by.eugenekulik.service.AgreementService;
-import by.eugenekulik.service.annotation.Timed;
+import by.eugenekulik.starter.logging.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

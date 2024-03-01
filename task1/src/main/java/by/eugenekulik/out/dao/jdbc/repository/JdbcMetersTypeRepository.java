@@ -4,10 +4,15 @@ import by.eugenekulik.model.MetersType;
 import by.eugenekulik.out.dao.MetersTypeRepository;
 import by.eugenekulik.out.dao.jdbc.extractor.ListExtractor;
 import by.eugenekulik.out.dao.jdbc.extractor.MetersTypeExtractor;
-import by.eugenekulik.service.annotation.Loggable;
+import by.eugenekulik.starter.logging.annotation.Loggable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,15 +27,12 @@ import java.util.Optional;
  * @see JdbcTemplate
  */
 @Repository
+@RequiredArgsConstructor
 public class JdbcMetersTypeRepository implements MetersTypeRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private MetersTypeExtractor extractor;
+    private final MetersTypeExtractor extractor;
 
-    public JdbcMetersTypeRepository(JdbcTemplate jdbcTemplate, MetersTypeExtractor extractor) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.extractor = extractor;
-    }
 
     @Override
     @Loggable
@@ -57,17 +59,19 @@ public class JdbcMetersTypeRepository implements MetersTypeRepository {
     @Override
     @Loggable
     public MetersType save(MetersType metersType) {
-        jdbcTemplate.update(
-            """
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        String name = metersType.getName();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                """
                     INSERT INTO meters.meters_type(id, name)
                     VALUES(nextval('meters.meters_type_sequence'), ?);
-                """,
-            metersType.getName());
-        metersType = jdbcTemplate.query("""
-                    SELECT id, name
-                    FROM meters.meters_type
-                    WHERE name = ?;
-            """, extractor, metersType.getName());
+                """, Statement.RETURN_GENERATED_KEYS
+            );
+            ps.setString(1, name);
+            return ps;
+        }, keyHolder);
+        metersType.setId((Long) keyHolder.getKeys().get("id"));
         return metersType;
     }
 
